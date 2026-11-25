@@ -71,6 +71,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .node{background:var(--lac);border:1px solid #4a3a2e;border-left:6px solid var(--c);border-radius:8px;padding:14px 8px;color:var(--par);text-align:center}
 .node b{display:block;color:var(--gold);font-family:'Noto Serif',serif}
 .node:disabled{opacity:.35;cursor:not-allowed}.node.done{opacity:.6}
+.node.farm{border:1px dashed var(--gold);opacity:1}
 .node.cur:not(:disabled){box-shadow:0 0 0 2px var(--gold)}
 #nodes{display:flex;flex-direction:column;gap:12px}
 
@@ -422,22 +423,26 @@ $('#go-save').onclick=e=>{const ok=saveGame();refreshMenu();e.currentTarget.text
 $('#go-cont').onclick=async()=>{const raw=await cloudRaw();if(loadGame(raw))mapShow()};
 $('#go-del').onclick=()=>{try{localStorage.removeItem(SK_KEY)}catch(e){}cloudDel();CLOUD_HAS=false;refreshMenu()};
 $('#m-save').onclick=e=>{const ok=saveGame();e.currentTarget.textContent=ok?'Đã lưu ✓':'Không lưu được';setTimeout(()=>e.currentTarget.textContent='Lưu game',1200)};
+function farmChaps(){const d=new Set();if(S.mode=='boss'||!S.nodes.length)return d;
+ let c=S.cur<0?Math.max(...S.nodes.map(n=>n.ch)):S.cur>0?S.nodes[S.cur-1].ch:-1;
+ if(c<0)return d;d.add(c);if(c>0)d.add(c-1);return d}
 function mapShow(){saveGame();show('map');$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
+ const farm=farmChaps();
  const out=CHAP.map((c,ch)=>{const idx=S.nodes.map((n,i)=>i).filter(i=>S.nodes[i].ch==ch);
-  const done=idx.every(i=>S.nodes[i].done),ex=!!S.exp[ch],fold=done&&!ex;
+  const done=idx.every(i=>S.nodes[i].done),ex=!!S.exp[ch],fold=done&&!ex&&!farm.has(ch);
   const h=document.createElement('div');h.className='chap'+(idx.some(i=>i==S.cur)?' open':'')+(done?' fin':'');
-  h.innerHTML=`<h3>${ch+1}. ${c.t} <small>(${c.y})</small>${done?' ✔':''}</h3>`+(fold?'':`<p>${c.b}</p>`);
+  h.innerHTML=`<h3>${ch+1}. ${c.t} <small>(${c.y})</small>${done?' ✔':''}${farm.has(ch)?' 🔁 farm':''}</h3>`+(fold?'':`<p>${c.b}</p>`);
   if(done)h.onclick=()=>{S.exp[ch]=!ex;mapShow()};
   if(!fold){const g=document.createElement('div');g.className='stages';
-   idx.forEach((i,k)=>{const n=S.nodes[i];const b=document.createElement('button');b.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');
-    b.style.setProperty('--c','var(--'+n.f+')');b.disabled=n.done||i!=S.cur;
-    b.innerHTML=`<b>${n.boss?'★ ':''}Ải ${k+1}</b><small>${FN[n.f]}${n.done?' · '+'★'.repeat(n.stars):''}</small>`;
+   idx.forEach((i,k)=>{const n=S.nodes[i];const rp=n.done&&farm.has(ch);const b=document.createElement('button');b.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'')+(rp?' farm':'');
+    b.style.setProperty('--c','var(--'+n.f+')');b.disabled=!rp&&i!=S.cur;
+    b.innerHTML=`<b>${n.boss?'★ ':''}${rp?'🔁 ':''}Ải ${k+1}</b><small>${FN[n.f]}${n.done?' · '+'★'.repeat(n.stars):''}</small>`;
     b.onclick=e=>{e.stopPropagation();S.stage=i;openDeck()};g.appendChild(b)});
    h.appendChild(g)}
   return h});
  $('#nodes').replaceChildren(...out)}
-function openDeck(){show('deck');['lc','phe','lv','kd'].forEach(k=>$('#sort-'+k).classList.toggle('on',S.dsort==k));$('#dk-t').textContent=(S.nodes[S.stage].bossIdx!=null?'Thách đấu · ':'Chương '+(S.nodes[S.stage].ch+1)+' · Ải '+(S.nodes[S.stage].k+1)+' · ')+'Chọn tối đa 8 tướng';$('#dk-t').style.color='var(--gold)';
+function openDeck(){show('deck');['lc','phe','lv','kd'].forEach(k=>$('#sort-'+k).classList.toggle('on',S.dsort==k));$('#dk-t').textContent=(S.nodes[S.stage].bossIdx!=null?'Thách đấu · ':'Chương '+(S.nodes[S.stage].ch+1)+' · Ải '+(S.nodes[S.stage].k+1)+' · ')+'Chọn tối đa 8 tướng'+(S.nodes[S.stage].done?' · 🔁 Đánh lại':'');$('#dk-t').style.color='var(--gold)';
  $('#grid').innerHTML=S.own.map((i,k)=>`<button class="pk tr-${C[i].r}" data-k="${k}" style="--r:${RC[C[i].r]}"><img src="${C[i].i}" alt="${C[i].n}" style="width:100%;border-radius:7px;display:block"><div class="st" style="color:${RC[C[i].r]}">${C[i].r} · Lv${S.lv[i]||1} · ⚔${C[i].a} 🛡${C[i].d}</div><span class="ib" data-i="${i}">!</span></button>`).join('');
  document.querySelectorAll('.pk').forEach(b=>b.onclick=()=>{const i=S.own[+b.dataset.k],p=S.team.indexOf(i);foc=i;
   if(p>=0)S.team.splice(p,1);else if(S.team.length<8)S.team.push(i);dkUp()});$('#grid').querySelectorAll('.ib').forEach(x=>x.onclick=e=>{e.stopPropagation();cardInfo(C[+x.dataset.i])});dkUp()}
@@ -1133,9 +1138,9 @@ function xk(c,j){const h=[...c.n].reduce((a,ch)=>a+ch.charCodeAt(0),0);return (h
 function end(w){ambStop();S.team.forEach(gainXp);sfx(w?'win':'lose');say(w?'Quân địch đã bại!':'Toàn quân bị tiêu diệt...');
  setTimeout(()=>{
  if(!w){say('Thất bại. Hãy chỉnh đội hình và thử lại ải này.');return setTimeout(mapShow,1200)}
- const node=S.nodes[S.stage],p=S.me.hero.hp/S.me.hero.mhp;node.done=true;node.stars=p>=.7?3:p>=.35?2:1;if(S.mode=='boss')BP[node.bossIdx]={d:true,s:node.stars};
+ const node=S.nodes[S.stage],p=S.me.hero.hp/S.me.hero.mhp,wasDone=node.done;node.done=true;node.stars=Math.max(node.stars||0,p>=.7?3:p>=.35?2:1);if(S.mode=='boss')BP[node.bossIdx]={d:true,s:node.stars};
  S.cur=S.nodes.findIndex(n=>!n.done);
- if(S.cur<0)return fin(S.mode=='boss'?(S.bgroup=='than'?'Đã hạ gục 3 Thần tướng!':'Đã hạ gục 3 Ma tướng!'):'Thống nhất thiên hạ!',`Đã hoàn thành 20 chương. Tổng sao: ${S.nodes.reduce((a,n)=>a+n.stars,0)}/${S.nodes.length*3}. Tướng sở hữu: ${S.own.length}.`);
+ if(S.cur<0&&!wasDone)return fin(S.mode=='boss'?(S.bgroup=='than'?'Đã hạ gục 3 Thần tướng!':'Đã hạ gục 3 Ma tướng!'):'Thống nhất thiên hạ!',`Đã hoàn thành 20 chương. Tổng sao: ${S.nodes.reduce((a,n)=>a+n.stars,0)}/${S.nodes.length*3}. Tướng sở hữu: ${S.own.length}.`);
  reward()},1400)}
 function fin(t,p){$('#e-t').textContent=t;$('#e-p').textContent=p;show('end')}
 $('#e-b').onclick=()=>show('menu');
