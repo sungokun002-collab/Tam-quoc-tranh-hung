@@ -72,6 +72,20 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .node b{display:block;color:var(--gold);font-family:'Noto Serif',serif}
 .node:disabled{opacity:.35;cursor:not-allowed}.node.done{opacity:.6}
 .node.farm{border:1px dashed var(--gold);opacity:1}
+.treecols{display:flex;gap:6px;overflow-x:auto;padding:2px 0}
+.tcol{display:flex;flex-direction:column;gap:6px;min-width:62px;flex:1}
+.tcol-h{text-align:center;font-size:11px;opacity:.7}
+.tnode{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:62px;padding:6px 2px;background:var(--lac);border:1px solid #4a3a2e;border-radius:10px;color:var(--par);cursor:pointer}
+.tnode .tn-ic{font-size:26px;line-height:1}
+.tnode .tn-cost{font-size:11px;opacity:.8;margin-top:3px}
+.tnode .tn-st{position:absolute;top:2px;right:4px;font-size:11px}
+.tnode.owned{border-color:var(--gold);background:#c9a24b22}
+.tnode.cap{border:2px solid var(--gold)}
+.tnode.cap .tn-ic{font-size:30px}
+.tnode.locked{opacity:.45}
+.tnode.sel{outline:2px solid var(--gold);outline-offset:1px}
+.tdetail{display:flex;gap:10px;align-items:center;background:#0006;border:1px solid #4a3a2e;border-radius:10px;padding:10px;margin:8px 0}
+.tdetail .td-ic{font-size:30px}
 .node.cur:not(:disabled){box-shadow:0 0 0 2px var(--gold)}
 #nodes{display:flex;flex-direction:column;gap:12px}
 
@@ -410,23 +424,23 @@ const TREE={
    {id:'lb28',t:4,n:'Vô Song',d:'Cả đội +8% sức mạnh, +100 máu tối đa mỗi tướng.',c:2,fx:'atk8hp100'}],
    caps:[
    {id:'lb2A',t:5,n:'Long Hồn Phá Quân',d:'CHỦ ĐỘNG · 1 lần/ải: gây sát thương bằng 25% máu tối đa của chủ công lên toàn địch + choáng toàn địch 1 lượt.',c:4,fx:'actPhaQuan',act:1},
-   {id:'lb2P',t:5,n:'Đế Nghiệp Thiên Thu',d:'BỊ ĐỘNG · Cả đội +12% sức mạnh, +12% phòng thủ; vào trận rút thêm 1 thẻ.',c:4,fx:'deNghiep'}]}]},
+   {id:'lb2P',t:5,n:'Đế Nghiệp Thiên Thu',d:'BỊ ĐỘNG · Cả đội +12% sức mạnh, +12% phòng thủ; tướng Thục +5% sức mạnh.',c:4,fx:'deNghiep'},]}]},
  tao:{name:'Tào Tháo',branches:[
   {id:'nguyvu',n:'Ngụy Vũ Thiên Hạ',d:'Sức mạnh quân Ngụy — đội hình càng nhiều tướng Ngụy càng mạnh.',nodes:[
    {id:'tao11',t:1,n:'Tào Gia Quân',d:'Tướng Ngụy +8% sức mạnh.',c:1,fx:'weiAtk8'},
    {id:'tao12',t:1,n:'Hứa Xương',d:'Tướng Ngụy +100 máu tối đa mỗi tướng.',c:1,fx:'weiHp100'},
    {id:'tao13',t:2,n:'Dụng Nhân',d:'Mỗi lần ra 1 tướng Ngụy, tướng Ngụy trên sân +4% sức mạnh đến hết trận (tối đa 5 lần).',c:1,fx:'weiDeployAtk'},
-   {id:'tao14',t:2,n:'Thanh Mai Tửu',d:'Mỗi lần kích duyên có tướng Ngụy, rút thêm 1 thẻ.',c:1,fx:'bondWeiDraw'},
+   {id:'tao14',t:2,n:'Thanh Mai Tửu',d:'Mỗi lần kích duyên có tướng Ngụy, tướng Ngụy +15% sức mạnh 2 lượt.',c:1,fx:'bondWeiBuff'},
    {id:'tao15',t:3,n:'Kiêu Hùng',d:'Tướng Ngụy +12% sức mạnh.',c:2,fx:'weiAtk12'},
    {id:'tao16',t:3,n:'Thiên Hạ Quy Ngụy',d:'Vào trận, tướng Ngụy nhận lá chắn 10% máu tối đa.',c:2,fx:'weiOpenShield'},
-   {id:'tao17',t:4,n:'Nhất Thống',d:'Khi chủ công dùng skill, rút thêm 2 thẻ.',c:2,fx:'lordSkillDraw2'},
+   {id:'tao17',t:4,n:'Nhất Thống',d:'Khi chủ công dùng skill, tướng địch mất 10% sức mạnh 2 lượt.',c:2,fx:'lordSkillWeaken'},
    {id:'tao18',t:4,n:'Ngụy Vương',d:'Chủ công +20 máu tối đa cho mỗi tướng Ngụy trong đội (tối đa +200), +8 thủ.',c:2,fx:'lordDef8'}],
    caps:[
-   {id:'tao1A',t:5,n:'Gian Hùng Lệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội +40% sức mạnh 2 lượt + rút 2 thẻ.',c:4,fx:'actGianHung',act:1},
+   {id:'tao1A',t:5,n:'Gian Hùng Lệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội +40% sức mạnh 2 lượt + toàn đội hồi 15% máu.',c:4,fx:'actGianHung',act:1},
    {id:'tao1P',t:5,n:'Thiên Mệnh Ngụy Vương',d:'BỊ ĐỘNG · Tướng Ngụy +15% sức mạnh, +10% phòng thủ; chủ công +300 máu tối đa.',c:4,fx:'weiKing'}]},
   {id:'quyke',n:'Quỷ Kế Thiên Tử',d:'Dùng mưu thắng lực — đánh vào điểm yếu của địch.',nodes:[
    {id:'tao21',t:1,n:'Phá Giáp',d:'Gây thêm 10% sát thương lên tướng địch có phòng thủ cao hơn sức mạnh.',c:1,fx:'dmgVsTank'},
-   {id:'tao22',t:1,n:'Mưu Sĩ',d:'Mỗi lượt rút thêm 1 thẻ.',c:1,fx:'drawTurn'},
+   {id:'tao22',t:1,n:'Mưu Sĩ',d:'Vào trận, tướng Ngụy +10% sức mạnh trong 2 lượt.',c:1,fx:'weiOpenBuf'},
    {id:'tao23',t:2,n:'Ly Gián',d:'Khi tướng địch chết, tướng địch còn lại mất 10% sức mạnh đến hết trận.',c:1,fx:'deathWeaken'},
    {id:'tao24',t:2,n:'Trảm Tướng',d:'Gây thêm 15% sát thương lên tướng địch dưới 30% máu.',c:1,fx:'dmgExecute'},
    {id:'tao25',t:3,n:'Binh Bất Yếm Trá',d:'Tướng ra trận nhận lá chắn 15% máu tối đa.',c:2,fx:'deployShield15'},
@@ -506,20 +520,20 @@ const TREE={
    {id:'sm24',t:2,n:'Độc Kế',d:'Mỗi lượt của địch, tướng địch có máu thấp nhất mất 3% máu tối đa.',c:1,fx:'enemyLowHpDrain'},
    {id:'sm25',t:3,n:'Vô Hình',d:'Tướng Ngụy ra trận nhận lá chắn 10% máu tối đa.',c:2,fx:'weiDeployShield10'},
    {id:'sm26',t:3,n:'Dĩ Dật Đãi Lao',d:'Mỗi lượt, tướng Ngụy hồi 2% máu tối đa.',c:2,fx:'weiRegen'},
-   {id:'sm27',t:4,n:'Thiên Hạ Đại Loạn',d:'Khi tướng địch chết, rút thêm 1 thẻ.',c:2,fx:'killDraw'},
+   {id:'sm27',t:4,n:'Thiên Hạ Đại Loạn',d:'Khi tướng địch chết, tướng Ngụy +5% sức mạnh đến hết trận (tối đa 3 lần).',c:2,fx:'weiKillAtk'},
    {id:'sm28',t:4,n:'Tư Mã Thiên Hạ',d:'Cả đội +10% sức mạnh, +5% phòng thủ.',c:2,fx:'atk10def5'}],
    caps:[
    {id:'sm2A',t:5,n:'Quỷ Mưu Diệt Quốc',d:'CHỦ ĐỘNG · 1 lần/ải: toàn địch mất 15% máu tối đa + kỹ năng toàn địch bị đẩy lùi 2.',c:4,fx:'actQuyMuu',act:1},
-   {id:'sm2P',t:5,n:'Ngụy Tấn',d:'BỊ ĐỘNG · Tướng Ngụy +12% sức mạnh, +12% phòng thủ; mỗi lượt rút thêm 1 thẻ.',c:4,fx:'weiAtk12def12Draw'}]}]},
+   {id:'sm2P',t:5,n:'Ngụy Tấn',d:'BỊ ĐỘNG · Tướng Ngụy +12% sức mạnh, +12% phòng thủ; tướng Ngụy nhận ít hơn 5% sát thương.',c:4,fx:'weiAtk12def12Dr5'},]}]},
  gcl:{name:'Gia Cát Lượng',branches:[
   {id:'batquai',n:'Bát Quái',d:'Khống chế kỹ năng địch — biết địch sắp ra chiêu gì và chặn trước.',nodes:[
    {id:'gcl11',t:1,n:'Ngũ Hành',d:'Tướng Thục +8% phòng thủ.',c:1,fx:'shuDef8'},
    {id:'gcl12',t:1,n:'Ngọa Long',d:'Chủ công +150 máu tối đa và +1 tích lũy lúc vào trận.',c:1,fx:'lordHp150Lg1'},
-   {id:'gcl13',t:2,n:'Thiên Nhãn',d:'Mỗi lần kích duyên, rút thêm 1 thẻ.',c:1,fx:'bondDraw'},
+   {id:'gcl13',t:2,n:'Thiên Nhãn',d:'Mỗi lần kích duyên, kỹ năng của toàn đội nạp thêm 1.',c:1,fx:'bondCharge'},
    {id:'gcl14',t:2,n:'Bát Quái Trận',d:'Mỗi lượt, kỹ năng của tướng Thục nạp thêm 1.',c:1,fx:'shuChargeAura'},
    {id:'gcl15',t:3,n:'Thần Toán',d:'Tay bài tối đa +2 (7 thẻ).',c:2,fx:'handPlus2'},
-   {id:'gcl16',t:3,n:'Diệu Toán',d:'Vào trận rút thêm 2 thẻ.',c:2,fx:'openDraw2'},
-   {id:'gcl17',t:4,n:'Khổng Minh',d:'Khi chủ công dùng skill, đẩy lùi kỹ năng của toàn địch thêm 1 (tổng 2) + rút 1 thẻ.',c:2,fx:'lordSkillDelay2Draw'},
+   {id:'gcl16',t:3,n:'Diệu Toán',d:'Vào trận, tướng Thục nhận lá chắn 10% máu tối đa.',c:2,fx:'shuOpenShield'},
+   {id:'gcl17',t:4,n:'Khổng Minh',d:'Khi chủ công dùng skill, đẩy lùi kỹ năng của toàn địch thêm 1 (tổng 2) + toàn đội hồi 10% máu.',c:2,fx:'lordSkillDelay2Heal'},
    {id:'gcl18',t:4,n:'Thục Hán Quân Sư',d:'Tướng Thục +10% sức mạnh, +10% phòng thủ.',c:2,fx:'shuAtk10def10'}],
    caps:[
    {id:'gcl1A',t:5,n:'Bát Quái Đồ',d:'CHỦ ĐỘNG · 1 lần/ải: đẩy lùi kỹ năng của toàn địch 2 + choáng toàn địch 1 lượt.',c:4,fx:'actBatQuai',act:1},
@@ -534,8 +548,8 @@ const TREE={
    {id:'gcl27',t:4,n:'Vô Vi',d:'Chủ công +300 máu tối đa, mỗi lượt hồi 2% máu tối đa.',c:2,fx:'lordHp300Regen2'},
    {id:'gcl28',t:4,n:'Thiên Hạ Tam Phân',d:'Khi có ít nhất 3 tướng Thục trên sân, tướng Thục +12% sức mạnh (làm mới mỗi lượt).',c:2,fx:'shuTrioAtk'}],
    caps:[
-   {id:'gcl2A',t:5,n:'Thiên Mệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội hồi 30% máu + rút 3 thẻ + kỹ năng toàn đội nạp đầy ngay.',c:4,fx:'actThienMenh',act:1},
-   {id:'gcl2P',t:5,n:'Vạn Cổ Quân Sư',d:'BỊ ĐỘNG · Tướng Thục +15% sức mạnh; mỗi lượt rút thêm 1 thẻ.',c:4,fx:'shuAtk15Draw'}]}]}
+   {id:'gcl2A',t:5,n:'Thiên Mệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội hồi 30% máu + toàn đội +30% sức mạnh 2 lượt + kỹ năng toàn đội nạp đầy ngay.',c:4,fx:'actThienMenh',act:1},
+   {id:'gcl2P',t:5,n:'Vạn Cổ Quân Sư',d:'BỊ ĐỘNG · Tướng Thục +15% sức mạnh; mỗi lần kích duyên có tướng Thục, tướng Thục +5% sức mạnh đến hết trận (tối đa 5 lần).',c:4,fx:'shuBondAtk'},]}]}
 };
 const TREE_TIER_REQ={1:0,2:2,3:4,4:8,5:12};
 const TNODE={};Object.values(TREE).forEach(L=>L.branches.forEach(b=>[...b.nodes,...b.caps].forEach(n=>TNODE[n.id]=n)));
@@ -565,7 +579,7 @@ function applyTreeFx(u){treeIds().forEach(id=>{const f=(TNODE[id]||{}).fx,cf=u.c
  else if(f=='def5')def(1.05);else if(f=='def8')def(1.08);else if(f=='def10')def(1.10);else if(f=='def12')def(1.12);
  else if(f=='hp100')hp(100);
  else if(f=='atk8hp100'){atk(1.08);hp(100)}else if(f=='atk8def8'){atk(1.08);def(1.08)}else if(f=='atk10def5'){atk(1.10);def(1.05)}else if(f=='atk10def10'){atk(1.10);def(1.10)}else if(f=='atk12def12'){atk(1.12);def(1.12)}else if(f=='def10hp100'){def(1.10);hp(100)}
- else if(f=='thienTu')atk(1.10);else if(f=='deNghiep'){atk(1.12);def(1.12)}
+ else if(f=='thienTu')atk(1.10);else if(f=='deNghiep'){atk(1.12);def(1.12);if(cf=='shu')atk(1.05)}
  else if(f=='weiAtk8'&&cf=='wei')atk(1.08);else if(f=='weiAtk10'&&cf=='wei')atk(1.10);else if(f=='weiAtk12'&&cf=='wei')atk(1.12);else if(f=='weiAtk15'&&cf=='wei')atk(1.15);
  else if(f=='weiDef8'&&cf=='wei')def(1.08);else if(f=='weiDef10'&&cf=='wei')def(1.10);else if(f=='weiDef12'&&cf=='wei')def(1.12);
  else if(f=='weiHp100'&&cf=='wei')hp(100);
@@ -588,12 +602,10 @@ function applyTreeFx(u){treeIds().forEach(id=>{const f=(TNODE[id]||{}).fx,cf=u.c
  else if(f=='wuDr10lordHp400'&&cf=='wu')u.drR=Math.min(u.drR||1,0.9);
  else if(f=='wuAtk12def12lordHp300'&&cf=='wu'){atk(1.12);def(1.12)}
  else if(f=='weiDr12Atk10'&&cf=='wei'){u.drR=Math.min(u.drR||1,0.88);atk(1.10)}
- else if(f=='weiAtk12def12Draw'&&cf=='wei'){atk(1.12);def(1.12)}
+ else if(f=='weiAtk12def12Dr5'&&cf=='wei'){atk(1.12);def(1.12);u.drR=Math.min(u.drR||1,0.95)}
  else if(f=='shuAtk12def12Fast'&&cf=='shu'){atk(1.12);def(1.12)}
- else if(f=='shuAtk15Draw'&&cf=='shu')atk(1.15);
+ else if(f=='shuBondAtk'&&cf=='shu')atk(1.15);
  else if(f=='weiKing'&&cf=='wei'){atk(1.15);def(1.10)}})}
-// Rút bài, tôn trọng tay bài tối đa (5 + node tăng tay).
-function treeDraw(s,k){const cap=s===S.me?5+(treeHas('tq22')?1:0)+(treeHas('gcl15')?2:0):5;for(let n=0;n<k&&s.deck.length&&s.hand.length<cap;n++)s.hand.push(s.deck.shift())}
 function treeHasAct(){return !!TREE[S.lord]&&TREE[S.lord].branches.flatMap(b=>b.caps).some(a=>a.act&&treeHas(a.id))}
 function treeActReady(){if((S.tg||0)<3||!TREE[S.lord])return false;const u=S.treeUsed||{};return TREE[S.lord].branches.flatMap(b=>b.caps).some(a=>a.act&&treeHas(a.id)&&!u[a.id])}
 function treeGrant(){if(!S.nodes||!S.nodes.length||S.mode=='boss')return 0;S.tpGot=S.tpGot||[];S.tp=S.tp||0;let got=0;
@@ -612,7 +624,7 @@ function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S
  const burnAll=(n,bd)=>{foes.forEach(x=>{x.burn=n;x.bd=Math.round(x.mhp*bd)})};
  if(id=='lb1A'){al.forEach(a=>{healU(a,Math.round(a.mhp*.4));a.buf=Math.max(a.buf,2);a.bp=1.3;upd(a)});s.hero.sh=(s.hero.sh||0)+Math.round(s.hero.mhp*.3);fl(s.hero,'🛡',1);upd(s.hero);say('Thục Hán Trung Hưng: toàn quân hồi phục!')}
  else if(id=='lb2A'){foes.forEach(x=>{hit(x,Math.round(s.hero.mhp*.25));x.stun=1;upd(x)});say('Long Hồn Phá Quân!')}
- else if(id=='tao1A'){al.forEach(a=>{a.buf=Math.max(a.buf,2);a.bp=1.4;upd(a)});treeDraw(s,2);say('Gian Hùng Lệnh: toàn quân tăng sức mạnh!')}
+ else if(id=='tao1A'){al.forEach(a=>{a.buf=Math.max(a.buf,2);a.bp=1.4;healU(a,Math.round(a.mhp*.15));upd(a)});say('Gian Hùng Lệnh: toàn quân tăng sức mạnh!')}
  else if(id=='tao2A'){foes.forEach(x=>{hit(x,Math.round(s.hero.mhp*.2));x.wk=2;x.wkp=.8;upd(x)});say('Ngụy Đế Lệnh!')}
  else if(id=='tk1A'){foes.forEach(x=>hit(x,Math.round(x.mhp*.15)));burnAll(3,.04);say('Hỏa Thiêu Xích Bích!')}
  else if(id=='tk2A'){al.forEach(a=>{a.buf=Math.max(a.buf,2);a.bp=1.35;upd(a)});foes.forEach(x=>hit(x,Math.round(x.mhp*.1)));say('Hổ Gầm Giang Đông!')}
@@ -621,24 +633,36 @@ function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S
  else if(id=='sm1A'){foes.forEach(x=>{x.stun=2;hit(x,Math.round(x.mhp*.12));upd(x)});say('Thiên Mệnh Phế Lập!')}
  else if(id=='sm2A'){foes.forEach(x=>{hit(x,Math.round(x.mhp*.15));x.n=Math.max(0,x.n-2);upd(x)});say('Quỷ Mưu Diệt Quốc!')}
  else if(id=='gcl1A'){foes.forEach(x=>{x.n=Math.max(0,x.n-2);x.stun=1;upd(x)});say('Bát Quái Đồ!')}
- else if(id=='gcl2A'){al.forEach(a=>{healU(a,Math.round(a.mhp*.3));a.n=a.cd;upd(a)});treeDraw(s,3);say('Thiên Mệnh: toàn quân hồi phục!')}
+ else if(id=='gcl2A'){al.forEach(a=>{healU(a,Math.round(a.mhp*.3));a.n=a.cd;a.buf=Math.max(a.buf,2);a.bp=1.3;upd(a)});say('Thiên Mệnh: toàn quân hồi phục!')}
  draw()}
+
+const TREE_IC={healShu:'🌿',lordHp150:'💗',healLow:'💗',bondHeal:'💞',lordRegen:'💓',atk8:'⚔️',lordSkillShield:'🛡️',lordHp300Def8:'💗',actTrungHung:'👑',thienTu:'👑',atk5:'⚔️',def5:'🛡️',lordDmg10:'🎯',killAtk:'💀',openBuf:'📯',fastSkill:'⏳',openCharge:'⚡',atk8hp100:'💪',actPhaQuan:'🐉',deNghiep:'👑',weiAtk8:'⚔️',weiHp100:'💗',weiDeployAtk:'🪖',bondWeiBuff:'📯',weiAtk12:'⚔️',weiOpenShield:'🛡️',lordSkillWeaken:'🌀',lordDef8:'🛡️',actGianHung:'👑',weiKing:'👑',dmgVsTank:'🔨',weiOpenBuf:'📯',deathWeaken:'🌀',dmgExecute:'🗡️',deployShield15:'🛡️',weiChargeAura:'⏳',lordDr10:'🛡️',def10hp100:'💪',actNguyDe:'👑',lordHp400:'💗',burnBoost:'🔥',lordHp200wuHp100:'💗',burnSpread:'🔥',bondBurn:'🔥',dmgVsBurn:'🔥',openBurn:'🔥',lordSkillBurn:'🔥',wuAtk10def10:'💪',actXichBich:'🔥',burnDoubleWuAtk12:'🔥',wuAtk8:'⚔️',wuDef8:'🛡️',firstDeployAtk:'🐅',dmgVsSmaller:'🎯',killHeal:'❤️',wuFastSkill:'⏳',wuDef12hp100:'💪',openLg1:'⚡',actHoGam:'🐅',wuAtk15lordHp300:'👑',wuDr5:'🛡️',lordHp200shield100:'🛡️',lordShieldTurn:'🛡️',bondShield:'🛡️',wuLowShield:'🛡️',wuHp100def5:'💪',lordSkillHeal15:'❤️',lordDef10:'🛡️',actThietBich:'🛡️',wuDr10lordHp400:'🛡️',wuDmgVsStatus:'🎯',handPlus1:'🃏',bondWuBuff:'📯',wuDeployAmbush:'🗡️',wuAtk10def5:'💪',wuChargeAura:'⏳',wuDeathAtk:'💀',atk8def8:'💪',actNgoDe:'👑',wuAtk12def12lordHp300:'👑',weiDef8:'🛡️',lordHp250Def5:'💗',deathStunAdj:'💫',bondDelay:'⏳',enemyDelay:'⏳',weiAtk10def10:'💪',lordSkillStun2:'💫',openLg2:'⚡',actPheLap:'👑',weiDr12Atk10:'🛡️',dmgVsStun:'💫',dmgVsStronger:'🎯',weiDeathStun:'💫',enemyLowHpDrain:'🩸',weiDeployShield10:'🛡️',weiRegen:'💓',weiKillAtk:'💀',atk10def5:'💪',actQuyMuu:'👑',weiAtk12def12Dr5:'🛡️',shuDef8:'🛡️',lordHp150Lg1:'💗',bondCharge:'⏳',shuChargeAura:'⏳',handPlus2:'🃏',shuOpenShield:'🛡️',lordSkillDelay2Heal:'❤️',shuAtk10def10:'💪',actBatQuai:'👑',shuAtk12def12Fast:'💪',shuAtk8:'⚔️',dmgVsReady:'🎯',shuHp100:'💗',killLordHeal:'❤️',shuDeathHeal:'❤️',shuOpenBuf:'📯',lordHp300Regen2:'💓',shuTrioAtk:'⚔️',actThienMenh:'👑',shuBondAtk:'📯'};
 function treeShow(){show('tree');const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
  if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
  const body=$('#tree-body');body.innerHTML='';
+ const sel=S.treeSel?TNODE[S.treeSel]:null;
+ const det=document.createElement('div');det.className='tdetail';
+ if(!sel){det.innerHTML='<div><b>Chạm vào 1 icon để xem chi tiết skill.</b><br><small>Mỗi nhánh có 5 cột (tầng 1 → 5). Icon viền vàng là skill cuối, ✓ là đã mua, 🔒 là chưa mở.</small></div>'}
+ else{const br=L.branches.find(b=>[...b.nodes,...b.caps].some(n=>n.id==sel.id));const owned=treeHas(sel.id),can=!owned&&treeCanBuy(sel,br.id),need=TREE_TIER_REQ[sel.t];
+  det.innerHTML=`<div class="td-ic">${TREE_IC[sel.fx]||'✦'}</div><div><b>${sel.n}</b> <span class="chip">Tầng ${sel.t} · ${sel.c} điểm</span><br>${sel.d}<br><small>${owned?'✓ Đã mua':can?'Có thể mua':(S.tp||0)<sel.c?'Thiếu điểm (cần '+sel.c+')':'Cần '+need+' điểm nhánh'}</small></div>`;
+  if(can){const bb=document.createElement('button');bb.className='btn';bb.textContent='Mua';bb.dataset.id=sel.id;bb.onclick=()=>{if(!treeCanBuy(sel,br.id))return;S.tp-=sel.c;S.tree=S.tree||{};S.tree[S.lord]=S.tree[S.lord]||[];S.tree[S.lord].push(sel.id);saveGame();treeShow()};det.appendChild(bb)}}
+ body.appendChild(det);
  L.branches.forEach(br=>{
   const wrap=document.createElement('div');wrap.className='chap';
   const spent=treeSpent(br.id);
   wrap.innerHTML=`<h3>🌳 ${br.n} <span style="opacity:.7;font-size:12px">· đã dùng ${spent} điểm nhánh</span></h3><p style="opacity:.85;margin:2px 0 8px">${br.d}</p>`;
-  const grid=document.createElement('div');grid.className='stages';
-  [...br.nodes,...br.caps].forEach(n=>{
-   const owned=treeHas(n.id),can=treeCanBuy(n,br.id),need=TREE_TIER_REQ[n.t];
-   const b=document.createElement('button');b.className='node'+(owned?' done':'')+(n.act?' cap':'');
-   b.innerHTML=`<b>${owned?'✓ ':''}${n.n}</b><br><small>Tầng ${n.t} · ${n.c} điểm</small><br><small>${n.d}</small>${!owned&&!can?`<br><small style="opacity:.7">${(S.tp||0)<n.c?'Thiếu điểm':'Cần '+need+' điểm nhánh'}</small>`:''}`;
-   b.disabled=!owned&&!can;
-   b.onclick=()=>{if(!treeCanBuy(n,br.id))return;S.tp-=n.c;S.tree=S.tree||{};S.tree[S.lord]=S.tree[S.lord]||[];S.tree[S.lord].push(n.id);saveGame();treeShow()};
-   grid.appendChild(b)});
-  wrap.appendChild(grid);body.appendChild(wrap)})}
+  const cols=document.createElement('div');cols.className='treecols';
+  for(let tier=1;tier<=5;tier++){
+   const col=document.createElement('div');col.className='tcol';
+   const lab=document.createElement('div');lab.className='tcol-h';lab.textContent='T'+tier;col.appendChild(lab);
+   [...br.nodes,...br.caps].filter(n=>n.t===tier).forEach(n=>{
+    const owned=treeHas(n.id),can=treeCanBuy(n,br.id);
+    const b=document.createElement('button');b.className='tnode'+(owned?' owned':'')+(n.act?' cap':'')+(!owned&&!can?' locked':'')+(S.treeSel===n.id?' sel':'');b.dataset.id=n.id;
+    b.innerHTML=`<span class="tn-ic">${TREE_IC[n.fx]||'✦'}</span><span class="tn-cost">${n.c}đ</span>${owned?'<span class="tn-st">✓</span>':!can?'<span class="tn-st">🔒</span>':''}`;
+    b.onclick=()=>{S.treeSel=n.id;treeShow()};
+    col.appendChild(b)});
+   cols.appendChild(col)}
+  wrap.appendChild(cols);body.appendChild(wrap)})}
 function treeReset(){const L=TREE[S.lord];if(!L)return;const spent=L.branches.reduce((a,b)=>a+treeSpent(b.id),0);if(!spent)return;S.tp=(S.tp||0)+spent;S.tree[S.lord]=[];saveGame();treeShow();say('🌳 Đã reset cây kỹ năng, hoàn lại '+spent+' điểm')}
 
 // MENU
@@ -800,11 +824,13 @@ function stage(){if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);
  const mf=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'wu';
  const side=(ids,k,s,f)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?heroC:C[HD[f]]},deck:sh(ids).map(i=>mk(i,s,k,node.elv)),hand:[],field:[null,null,null,null,null],gy:0}};
- S.pb=S.pend||0;S.me=side(S.team,1,1,mf);S.en=side(ids,sc,0,fac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*node.hs*(node.ch<5?.8:1));const TM=treeMod();if(TM.lordHp){S.me.hero.mhp+=TM.lordHp;S.me.hero.hp+=TM.lordHp}S.me.hero.def+=TM.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;S.me.rv=0;S.me.wv=0;
- for(const s of[S.me,S.en])for(let n=0;n<3+(s===S.me&&treeHas('lb2P')?1:0)+(s===S.me&&treeHas('gcl16')?2:0);n++)if(s.deck.length)s.hand.push(s.deck.shift());
+ S.pb=S.pend||0;S.me=side(S.team,1,1,mf);S.en=side(ids,sc,0,fac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*node.hs*(node.ch<5?.8:1));const TM=treeMod();if(TM.lordHp){S.me.hero.mhp+=TM.lordHp;S.me.hero.hp+=TM.lordHp}S.me.hero.def+=TM.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;S.me.rv=0;S.me.wv=0;S.me.sb=0;S.me.s27=0;
+ for(const s of[S.me,S.en])for(let n=0;n<3;n++)if(s.deck.length)s.hand.push(s.deck.shift());
  if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});
  if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});
+ if(treeHas('tao22'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei'){u.buf=2;u.bp=1.1}});
  if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});
+ if(treeHas('gcl16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu')u.sh=Math.round(u.mhp*.1)});
  if(treeHas('tk16'))S.en.deck.forEach(u=>{u.burn=1;u.bd=Math.round(u.mhp*.03)});
  S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=Math.min(1,.25+.035*node.ch);S.phase='';tok++;$('#w-t').textContent=`Chương ${node.ch+1}/20 · Ải ${node.k+1} — quân ${FN[fac]}${node.boss?' (★ thủ lĩnh)':''}`;
  $('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
@@ -820,7 +846,7 @@ function hit(t,d){if(HP(t,'B_ARMOR'))d=Math.round(d*.875);if(t.dr>0)d=Math.round
 let SKF=0;
 function hx(u,code){return !!(u&&!u.H&&u.c&&u.c.xq&&u.c.xq.code==code)}
 function dmg(a,t,m,p=0){let d=Math.round(ea(a)*1.6*m*100/(100+ed(t)*(1-p))*(.92+Math.random()*.16)*(SKF&&a.c&&(a.c.r=='R'||a.c.r=='N')?.85:1));if(t.H&&S.me&&S.me.field.includes(a)&&treeHas('lb23'))d=Math.round(d*1.1);if(S.me&&S.me.field.includes(a)){if(treeHas('tao21')&&t.def>t.atk)d=Math.round(d*1.1);if(treeHas('tao24')&&t.hp<t.mhp*.3)d=Math.round(d*1.15);if(treeHas('tk15')&&t.burn>0&&a.c.f=='wu')d=Math.round(d*1.1);if(treeHas('tk24')&&t.mhp<a.mhp)d=Math.round(d*1.12);if(treeHas('tq21')&&a.c.f=='wu'&&(t.stun>0||t.burn>0))d=Math.round(d*1.1);if(treeHas('sm21')&&t.stun>0)d=Math.round(d*1.2);if(treeHas('sm22')&&t.atk>a.atk)d=Math.round(d*1.1);if(treeHas('gcl22')&&t.n>=t.cd-1)d=Math.round(d*1.1)}return d}
-async function reap(){await sleep(450);for(const s of[S.me,S.en])s.field.forEach((u,i)=>{if(u&&u.hp<=0){s.field[i]=null;s.gy++;if(s===S.en){if(S.me&&(S.me.rv||0)<3&&treeHas('lb24')){S.me.rv=(S.me.rv||0)+1;S.me.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*1.05)});say('Phục Hưng: cả đội +5% sức mạnh')}if(treeHas('tk13')&&u.burn>0){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.burn=2;nb.bd=Math.round(nb.mhp*.04)}})}if(S.me&&treeHas('tk25'))S.me.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.08))});if(treeHas('tao23'))S.en.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*.9)});if(treeHas('sm13')){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.stun=1;upd(nb)}})}if(S.me&&treeHas('sm27'))treeDraw(S.me,1);if(S.me&&treeHas('gcl24')&&S.me.hero.hp>0)healU(S.me.hero,Math.round(S.me.hero.mhp*.1))}if(s===S.me){if(treeHas('tq27')&&u.c.f=='wu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wu')a.atk=Math.round(a.atk*1.1)});if(treeHas('sm23')&&u.c.f=='wei'){const fe=S.en.field[i];if(fe&&fe.hp>0){fe.stun=1;upd(fe)}}if(treeHas('gcl25')&&u.c.f=='shu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')healU(a,Math.round(a.mhp*.15))})}}});draw()}
+async function reap(){await sleep(450);for(const s of[S.me,S.en])s.field.forEach((u,i)=>{if(u&&u.hp<=0){s.field[i]=null;s.gy++;if(s===S.en){if(S.me&&(S.me.rv||0)<3&&treeHas('lb24')){S.me.rv=(S.me.rv||0)+1;S.me.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*1.05)});say('Phục Hưng: cả đội +5% sức mạnh')}if(treeHas('tk13')&&u.burn>0){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.burn=2;nb.bd=Math.round(nb.mhp*.04)}})}if(S.me&&treeHas('tk25'))S.me.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.08))});if(treeHas('tao23'))S.en.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*.9)});if(treeHas('sm13')){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.stun=1;upd(nb)}})}if(S.me&&(S.me.s27||0)<3&&treeHas('sm27')){S.me.s27=(S.me.s27||0)+1;S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei')a.atk=Math.round(a.atk*1.05)})};if(S.me&&treeHas('gcl24')&&S.me.hero.hp>0)healU(S.me.hero,Math.round(S.me.hero.mhp*.1))}if(s===S.me){if(treeHas('tq27')&&u.c.f=='wu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wu')a.atk=Math.round(a.atk*1.1)});if(treeHas('sm23')&&u.c.f=='wei'){const fe=S.en.field[i];if(fe&&fe.hp>0){fe.stun=1;upd(fe)}}if(treeHas('gcl25')&&u.c.f=='shu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')healU(a,Math.round(a.mhp*.15))})}}});draw()}
 function put(s,k,i){const u=s.hand.splice(k,1)[0];u.n=0;if(s===S.me&&treeHas('lb26')&&u.cd<999)u.n=1;u.fresh=u.c.p=='FIRST'?0:1;if(u.shp){u.sh=Math.round(u.mhp*u.shp/100);u.shp=0}s.field[i]=u;if(s===S.me){if(treeHas('tao13')&&u.c.f=='wei'&&(S.me.wv||0)<5){S.me.wv=(S.me.wv||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f=='wei')a.atk=Math.round(a.atk*1.04)})}if(treeHas('tao25'))u.sh=(u.sh||0)+Math.round(u.mhp*.15);if(treeHas('sm25')&&u.c.f=='wei')u.sh=(u.sh||0)+Math.round(u.mhp*.1);if(treeHas('tk26')&&u.c.f=='wu'&&u.cd<999)u.n=1;if(treeHas('gcl1P')&&u.c.f=='shu'&&u.cd<999)u.n=1;if(treeHas('tk23')&&s.field.filter(x=>x&&x.hp>0).length==1)u.atk=Math.round(u.atk*1.2);if(treeHas('tq24')&&u.c.f=='wu'){const fe=S.en.field[i];if(fe&&fe.hp>0)hit(fe,Math.round(fe.mhp*.05))}}{const opp=s===S.me?S.en:S.me;if(u.c&&u.c.srp&&u.c.srp.trig=='deploy')applyLvD(u.c.srp.d,u,s,opp)}{const opp=s===S.me?S.en:S.me;if((u.lv||1)>=10&&u.c){const fo=opp.field.filter(x=>x&&x.hp>0);const tgt=opp.field[i]&&opp.field[i].hp>0?opp.field[i]:(fo[0]||opp.hero);sfx('cast');cbanner(u.c.n+' · Lv'+(u.lv>=20?20:10),'Kỹ năng Lv'+(u.lv>=20?20:10)+' kích hoạt');extra(u,s,opp,fo,tgt)}}
  if(u.c.p=='ORDER'){const boosted=[];s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f==u.c.f&&a.n<a.cd){a.n++;boosted.push(a)}});S.sel=-1;draw();boosted.forEach(a=>fl(a,'⚡+1',1));return u}S.sel=-1;draw();return u}
 function ai(s,o){
@@ -890,12 +916,12 @@ function lordSkillInfo(){if(!S.me||!S.en)return;const L=LORDS[S.lord],rd=(S.lg||
  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
 function lordSkill(){if((S.lg||0)<3||S.lordUsed||S.phase=='busy'||!S.me||!S.en)return;S.lg=0;S.lordUsed=true;sfx('big');shakeField('lg');
  const s=S.me,o=S.en,al=s.field.filter(x=>x&&x.hp>0),foes=o.field.filter(x=>x&&x.hp>0),k=S.lord;
- if(k=='tao'){al.forEach(a=>{a.buf=Math.max(a.buf,2);upd(a)});if(treeHas('tao17'))treeDraw(s,2);if(treeHas('tao2P'))al.forEach(a=>healU(a,Math.round(a.mhp*.2)));say('Hiệu lệnh Thiên tử: đồng minh tăng sức mạnh')}
+ if(k=='tao'){al.forEach(a=>{a.buf=Math.max(a.buf,2);upd(a)});if(treeHas('tao17'))foes.forEach(x=>{x.wk=2;x.wkp=.9;upd(x)});if(treeHas('tao2P'))al.forEach(a=>healU(a,Math.round(a.mhp*.2)));say('Hiệu lệnh Thiên tử: đồng minh tăng sức mạnh')}
  else if(k=='luubi'){al.forEach(a=>healU(a,Math.round(a.mhp*.2)));if(treeHas('lb17'))al.forEach(a=>{a.sh=(a.sh||0)+Math.round(a.mhp*.1);upd(a)});say('Tam cố thảo lư: toàn quân hồi máu')}
  else if(k=='tonkien'){foes.forEach(x=>{hit(x,Math.round(x.mhp*.08));x.burn=2;x.bd=Math.round(x.mhp*.04)});if(treeHas('tk17'))foes.forEach(x=>{hit(x,Math.round(x.mhp*.05));x.burn=(x.burn||0)+2;x.bd=Math.round(x.mhp*.04)});say('Hỏa thiêu Dương Thành!')}
  else if(k=='tonquyen'){al.forEach(a=>healU(a,Math.round(a.mhp*.1)));if(treeHas('tq17'))al.forEach(a=>healU(a,Math.round(a.mhp*.15)));const h=Math.round(s.hero.mhp*.2);s.hero.sh=(s.hero.sh||0)+h;fl(s.hero,'🛡',1);upd(s.hero);say('Hộ giá Giang Đông: toàn quân được bảo vệ')}
  else if(k=='simay'){foes.forEach(x=>{x.stun=treeHas('sm17')?2:1;upd(x)});say('Phế lập: địch bị choáng')}
- else if(k=='gcl'){foes.forEach(x=>{x.n=Math.max(0,x.n-(treeHas('gcl17')?2:1));upd(x)});if(treeHas('gcl17'))treeDraw(s,1);say('Thiên nhãn: tiến độ kỹ năng địch bị đẩy lùi')}
+ else if(k=='gcl'){foes.forEach(x=>{x.n=Math.max(0,x.n-(treeHas('gcl17')?2:1));upd(x)});if(treeHas('gcl17'))al.forEach(a=>healU(a,Math.round(a.mhp*.1)));say('Thiên nhãn: tiến độ kỹ năng địch bị đẩy lùi')}
  draw()}
 $('#lord-sk').onclick=()=>lordSkillInfo();
 $('#tree-sk').onclick=()=>treeSkillInfo();
@@ -907,7 +933,7 @@ async function checkCombo(s){if(!s.cf)s.cf={};const fired=[];SETS.forEach((z,zi)
 async function begin(s){s.field.forEach(u=>{if(u&&u.hp>0&&u.c&&u.c.srp&&u.c.srp.trig=='turn')applyLvD(u.c.srp.d,u,s,s===S.me?S.en:S.me)});await checkCombo(s);s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='SOVEREIGN'){healU(u,Math.round(u.mhp*.04));s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f==u.c.f)healU(a,Math.round(a.mhp*.02))})}});s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='CLEANSE'){u.burn=0;u.stun=0}});
  s.field.forEach(u=>{if(u&&u.hp>0){if(hx(u,'REGEN'))healU(u,Math.round(u.mhp*.03));if(hx(u,'SHIELDREG'))u.sh=(u.sh||0)+Math.round(u.mhp*.05)}});if(s===S.me){S.lg=Math.min(3,(S.lg||0)+1);S.tg=Math.min(3,(S.tg||0)+1);if(S.lord=='luubi'){s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu')healU(u,Math.round(u.mhp*(treeHas('lb11')?.05:.03)))});if(treeHas('lb13'))s.field.forEach(u=>{if(u&&u.hp>0&&u.hp<u.mhp*.5)healU(u,Math.round(u.mhp*.08))});if(treeHas('lb15')&&s.hero.hp>0)healU(s.hero,Math.round(s.hero.mhp*.03))}if(treeHas('tq13')&&s.hero.hp>0)s.hero.sh=(s.hero.sh||0)+Math.round(s.hero.mhp*.05);if(treeHas('tq15'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wu'&&u.hp<u.mhp*.5)u.sh=(u.sh||0)+Math.round(u.mhp*.15)});if(treeHas('sm26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wei')healU(u,Math.round(u.mhp*.02))});if(treeHas('gcl27')&&s.hero.hp>0)healU(s.hero,Math.round(s.hero.mhp*.02));if(treeHas('gcl28')&&s.field.filter(u=>u&&u.hp>0&&u.c.f=='shu').length>=3)s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu'){u.buf=1;u.bp=1.12}});if(treeHas('tao26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wei'&&u.n<u.cd)u.n++});if(treeHas('tq26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wu'&&u.n<u.cd)u.n++});if(treeHas('gcl14'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu'&&u.n<u.cd)u.n++})}if(s===S.en){if(treeHas('sm15')){const foes=s.field.filter(u=>u&&u.hp>0);if(foes.length){const mx=foes.reduce((a,b)=>b.n>a.n?b:a);mx.n=Math.max(0,mx.n-1)}}if(treeHas('sm24')){const foes=s.field.filter(u=>u&&u.hp>0);if(foes.length){const lw=foes.reduce((a,b)=>b.hp/b.mhp<a.hp/a.mhp?b:a);hit(lw,Math.round(lw.mhp*.03))}}}s.field.forEach(u=>{if(u){u.drum=0;u.flag=1}});$('#turn').textContent=s===S.me?'― Lượt của bạn ―':'― Lượt của địch ―';
  s.field.forEach(u=>{if(u&&u.wk>0)u.wk--;if(u&&u.dd>0)u.dd--;if(u&&u.dr>0)u.dr--});
- const dr=1+s.field.reduce((a,u)=>a+(u&&u.hp>0&&u.c.p=='DRAW'?u.c.pv:0),0)+(s===S.me&&treeHas('tao22')?1:0)+(s===S.me&&treeHas('sm2P')?1:0)+(s===S.me&&treeHas('gcl2P')?1:0);
+ const dr=1+s.field.reduce((a,u)=>a+(u&&u.hp>0&&u.c.p=='DRAW'?u.c.pv:0),0);
  for(let n=0;n<dr&&s.deck.length&&s.hand.length<(s===S.me?5+(treeHas('tq22')?1:0)+(treeHas('gcl15')?2:0):5);n++)s.hand.push(s.deck.shift());
  S.sel=-1;draw();
  s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='HEAL'){const t=s.field.filter(x=>x&&x.hp>0).sort((a,b)=>a.hp/a.mhp-b.hp/b.mhp)[0];if(t)healU(t,Math.round(t.mhp*u.c.pv/100))}});
@@ -1133,7 +1159,7 @@ function applyCombo(e,s,o){const al=s.field.filter(x=>x&&x.hp>0),foes=o.field.fi
  case 'DRAIN': {let g=0;foes.forEach(x=>{const d=dmg(rep,x,.6);hit(x,d);g+=d});healU(rep,Math.round(g*.5));break}
  }}
 async function comboFx(zi,s,o){const cb=COMBOS[zi];sfx('big');shakeField('md');cbanner(cb.n,'Kết hợp · '+SETS[zi][0]);
- applyCombo(cb.e,s,o);if(s===S.me){if(treeHas('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHas('gcl13'))treeDraw(s,1);if(treeHas('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHas('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHas('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem=SETS[zi][1];if(treeHas('tao14')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))treeDraw(s,1);if(treeHas('tq23')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}})}draw();await sleep(1300);await reap()}
+ applyCombo(cb.e,s,o);if(s===S.me){if(treeHas('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHas('gcl13'))s.field.forEach(a=>{if(a&&a.hp>0&&a.n<a.cd)a.n++});if(treeHas('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHas('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHas('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem=SETS[zi][1];if(treeHas('tao14')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei'){a.buf=Math.max(a.buf,2);a.bp=1.15;upd(a)}});if(treeHas('tq23')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}});if(treeHas('gcl2P')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='shu'})&&(S.me.sb||0)<5){S.me.sb=(S.me.sb||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')a.atk=Math.round(a.atk*1.05)})}}draw();await sleep(1300);await reap()}
 function setPct(k,size){return (5*(k-1)+(k==size?5:0))/100}
 function activeSets(s){const out=[];SETS.forEach(z=>{const k=z[1].filter(n=>s.field.some(x=>x&&x.hp>0&&x.c.n==n)).length;if(k>=2)out.push({n:z[0],k,size:z[1].length,pct:setPct(k,z[1].length)})});return out}
 function sets(s){s.field.forEach(u=>{if(u){u.sa=1;u.sd2=1}});
@@ -1173,9 +1199,9 @@ function bstage(node){const b=BOSSES[node.bossIdx],mh=Math.round(1100*UP.h);
  S.pb=S.pend||0;S.pend=0;
  S.me={f:mf,hero:{H:1,hp:mh,mhp:mh,def:30,c:heroC},deck:sh(S.team).map(i=>mk(i,1,1)),hand:[],field:[null,null,null,null,null],gy:0};const TMB=treeMod();if(TMB.lordHp){S.me.hero.mhp+=TMB.lordHp;S.me.hero.hp+=TMB.lordHp}S.me.hero.def+=TMB.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;
  S.en={f:b.f,hero:bossHero(b),deck:[],hand:[],field:[null,null,null,null,null],gy:0};
- for(let n=0;n<3+(treeHas('lb2P')?1:0)+(treeHas('gcl16')?2:0);n++)if(S.me.deck.length)S.me.hand.push(S.me.deck.shift());
- if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});
- S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};S.me.rv=0;S.me.wv=0;if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=1;S.phase='';tok++;
+ for(let n=0;n<3;n++)if(S.me.deck.length)S.me.hand.push(S.me.deck.shift());
+ if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});if(treeHas('tao22'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei'){u.buf=2;u.bp=1.1}});if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});if(treeHas('gcl16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu')u.sh=Math.round(u.mhp*.1)});
+ S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};S.me.rv=0;S.me.wv=0;S.me.sb=0;S.me.s27=0;if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=1;S.phase='';tok++;
  $('#w-t').textContent='Thách đấu · '+b.n;$('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
 async function bossAct(){const b=S.en.hero,s=S.me;if(b.hp<=0)return;b.n++;
  if(!b.ph2&&b.hp<b.mhp*.5){b.ph2=1;b.sk=1;if(b.el)b.el.classList.add('enraged');say('⚠ '+b.c.n+' nổi giận! Giai đoạn 2 — mở thêm 2 kỹ năng mới!');shakeField('lg');sfx('big');await sleep(600)}
