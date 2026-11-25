@@ -1486,16 +1486,16 @@ function end(w){ambStop();S.team.forEach(gainXp);sfx(w?'win':'lose');say(w?'Quâ
  reward()},1400)}
 function fin(t,p){$('#e-t').textContent=t;$('#e-p').textContent=p;show('end')}
 $('#e-b').onclick=()=>show('menu');
-const SEG=['N','R','N','S','N','R','N','N','R','N','S','N','R','N','SR','N','S','R','N','R'];
-function reward(){show('rw');const n=S.nodes[S.stage].stars;$('#rw-t').textContent=`Thắng ải: ${'★'.repeat(n)}${'☆'.repeat(3-n)}`;
+const SEG=['N','R','N','S','N','R','N','N','R','N','S','N','R','N','SR','N','S','R','N','R'],BSEG=['S','S','S','SR','S','S','S','SR','S','S','S','SR','S','S','S','SR','S','S','S','SR'];
+function reward(){show('rw');const n=S.nodes[S.stage].stars;$('#rw-t').textContent=`Thắng ải: ${'★'.repeat(n)}${'☆'.repeat(3-n)}`+(S.mode=='boss'?' · 👹 Vòng quay Boss: chỉ ra S/SR!':'');
  const w=$('#wheel');w.style.transition='none';w.style.transform='rotate(0deg)';
- w.style.background='conic-gradient('+SEG.map((x,k)=>RC[x]+' '+k*18+'deg '+(k+1)*18+'deg').join(',')+')';
+ const SX0=S.mode=='boss'?BSEG:SEG;w.style.background='conic-gradient('+SX0.map((x,k)=>RC[x]+' '+k*18+'deg '+(k+1)*18+'deg').join(',')+')';
  $('#wres').textContent='';$('#rw-spin').style.display='';$('#rw-next').style.display='none';
  $('#rw-spin').onclick=spin;$('#rw-next').onclick=()=>mapShow()}
 function spin(){$('#rw-spin').style.display='none';
- let k=Math.random()*SEG.length|0,r=SEG[k];
+ const SX=S.mode=='boss'?BSEG:SEG;let k=Math.random()*SX.length|0,r=SX[k];
  let pool=C.map((c,x)=>x).filter(x=>C[x].r==r&&!S.own.includes(x));
- if(!pool.length){const ok=SEG.map((t,ix)=>ix).filter(ix=>C.some((c,x)=>c.r==SEG[ix]&&!S.own.includes(x)));if(ok.length){k=ok[Math.random()*ok.length|0];r=SEG[k];pool=C.map((c,x)=>x).filter(x=>C[x].r==r&&!S.own.includes(x));}}
+ if(!pool.length){const ok=SX.map((t,ix)=>ix).filter(ix=>C.some((c,x)=>c.r==SX[ix]&&!S.own.includes(x)));if(ok.length){k=ok[Math.random()*ok.length|0];r=SX[k];pool=C.map((c,x)=>x).filter(x=>C[x].r==r&&!S.own.includes(x));}}
  const all=C.map((c,x)=>x).filter(x=>C[x].r==r);
  const pick=pool.length?pool[Math.random()*pool.length|0]:all[Math.random()*all.length|0];
  for(let q=0;q<22;q++)setTimeout(()=>sfx('tick'),q*140);
@@ -1503,8 +1503,8 @@ function spin(){$('#rw-spin').style.display='none';
  w.style.transform='rotate('+(360*6-(k*18+9))+'deg)';
  setTimeout(()=>{
   const c=C[pick];
-  const dup0=S.own.includes(pick),lost=(c.r=='S'||c.r=='SR')&&(S.pend||0)>0;
-  if(c.r=='S'||c.r=='SR')S.pend=0;else if(c.r=='N')S.pend=(S.pend||0)+2;else if(c.r=='R')S.pend=(S.pend||0)+1;
+  const dup0=S.own.includes(pick),lost=S.mode!='boss'&&(c.r=='S'||c.r=='SR')&&(S.pend||0)>0;
+  if(S.mode!='boss'){if(c.r=='S'||c.r=='SR')S.pend=0;else if(c.r=='N')S.pend=(S.pend||0)+2;else if(c.r=='R')S.pend=(S.pend||0)+1;}
   const pb=S.pend||0,dup=dup0;
   if(dup){addXp(pick,200);
    $('#wres').innerHTML='<img src="'+c.i+'" alt="'+c.n+'"><b style="color:'+RC[c.r]+'">Trùng tướng · '+c.r+' · '+c.n+'</b><small>+200 XP · Lv'+(S.lv[pick]||1)+'/20</small>';}
