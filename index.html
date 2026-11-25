@@ -180,6 +180,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .lord img{width:56px;border-radius:6px;flex:none}
 .lav{display:inline-flex;align-items:center;justify-content:center;width:56px;height:80px;border-radius:6px;background:#2a1c17;border:2px solid var(--gold);font-size:24px;color:var(--gold);flex:none}
 #lord-sk.on{background:#3a2d17;border-color:var(--gold);color:var(--gold)}
+#tree-sk.on{background:#3a2d17;border-color:var(--gold);color:var(--gold)}
+.node.cap{border-color:var(--gold)}
+.node:disabled{opacity:.45;cursor:not-allowed}
 .chap.fin{padding:6px 12px;cursor:pointer;opacity:.75}
 .chap.fin h3{margin:0;font-size:15px}
 .chap.fin:hover{opacity:1;border-color:var(--gold)}
@@ -318,6 +321,7 @@ body.pc #s-war .hero img{width:42px}
 <button class="btn" id="go-new">Bắt đầu chiến dịch</button>
 <button class="ghost" id="go-dt">Danh tướng lục</button>
 <button class="ghost" id="go-set">Cài đặt</button>
+<button class="ghost" id="go-tree">🌳 Cây Kỹ Năng</button>
 <button class="ghost" id="go-fs">⛶ Toàn màn hình</button>
 <button class="btn" id="go-cont" style="display:none">Tải game</button>
 <button class="ghost" id="go-save" style="display:none">Lưu game</button>
@@ -333,7 +337,7 @@ body.pc #s-war .hero img{width:42px}
 </section>
 
 <section class="scr" id="s-war">
-<div class="bar2"><h2 id="w-t"></h2><div class="ibar"><span id="w-u" style="font-size:11px;opacity:.7"></span><button class="ibtn" id="w-end" title="Bỏ lượt [S]">⏭</button><button class="ibtn" id="w-auto" title="Tự động [A]">🤖</button><button class="ibtn" id="lord-sk" title="Kỹ năng chủ tướng [L]">⚜</button><button class="ibtn" id="w-spd" title="Tốc độ [X]">x1</button><button class="ibtn" id="w-fs" title="Toàn màn hình">⛶</button></div></div>
+<div class="bar2"><h2 id="w-t"></h2><div class="ibar"><span id="w-u" style="font-size:11px;opacity:.7"></span><button class="ibtn" id="w-end" title="Bỏ lượt [S]">⏭</button><button class="ibtn" id="w-auto" title="Tự động [A]">🤖</button><button class="ibtn" id="lord-sk" title="Kỹ năng chủ tướng [L]">⚜</button><button class="ibtn" id="tree-sk" title="Kỹ năng cây Lưu Bị [T]">🌳</button><button class="ibtn" id="w-spd" title="Tốc độ [X]">x1</button><button class="ibtn" id="w-fs" title="Toàn màn hình">⛶</button></div></div>
 <div class="hero-row"><div class="hero" id="hE"></div></div>
 <div class="field"><div class="row E" id="rowE"></div><div class="vs" id="turn"></div><div class="row P" id="rowP"></div>
 <div class="cov" id="cov"><button class="btn" id="w-go">Khai chiến <span class="kh">[Space]</span></button></div></div>
@@ -353,6 +357,8 @@ body.pc #s-war .hero img{width:42px}
 </section>
 <section class="scr" id="s-dt"><div class="bar2"><h2>Danh tướng lục</h2><button class="ghost" id="dt-back">Quay lại</button></div><div id="dtlist" class="dtl"></div></section>
 <section class="scr c" id="s-lord"><h2>Chọn chủ tướng</h2><p>Chủ tướng quyết định nội tại suốt trận và kỹ năng chủ tướng (⚜) khi nạp đủ 3 lượt.</p><div id="lords" class="lords"></div><button class="ghost" id="lord-back">Quay lại</button></section>
+
+<section class="scr" id="s-tree"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-back">Quay lại</button><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></section>
 <section class="scr c" id="s-rw"><h2 id="rw-t">Thắng ải!</h2><p>Vòng quay may mắn: nhận 1 tướng từ hạng N đến SR.</p>
 <div class="wbox"><div class="ptr"></div><div id="wheel" class="wheel"></div></div>
 <div id="wres" class="wres"></div>
@@ -374,6 +380,267 @@ function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggl
  if(id!='menu')setStreak=0;
  const tb=$('#topsave');if(tb)tb.style.display=(id=='war'||!(S.nodes&&S.nodes.length))?'none':'';}
 
+
+
+// ===== CÂY KỸ NĂNG CHỦ CÔNG (v18: cả 6 chủ công — mỗi cây khác nhau, kết hợp thẻ bài) =====
+// Điểm: +2 mỗi chương mới qua lần đầu (tổng 40) = vừa đủ full 1 cây khi qua hết 20 chương.
+// Điểm là kho chung, reset miễn phí theo từng chủ công nên có thể chuyển điểm giữa các cây.
+const TREE={
+ luubi:{name:'Lưu Bị',branches:[
+  {id:'nhan',n:'Nhân Nghĩa Thiên Hạ',d:'Hồi máu, bảo vệ và rally cả đội — Lưu Bị không bỏ rơi anh em.',nodes:[
+   {id:'lb11',t:1,n:'Nhân Đức',d:'Tướng Thục hồi thêm +2% máu tối đa mỗi lượt (tổng 5% với nội tại).',c:1,fx:'healShu'},
+   {id:'lb12',t:1,n:'Đức Vọng',d:'Chủ công +150 máu tối đa.',c:1,fx:'lordHp150'},
+   {id:'lb13',t:2,n:'Cứu Khổ',d:'Tướng đồng minh dưới 50% máu được hồi 8% máu tối đa mỗi lượt.',c:1,fx:'healLow'},
+   {id:'lb14',t:2,n:'Tụ Nghĩa',d:'Mỗi lần kích duyên, hồi toàn đội 5% máu tối đa.',c:1,fx:'bondHeal'},
+   {id:'lb15',t:3,n:'Hậu Đức',d:'Chủ công hồi 3% máu tối đa mỗi lượt.',c:2,fx:'lordRegen'},
+   {id:'lb16',t:3,n:'Nhân Tâm',d:'Cả đội +8% sức mạnh.',c:2,fx:'atk8'},
+   {id:'lb17',t:4,n:'Thiên Hạ Quy Tâm',d:'Khi chủ công dùng skill, toàn đội nhận lá chắn 10% máu tối đa.',c:2,fx:'lordSkillShield'},
+   {id:'lb18',t:4,n:'Vạn Dân Ủng Hộ',d:'Chủ công +300 máu tối đa, +8 thủ.',c:2,fx:'lordHp300Def8'}],
+   caps:[
+   {id:'lb1A',t:5,n:'Thục Hán Trung Hưng',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội hồi 40% máu, +30% sức mạnh 2 lượt, chủ công nhận lá chắn 30% máu tối đa.',c:4,fx:'actTrungHung',act:1},
+   {id:'lb1P',t:5,n:'Chân Mệnh Thiên Tử',d:'BỊ ĐỘNG · Chủ công +500 máu tối đa, +10 thủ; cả đội +10% sức mạnh.',c:4,fx:'thienTu'}]},
+  {id:'long',n:'Long Hưng Thục Hán',d:'Tấn công, nhịp độ và khí thế Bắc phạt — rồng Thục cất cánh.',nodes:[
+   {id:'lb21',t:1,n:'Long Uy',d:'Cả đội +5% sức mạnh.',c:1,fx:'atk5'},
+   {id:'lb22',t:1,n:'Thục Hán Huyết',d:'Cả đội +5% phòng thủ.',c:1,fx:'def5'},
+   {id:'lb23',t:2,n:'Bắc Phạt',d:'Gây thêm 10% sát thương lên chủ công địch.',c:1,fx:'lordDmg10'},
+   {id:'lb24',t:2,n:'Phục Hưng',d:'Mỗi lần hạ 1 tướng địch, cả đội +5% sức mạnh đến hết trận (tối đa 3 lần).',c:1,fx:'killAtk'},
+   {id:'lb25',t:3,n:'Long Đằng',d:'Vào trận, cả đội +15% sức mạnh trong 2 lượt.',c:2,fx:'openBuf'},
+   {id:'lb26',t:3,n:'Thần Cơ',d:'Tướng ra trận với kỹ năng nạp sẵn 1 lượt.',c:2,fx:'fastSkill'},
+   {id:'lb27',t:4,n:'Thiên Mệnh Sở Quy',d:'Vào trận, chủ công có sẵn 1 tích lũy (skill chủ công + skill cây).',c:2,fx:'openCharge'},
+   {id:'lb28',t:4,n:'Vô Song',d:'Cả đội +8% sức mạnh, +100 máu tối đa mỗi tướng.',c:2,fx:'atk8hp100'}],
+   caps:[
+   {id:'lb2A',t:5,n:'Long Hồn Phá Quân',d:'CHỦ ĐỘNG · 1 lần/ải: gây sát thương bằng 25% máu tối đa của chủ công lên toàn địch + choáng toàn địch 1 lượt.',c:4,fx:'actPhaQuan',act:1},
+   {id:'lb2P',t:5,n:'Đế Nghiệp Thiên Thu',d:'BỊ ĐỘNG · Cả đội +12% sức mạnh, +12% phòng thủ; vào trận rút thêm 1 thẻ.',c:4,fx:'deNghiep'}]}]},
+ tao:{name:'Tào Tháo',branches:[
+  {id:'nguyvu',n:'Ngụy Vũ Thiên Hạ',d:'Sức mạnh quân Ngụy — đội hình càng nhiều tướng Ngụy càng mạnh.',nodes:[
+   {id:'tao11',t:1,n:'Tào Gia Quân',d:'Tướng Ngụy +8% sức mạnh.',c:1,fx:'weiAtk8'},
+   {id:'tao12',t:1,n:'Hứa Xương',d:'Tướng Ngụy +100 máu tối đa mỗi tướng.',c:1,fx:'weiHp100'},
+   {id:'tao13',t:2,n:'Dụng Nhân',d:'Mỗi lần ra 1 tướng Ngụy, tướng Ngụy trên sân +4% sức mạnh đến hết trận (tối đa 5 lần).',c:1,fx:'weiDeployAtk'},
+   {id:'tao14',t:2,n:'Thanh Mai Tửu',d:'Mỗi lần kích duyên có tướng Ngụy, rút thêm 1 thẻ.',c:1,fx:'bondWeiDraw'},
+   {id:'tao15',t:3,n:'Kiêu Hùng',d:'Tướng Ngụy +12% sức mạnh.',c:2,fx:'weiAtk12'},
+   {id:'tao16',t:3,n:'Thiên Hạ Quy Ngụy',d:'Vào trận, tướng Ngụy nhận lá chắn 10% máu tối đa.',c:2,fx:'weiOpenShield'},
+   {id:'tao17',t:4,n:'Nhất Thống',d:'Khi chủ công dùng skill, rút thêm 2 thẻ.',c:2,fx:'lordSkillDraw2'},
+   {id:'tao18',t:4,n:'Ngụy Vương',d:'Chủ công +20 máu tối đa cho mỗi tướng Ngụy trong đội (tối đa +200), +8 thủ.',c:2,fx:'lordDef8'}],
+   caps:[
+   {id:'tao1A',t:5,n:'Gian Hùng Lệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội +40% sức mạnh 2 lượt + rút 2 thẻ.',c:4,fx:'actGianHung',act:1},
+   {id:'tao1P',t:5,n:'Thiên Mệnh Ngụy Vương',d:'BỊ ĐỘNG · Tướng Ngụy +15% sức mạnh, +10% phòng thủ; chủ công +300 máu tối đa.',c:4,fx:'weiKing'}]},
+  {id:'quyke',n:'Quỷ Kế Thiên Tử',d:'Dùng mưu thắng lực — đánh vào điểm yếu của địch.',nodes:[
+   {id:'tao21',t:1,n:'Phá Giáp',d:'Gây thêm 10% sát thương lên tướng địch có phòng thủ cao hơn sức mạnh.',c:1,fx:'dmgVsTank'},
+   {id:'tao22',t:1,n:'Mưu Sĩ',d:'Mỗi lượt rút thêm 1 thẻ.',c:1,fx:'drawTurn'},
+   {id:'tao23',t:2,n:'Ly Gián',d:'Khi tướng địch chết, tướng địch còn lại mất 10% sức mạnh đến hết trận.',c:1,fx:'deathWeaken'},
+   {id:'tao24',t:2,n:'Trảm Tướng',d:'Gây thêm 15% sát thương lên tướng địch dưới 30% máu.',c:1,fx:'dmgExecute'},
+   {id:'tao25',t:3,n:'Binh Bất Yếm Trá',d:'Tướng ra trận nhận lá chắn 15% máu tối đa.',c:2,fx:'deployShield15'},
+   {id:'tao26',t:3,n:'Thiên Cơ',d:'Mỗi lượt, kỹ năng của tướng Ngụy nạp thêm 1.',c:2,fx:'weiChargeAura'},
+   {id:'tao27',t:4,n:'Đa Nghi',d:'Chủ công nhận ít hơn 10% sát thương.',c:2,fx:'lordDr10'},
+   {id:'tao28',t:4,n:'Vô Địch',d:'Cả đội +10% phòng thủ, +100 máu tối đa mỗi tướng.',c:2,fx:'def10hp100'}],
+   caps:[
+   {id:'tao2A',t:5,n:'Ngụy Đế Lệnh',d:'CHỦ ĐỘNG · 1 lần/ải: gây 20% máu tối đa chủ công lên toàn địch + tướng địch mất 20% sức mạnh 2 lượt.',c:4,fx:'actNguyDe',act:1},
+   {id:'tao2P',t:5,n:'Gian Hùng Bất Diệt',d:'BỊ ĐỘNG · Chủ công +400 máu tối đa; khi chủ công dùng skill, toàn đội hồi 20% máu.',c:4,fx:'lordHp400'}]}]},
+ tonkien:{name:'Tôn Kiên',branches:[
+  {id:'hoathieu',n:'Hỏa Thiêu Liên Doanh',d:'Lửa là bạn của Tôn Kiên — địch càng cháy càng đau.',nodes:[
+   {id:'tk11',t:1,n:'Liệt Hỏa',d:'Thiêu đốt gây thêm 50% sát thương.',c:1,fx:'burnBoost'},
+   {id:'tk12',t:1,n:'Hổ Uy',d:'Chủ công +200 máu tối đa, tướng Ngô +100 máu tối đa mỗi tướng.',c:1,fx:'lordHp200wuHp100'},
+   {id:'tk13',t:2,n:'Hỏa Lan',d:'Khi 1 tướng địch chết trong lúc đang bị thiêu đốt, thiêu đốt lan sang tướng địch bên cạnh (2 lượt).',c:1,fx:'burnSpread'},
+   {id:'tk14',t:2,n:'Diệm Vũ',d:'Mỗi lần kích duyên, thiêu đốt toàn địch 1 lượt.',c:1,fx:'bondBurn'},
+   {id:'tk15',t:3,n:'Hỏa Thần',d:'Tướng Ngô gây thêm 10% sát thương lên địch đang bị thiêu đốt.',c:2,fx:'dmgVsBurn'},
+   {id:'tk16',t:3,n:'Lửa Thiêng',d:'Vào trận, toàn địch bị thiêu đốt 1 lượt.',c:2,fx:'openBurn'},
+   {id:'tk17',t:4,n:'Hổ Phụ Vô Địch',d:'Khi chủ công dùng skill, thiêu đốt toàn địch thêm 2 lượt và gây thêm 5% máu tối đa.',c:2,fx:'lordSkillBurn'},
+   {id:'tk18',t:4,n:'Xích Bích',d:'Tướng Ngô +10% sức mạnh, +10% phòng thủ.',c:2,fx:'wuAtk10def10'}],
+   caps:[
+   {id:'tk1A',t:5,n:'Hỏa Thiêu Xích Bích',d:'CHỦ ĐỘNG · 1 lần/ải: gây 15% máu tối đa lên toàn địch + thiêu đốt toàn địch 3 lượt.',c:4,fx:'actXichBich',act:1},
+   {id:'tk1P',t:5,n:'Hổ Lửa Bất Diệt',d:'BỊ ĐỘNG · Thiêu đốt gây gấp đôi sát thương; tướng Ngô +12% sức mạnh.',c:4,fx:'burnDoubleWuAtk12'}]},
+  {id:'hotuong',n:'Giang Đông Hổ Tướng',d:'Hổ tướng xông pha — ra trận trước, đánh mạnh trước.',nodes:[
+   {id:'tk21',t:1,n:'Ngô Dũng',d:'Tướng Ngô +8% sức mạnh.',c:1,fx:'wuAtk8'},
+   {id:'tk22',t:1,n:'Thủy Quân',d:'Tướng Ngô +8% phòng thủ.',c:1,fx:'wuDef8'},
+   {id:'tk23',t:2,n:'Tiên Phong',d:'Tướng đầu tiên ra trận mỗi trận +20% sức mạnh đến hết trận.',c:1,fx:'firstDeployAtk'},
+   {id:'tk24',t:2,n:'Hổ Trảo',d:'Gây thêm 12% sát thương lên tướng địch có máu tối đa thấp hơn tướng tấn công.',c:1,fx:'dmgVsSmaller'},
+   {id:'tk25',t:3,n:'Chiến Ý',d:'Mỗi lần hạ 1 tướng địch, cả đội hồi 8% máu.',c:2,fx:'killHeal'},
+   {id:'tk26',t:3,n:'Hổ Phách',d:'Tướng Ngô ra trận với kỹ năng nạp sẵn 1 lượt.',c:2,fx:'wuFastSkill'},
+   {id:'tk27',t:4,n:'Vô Song Hổ',d:'Tướng Ngô +12% phòng thủ, +100 máu tối đa mỗi tướng.',c:2,fx:'wuDef12hp100'},
+   {id:'tk28',t:4,n:'Giang Đông Bất Bại',d:'Vào trận, chủ công có sẵn 1 tích lũy (skill chủ công).',c:2,fx:'openLg1'}],
+   caps:[
+   {id:'tk2A',t:5,n:'Hổ Gầm Giang Đông',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội +35% sức mạnh 2 lượt + gây 10% máu tối đa lên toàn địch.',c:4,fx:'actHoGam',act:1},
+   {id:'tk2P',t:5,n:'Hổ Vương',d:'BỊ ĐỘNG · Tướng Ngô +15% sức mạnh; chủ công +300 máu tối đa.',c:4,fx:'wuAtk15lordHp300'}]}]},
+ tonquyen:{name:'Tôn Quyền',branches:[
+  {id:'hogia',n:'Hộ Giá Giang Đông',d:'Lá chắn là vũ khí của Tôn Quyền — đội càng cứng càng thắng.',nodes:[
+   {id:'tq11',t:1,n:'Thành Đồng',d:'Tướng Ngô nhận ít hơn 5% sát thương.',c:1,fx:'wuDr5'},
+   {id:'tq12',t:1,n:'Giang Đông Thành',d:'Chủ công nhận lá chắn 100 lúc vào trận, +200 máu tối đa.',c:1,fx:'lordHp200shield100'},
+   {id:'tq13',t:2,n:'Hộ Vệ',d:'Mỗi lượt, chủ công nhận lá chắn 5% máu tối đa.',c:1,fx:'lordShieldTurn'},
+   {id:'tq14',t:2,n:'Đồng Tâm',d:'Mỗi lần kích duyên, toàn đội nhận lá chắn 8% máu tối đa.',c:1,fx:'bondShield'},
+   {id:'tq15',t:3,n:'Kiên Cố',d:'Tướng Ngô dưới 50% máu nhận lá chắn 15% máu tối đa mỗi lượt.',c:2,fx:'wuLowShield'},
+   {id:'tq16',t:3,n:'Phản Giáp',d:'Tướng Ngô +100 máu tối đa, +5% phòng thủ.',c:2,fx:'wuHp100def5'},
+   {id:'tq17',t:4,n:'Hộ Quốc',d:'Khi chủ công dùng skill, toàn đội hồi thêm 15% máu.',c:2,fx:'lordSkillHeal15'},
+   {id:'tq18',t:4,n:'Ngô Vương',d:'Chủ công +25 máu tối đa cho mỗi tướng Ngô trong đội (tối đa +250), +10 thủ.',c:2,fx:'lordDef10'}],
+   caps:[
+   {id:'tq1A',t:5,n:'Giang Đông Thiết Bích',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội nhận lá chắn 40% máu tối đa + hồi 20% máu.',c:4,fx:'actThietBich',act:1},
+   {id:'tq1P',t:5,n:'Bất Phá Thành',d:'BỊ ĐỘNG · Tướng Ngô nhận ít hơn 10% sát thương; chủ công +400 máu tối đa.',c:4,fx:'wuDr10lordHp400'}]},
+  {id:'muuluoc',n:'Đông Ngô Mưu Lược',d:'Mưu lược Đông Ngô — bài nhiều, bẫy nhiều, địch dính bẫy là thua.',nodes:[
+   {id:'tq21',t:1,n:'Thủy Chiến',d:'Tướng Ngô gây thêm 10% sát thương lên địch đang bị choáng hoặc thiêu đốt.',c:1,fx:'wuDmgVsStatus'},
+   {id:'tq22',t:1,n:'Lương Thảo',d:'Tay bài tối đa +1 (6 thẻ).',c:1,fx:'handPlus1'},
+   {id:'tq23',t:2,n:'Liên Minh',d:'Mỗi lần kích duyên có tướng Ngô, toàn đội +10% sức mạnh 2 lượt.',c:1,fx:'bondWuBuff'},
+   {id:'tq24',t:2,n:'Phục Binh',d:'Tướng Ngô ra trận gây 5% máu tối đa lên tướng địch đối diện.',c:1,fx:'wuDeployAmbush'},
+   {id:'tq25',t:3,n:'Thủy Long',d:'Tướng Ngô +10% sức mạnh, +5% phòng thủ.',c:2,fx:'wuAtk10def5'},
+   {id:'tq26',t:3,n:'Mưu Sâu',d:'Mỗi lượt, kỹ năng của tướng Ngô nạp thêm 1.',c:2,fx:'wuChargeAura'},
+   {id:'tq27',t:4,n:'Đông Ngô Hưng',d:'Khi 1 tướng Ngô chết, các tướng Ngô còn lại +10% sức mạnh đến hết trận.',c:2,fx:'wuDeathAtk'},
+   {id:'tq28',t:4,n:'Bá Vương',d:'Cả đội +8% sức mạnh, +8% phòng thủ.',c:2,fx:'atk8def8'}],
+   caps:[
+   {id:'tq2A',t:5,n:'Ngô Đế Oai',d:'CHỦ ĐỘNG · 1 lần/ải: choáng toàn địch 1 lượt + toàn đội nhận lá chắn 25% máu tối đa.',c:4,fx:'actNgoDe',act:1},
+   {id:'tq2P',t:5,n:'Giang Đông Vạn Tuế',d:'BỊ ĐỘNG · Tướng Ngô +12% sức mạnh, +12% phòng thủ; chủ công +300 máu tối đa.',c:4,fx:'wuAtk12def12lordHp300'}]}]},
+ simay:{name:'Tư Mã Ý',branches:[
+  {id:'phelap',n:'Phế Lập',d:'Khống chế là tất cả — địch không ra được skill thì địch thua.',nodes:[
+   {id:'sm11',t:1,n:'Ẩn Nhẫn',d:'Tướng Ngụy +8% phòng thủ.',c:1,fx:'weiDef8'},
+   {id:'sm12',t:1,n:'Nhẫn Tâm',d:'Chủ công +250 máu tối đa, +5 thủ.',c:1,fx:'lordHp250Def5'},
+   {id:'sm13',t:2,n:'Mưu Độc',d:'Khi tướng địch chết, tướng địch bên cạnh bị choáng 1 lượt.',c:1,fx:'deathStunAdj'},
+   {id:'sm14',t:2,n:'Ly Gián Kế',d:'Mỗi lần kích duyên, đẩy lùi kỹ năng của toàn địch 1.',c:1,fx:'bondDelay'},
+   {id:'sm15',t:3,n:'Âm Mưu',d:'Mỗi lượt của địch, tướng địch có kỹ năng sắp đầy nhất bị đẩy lùi 1.',c:2,fx:'enemyDelay'},
+   {id:'sm16',t:3,n:'Thâm Tàng',d:'Tướng Ngụy +10% sức mạnh, +10% phòng thủ.',c:2,fx:'weiAtk10def10'},
+   {id:'sm17',t:4,n:'Phế Đế',d:'Khi chủ công dùng skill, choáng toàn địch 2 lượt (thay vì 1).',c:2,fx:'lordSkillStun2'},
+   {id:'sm18',t:4,n:'Quỷ Tài',d:'Vào trận, chủ công có sẵn 2 tích lũy (skill chủ công).',c:2,fx:'openLg2'}],
+   caps:[
+   {id:'sm1A',t:5,n:'Thiên Mệnh Phế Lập',d:'CHỦ ĐỘNG · 1 lần/ải: choáng toàn địch 2 lượt + gây 12% máu tối đa lên toàn địch.',c:4,fx:'actPheLap',act:1},
+   {id:'sm1P',t:5,n:'Ẩn Long',d:'BỊ ĐỘNG · Tướng Ngụy nhận ít hơn 12% sát thương; tướng Ngụy +10% sức mạnh.',c:4,fx:'weiDr12Atk10'}]},
+  {id:'quycoc',n:'Quỷ Cốc',d:'Quỷ kế bào mòn — địch càng đánh càng yếu, càng lâu càng chết.',nodes:[
+   {id:'sm21',t:1,n:'Hư Nhược',d:'Địch bị choáng chịu thêm 20% sát thương.',c:1,fx:'dmgVsStun'},
+   {id:'sm22',t:1,n:'Tâm Ma',d:'Gây thêm 10% sát thương lên tướng địch có sức mạnh cao hơn tướng tấn công.',c:1,fx:'dmgVsStronger'},
+   {id:'sm23',t:2,n:'Phản Gián',d:'Khi 1 tướng Ngụy chết, tướng địch đối diện bị choáng 1 lượt.',c:1,fx:'weiDeathStun'},
+   {id:'sm24',t:2,n:'Độc Kế',d:'Mỗi lượt của địch, tướng địch có máu thấp nhất mất 3% máu tối đa.',c:1,fx:'enemyLowHpDrain'},
+   {id:'sm25',t:3,n:'Vô Hình',d:'Tướng Ngụy ra trận nhận lá chắn 10% máu tối đa.',c:2,fx:'weiDeployShield10'},
+   {id:'sm26',t:3,n:'Dĩ Dật Đãi Lao',d:'Mỗi lượt, tướng Ngụy hồi 2% máu tối đa.',c:2,fx:'weiRegen'},
+   {id:'sm27',t:4,n:'Thiên Hạ Đại Loạn',d:'Khi tướng địch chết, rút thêm 1 thẻ.',c:2,fx:'killDraw'},
+   {id:'sm28',t:4,n:'Tư Mã Thiên Hạ',d:'Cả đội +10% sức mạnh, +5% phòng thủ.',c:2,fx:'atk10def5'}],
+   caps:[
+   {id:'sm2A',t:5,n:'Quỷ Mưu Diệt Quốc',d:'CHỦ ĐỘNG · 1 lần/ải: toàn địch mất 15% máu tối đa + kỹ năng toàn địch bị đẩy lùi 2.',c:4,fx:'actQuyMuu',act:1},
+   {id:'sm2P',t:5,n:'Ngụy Tấn',d:'BỊ ĐỘNG · Tướng Ngụy +12% sức mạnh, +12% phòng thủ; mỗi lượt rút thêm 1 thẻ.',c:4,fx:'weiAtk12def12Draw'}]}]},
+ gcl:{name:'Gia Cát Lượng',branches:[
+  {id:'batquai',n:'Bát Quái',d:'Khống chế kỹ năng địch — biết địch sắp ra chiêu gì và chặn trước.',nodes:[
+   {id:'gcl11',t:1,n:'Ngũ Hành',d:'Tướng Thục +8% phòng thủ.',c:1,fx:'shuDef8'},
+   {id:'gcl12',t:1,n:'Ngọa Long',d:'Chủ công +150 máu tối đa và +1 tích lũy lúc vào trận.',c:1,fx:'lordHp150Lg1'},
+   {id:'gcl13',t:2,n:'Thiên Nhãn',d:'Mỗi lần kích duyên, rút thêm 1 thẻ.',c:1,fx:'bondDraw'},
+   {id:'gcl14',t:2,n:'Bát Quái Trận',d:'Mỗi lượt, kỹ năng của tướng Thục nạp thêm 1.',c:1,fx:'shuChargeAura'},
+   {id:'gcl15',t:3,n:'Thần Toán',d:'Tay bài tối đa +2 (7 thẻ).',c:2,fx:'handPlus2'},
+   {id:'gcl16',t:3,n:'Diệu Toán',d:'Vào trận rút thêm 2 thẻ.',c:2,fx:'openDraw2'},
+   {id:'gcl17',t:4,n:'Khổng Minh',d:'Khi chủ công dùng skill, đẩy lùi kỹ năng của toàn địch thêm 1 (tổng 2) + rút 1 thẻ.',c:2,fx:'lordSkillDelay2Draw'},
+   {id:'gcl18',t:4,n:'Thục Hán Quân Sư',d:'Tướng Thục +10% sức mạnh, +10% phòng thủ.',c:2,fx:'shuAtk10def10'}],
+   caps:[
+   {id:'gcl1A',t:5,n:'Bát Quái Đồ',d:'CHỦ ĐỘNG · 1 lần/ải: đẩy lùi kỹ năng của toàn địch 2 + choáng toàn địch 1 lượt.',c:4,fx:'actBatQuai',act:1},
+   {id:'gcl1P',t:5,n:'Ngọa Long Xuất Sơn',d:'BỊ ĐỘNG · Tướng Thục +12% sức mạnh, +12% phòng thủ; tướng Thục ra trận với kỹ năng nạp sẵn 1 lượt.',c:4,fx:'shuAtk12def12Fast'}]},
+  {id:'longtrung',n:'Long Trung Đối',d:'Quân sư toàn diện — bài nhiều, tướng Thục càng đánh càng bền.',nodes:[
+   {id:'gcl21',t:1,n:'Long Trung',d:'Tướng Thục +8% sức mạnh.',c:1,fx:'shuAtk8'},
+   {id:'gcl22',t:1,n:'Thiên Văn',d:'Gây thêm 10% sát thương lên tướng địch có kỹ năng sắp đầy.',c:1,fx:'dmgVsReady'},
+   {id:'gcl23',t:2,n:'Địa Lợi',d:'Tướng Thục +100 máu tối đa mỗi tướng.',c:1,fx:'shuHp100'},
+   {id:'gcl24',t:2,n:'Nhân Hòa',d:'Mỗi lần hạ 1 tướng địch, chủ công hồi 10% máu tối đa.',c:1,fx:'killLordHeal'},
+   {id:'gcl25',t:3,n:'Thảo Lư',d:'Khi tướng Thục chết, tướng Thục còn lại hồi 15% máu.',c:2,fx:'shuDeathHeal'},
+   {id:'gcl26',t:3,n:'Thần Cơ Diệu Toán',d:'Vào trận, tướng Thục +20% sức mạnh trong 2 lượt.',c:2,fx:'shuOpenBuf'},
+   {id:'gcl27',t:4,n:'Vô Vi',d:'Chủ công +300 máu tối đa, mỗi lượt hồi 2% máu tối đa.',c:2,fx:'lordHp300Regen2'},
+   {id:'gcl28',t:4,n:'Thiên Hạ Tam Phân',d:'Khi có ít nhất 3 tướng Thục trên sân, tướng Thục +12% sức mạnh (làm mới mỗi lượt).',c:2,fx:'shuTrioAtk'}],
+   caps:[
+   {id:'gcl2A',t:5,n:'Thiên Mệnh',d:'CHỦ ĐỘNG · 1 lần/ải: toàn đội hồi 30% máu + rút 3 thẻ + kỹ năng toàn đội nạp đầy ngay.',c:4,fx:'actThienMenh',act:1},
+   {id:'gcl2P',t:5,n:'Vạn Cổ Quân Sư',d:'BỊ ĐỘNG · Tướng Thục +15% sức mạnh; mỗi lượt rút thêm 1 thẻ.',c:4,fx:'shuAtk15Draw'}]}]}
+};
+const TREE_TIER_REQ={1:0,2:2,3:4,4:8,5:12};
+const TNODE={};Object.values(TREE).forEach(L=>L.branches.forEach(b=>[...b.nodes,...b.caps].forEach(n=>TNODE[n.id]=n)));
+function treeIds(){return (S.tree&&S.tree[S.lord])||[]}
+function treeHas(id){return treeIds().includes(id)}
+function treeBranch(id){return (TREE[S.lord]||{branches:[]}).branches.find(b=>b.id==id)}
+function treeSpent(br){const b=treeBranch(br);if(!b)return 0;const ids=treeIds();return [...b.nodes,...b.caps].filter(n=>ids.includes(n.id)).reduce((a,n)=>a+n.c,0)}
+function treeCanBuy(n,br){return !treeHas(n.id)&&(S.tp||0)>=n.c&&treeSpent(br)>=TREE_TIER_REQ[n.t]}
+// Chỉ số chủ công (máu/thủ) — tính từ fx của node đã mua.
+function treeMod(){const m={lordHp:0,lordDef:0};if(!TREE[S.lord])return m;
+ treeIds().forEach(id=>{const f=(TNODE[id]||{}).fx;
+  if(f=='lordHp150'||f=='lordHp150Lg1')m.lordHp+=150;
+  else if(f=='lordHp200'||f=='lordHp200wuHp100'||f=='lordHp200shield100')m.lordHp+=200;
+  else if(f=='lordHp250'||f=='lordHp250Def5')m.lordHp+=250;
+  else if(f=='lordHp300'||f=='lordHp300Def8'||f=='lordHp300Regen2'||f=='wuAtk15lordHp300'||f=='wuAtk12def12lordHp300'||f=='weiKing')m.lordHp+=300;
+  else if(f=='lordHp400'||f=='wuDr10lordHp400')m.lordHp+=400;
+  else if(f=='lordHp500'||f=='thienTu')m.lordHp+=500;
+  if(f=='lordDef5'||f=='lordHp250Def5')m.lordDef+=5;
+  else if(f=='lordDef8'||f=='lordHp300Def8')m.lordDef+=8;
+  else if(f=='lordDef10')m.lordDef+=10;
+  if(f=='thienTu')m.lordDef+=10});
+ return m}
+// Chỉ số tướng (tính lúc tạo tướng trong mk, chỉ phe mình).
+function applyTreeFx(u){treeIds().forEach(id=>{const f=(TNODE[id]||{}).fx,cf=u.c.f;
+ const atk=p=>{u.atk=Math.round(u.atk*p)},def=p=>{u.def=Math.round(u.def*p)},hp=v=>{u.mhp+=v;u.hp+=v};
+ if(f=='atk5')atk(1.05);else if(f=='atk8')atk(1.08);else if(f=='atk10')atk(1.10);else if(f=='atk12')atk(1.12);else if(f=='atk15')atk(1.15);
+ else if(f=='def5')def(1.05);else if(f=='def8')def(1.08);else if(f=='def10')def(1.10);else if(f=='def12')def(1.12);
+ else if(f=='hp100')hp(100);
+ else if(f=='atk8hp100'){atk(1.08);hp(100)}else if(f=='atk8def8'){atk(1.08);def(1.08)}else if(f=='atk10def5'){atk(1.10);def(1.05)}else if(f=='atk10def10'){atk(1.10);def(1.10)}else if(f=='atk12def12'){atk(1.12);def(1.12)}else if(f=='def10hp100'){def(1.10);hp(100)}
+ else if(f=='thienTu')atk(1.10);else if(f=='deNghiep'){atk(1.12);def(1.12)}
+ else if(f=='weiAtk8'&&cf=='wei')atk(1.08);else if(f=='weiAtk10'&&cf=='wei')atk(1.10);else if(f=='weiAtk12'&&cf=='wei')atk(1.12);else if(f=='weiAtk15'&&cf=='wei')atk(1.15);
+ else if(f=='weiDef8'&&cf=='wei')def(1.08);else if(f=='weiDef10'&&cf=='wei')def(1.10);else if(f=='weiDef12'&&cf=='wei')def(1.12);
+ else if(f=='weiHp100'&&cf=='wei')hp(100);
+ else if(f=='weiAtk10def10'&&cf=='wei'){atk(1.10);def(1.10)}else if(f=='weiAtk12def12'&&cf=='wei'){atk(1.12);def(1.12)}
+ else if(f=='weiDr12'&&cf=='wei')u.drR=Math.min(u.drR||1,0.88);
+ else if(f=='wuAtk8'&&cf=='wu')atk(1.08);else if(f=='wuAtk10'&&cf=='wu')atk(1.10);else if(f=='wuAtk12'&&cf=='wu')atk(1.12);else if(f=='wuAtk15'&&cf=='wu')atk(1.15);
+ else if(f=='wuDef8'&&cf=='wu')def(1.08);else if(f=='wuDef10'&&cf=='wu')def(1.10);else if(f=='wuDef12'&&cf=='wu')def(1.12);
+ else if(f=='wuHp100'&&cf=='wu')hp(100);
+ else if(f=='wuAtk10def10'&&cf=='wu'){atk(1.10);def(1.10)}else if(f=='wuAtk10def5'&&cf=='wu'){atk(1.10);def(1.05)}else if(f=='wuAtk12def12'&&cf=='wu'){atk(1.12);def(1.12)}
+ else if(f=='wuDr5'&&cf=='wu')u.drR=Math.min(u.drR||1,0.95);else if(f=='wuDr10'&&cf=='wu')u.drR=Math.min(u.drR||1,0.9);
+ else if(f=='wuDef12hp100'&&cf=='wu'){def(1.12);hp(100)}else if(f=='wuHp100def5'&&cf=='wu'){hp(100);def(1.05)}
+ else if(f=='shuAtk8'&&cf=='shu')atk(1.08);else if(f=='shuAtk10'&&cf=='shu')atk(1.10);else if(f=='shuAtk12'&&cf=='shu')atk(1.12);else if(f=='shuAtk15'&&cf=='shu')atk(1.15);
+ else if(f=='shuDef8'&&cf=='shu')def(1.08);else if(f=='shuDef10'&&cf=='shu')def(1.10);else if(f=='shuDef12'&&cf=='shu')def(1.12);
+ else if(f=='shuHp100'&&cf=='shu')hp(100);
+ else if(f=='shuAtk10def10'&&cf=='shu'){atk(1.10);def(1.10)}else if(f=='shuAtk12def12'&&cf=='shu'){atk(1.12);def(1.12)}
+ // Node ghép (1 fx, nhiều hiệu ứng — phần tướng ở đây, phần chủ công ở treeMod):
+ else if(f=='lordHp200wuHp100'&&cf=='wu')hp(100);
+ else if(f=='burnDoubleWuAtk12'&&cf=='wu')atk(1.12);
+ else if(f=='wuAtk15lordHp300'&&cf=='wu')atk(1.15);
+ else if(f=='wuDr10lordHp400'&&cf=='wu')u.drR=Math.min(u.drR||1,0.9);
+ else if(f=='wuAtk12def12lordHp300'&&cf=='wu'){atk(1.12);def(1.12)}
+ else if(f=='weiDr12Atk10'&&cf=='wei'){u.drR=Math.min(u.drR||1,0.88);atk(1.10)}
+ else if(f=='weiAtk12def12Draw'&&cf=='wei'){atk(1.12);def(1.12)}
+ else if(f=='shuAtk12def12Fast'&&cf=='shu'){atk(1.12);def(1.12)}
+ else if(f=='shuAtk15Draw'&&cf=='shu')atk(1.15);
+ else if(f=='weiKing'&&cf=='wei'){atk(1.15);def(1.10)}})}
+// Rút bài, tôn trọng tay bài tối đa (5 + node tăng tay).
+function treeDraw(s,k){const cap=s===S.me?5+(treeHas('tq22')?1:0)+(treeHas('gcl15')?2:0):5;for(let n=0;n<k&&s.deck.length&&s.hand.length<cap;n++)s.hand.push(s.deck.shift())}
+function treeHasAct(){return !!TREE[S.lord]&&TREE[S.lord].branches.flatMap(b=>b.caps).some(a=>a.act&&treeHas(a.id))}
+function treeActReady(){if((S.tg||0)<3||!TREE[S.lord])return false;const u=S.treeUsed||{};return TREE[S.lord].branches.flatMap(b=>b.caps).some(a=>a.act&&treeHas(a.id)&&!u[a.id])}
+function treeGrant(){if(!S.nodes||!S.nodes.length||S.mode=='boss')return 0;S.tpGot=S.tpGot||[];S.tp=S.tp||0;let got=0;
+ const chs=[...new Set(S.nodes.map(n=>n.ch))];
+ chs.forEach(ch=>{if(S.tpGot.includes(ch))return;if(S.nodes.filter(n=>n.ch==ch).every(n=>n.done)){S.tpGot.push(ch);S.tp+=2;got+=2}});
+ if(got>0){saveGame();say('🌳 Cây Kỹ Năng: +'+got+' điểm (qua chương mới)')}
+ return got}
+function treeSkillInfo(){if(!S.me||!S.en)return;const L=TREE[S.lord];if(!L)return;const u=S.treeUsed||{},acts=L.branches.flatMap(b=>b.caps).filter(a=>a.act&&treeHas(a.id));
+ const rd=(S.tg||0)>=3;
+ $('#m-box').innerHTML=`<button class="mx" id="m-x">×</button><div class="head"><div><h2>🌳 Kỹ năng cây ${L.name}</h2><span class="chip">Tích lũy cây: ${(S.tg||0)}/3</span></div></div>`+acts.map(a=>`<div class="sk"><b>⚡ ${a.n}</b><br>${a.d}<br>${u[a.id]?'Đã dùng trong ải này.':rd?`<button class="btn" data-act="${a.id}" style="margin-top:6px">Dùng ngay</button>`:'Chưa đủ tích lũy — cần đủ 3.'}</div>`).join('')+`<p style="text-align:center;opacity:.8">Mỗi skill cây dùng 1 lần mỗi ải, chung 1 tích lũy cây (+1 mỗi lượt của bạn).</p><div style="display:flex;justify-content:center;margin-top:10px"><button class="ghost" id="ls-no">Đóng</button></div>`;
+ $('#m-x').onclick=()=>$('#modal').style.display='none';$('#ls-no').onclick=()=>$('#modal').style.display='none';
+ $('#m-box').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{$('#modal').style.display='none';treeSkill(b.dataset.act)});
+ $('#modal').style.display='flex';$('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
+function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S.me||!S.en)return;S.tg=0;S.treeUsed=S.treeUsed||{};S.treeUsed[id]=1;sfx('big');shakeField('lg');
+ const s=S.me,o=S.en,al=s.field.filter(x=>x&&x.hp>0),foes=o.field.filter(x=>x&&x.hp>0);
+ const burnAll=(n,bd)=>{foes.forEach(x=>{x.burn=n;x.bd=Math.round(x.mhp*bd)})};
+ if(id=='lb1A'){al.forEach(a=>{healU(a,Math.round(a.mhp*.4));a.buf=Math.max(a.buf,2);a.bp=1.3;upd(a)});s.hero.sh=(s.hero.sh||0)+Math.round(s.hero.mhp*.3);fl(s.hero,'🛡',1);upd(s.hero);say('Thục Hán Trung Hưng: toàn quân hồi phục!')}
+ else if(id=='lb2A'){foes.forEach(x=>{hit(x,Math.round(s.hero.mhp*.25));x.stun=1;upd(x)});say('Long Hồn Phá Quân!')}
+ else if(id=='tao1A'){al.forEach(a=>{a.buf=Math.max(a.buf,2);a.bp=1.4;upd(a)});treeDraw(s,2);say('Gian Hùng Lệnh: toàn quân tăng sức mạnh!')}
+ else if(id=='tao2A'){foes.forEach(x=>{hit(x,Math.round(s.hero.mhp*.2));x.wk=2;x.wkp=.8;upd(x)});say('Ngụy Đế Lệnh!')}
+ else if(id=='tk1A'){foes.forEach(x=>hit(x,Math.round(x.mhp*.15)));burnAll(3,.04);say('Hỏa Thiêu Xích Bích!')}
+ else if(id=='tk2A'){al.forEach(a=>{a.buf=Math.max(a.buf,2);a.bp=1.35;upd(a)});foes.forEach(x=>hit(x,Math.round(x.mhp*.1)));say('Hổ Gầm Giang Đông!')}
+ else if(id=='tq1A'){al.forEach(a=>{a.sh=(a.sh||0)+Math.round(a.mhp*.4);healU(a,Math.round(a.mhp*.2))});say('Giang Đông Thiết Bích!')}
+ else if(id=='tq2A'){foes.forEach(x=>{x.stun=1;upd(x)});al.forEach(a=>{a.sh=(a.sh||0)+Math.round(a.mhp*.25);upd(a)});say('Ngô Đế Oai!')}
+ else if(id=='sm1A'){foes.forEach(x=>{x.stun=2;hit(x,Math.round(x.mhp*.12));upd(x)});say('Thiên Mệnh Phế Lập!')}
+ else if(id=='sm2A'){foes.forEach(x=>{hit(x,Math.round(x.mhp*.15));x.n=Math.max(0,x.n-2);upd(x)});say('Quỷ Mưu Diệt Quốc!')}
+ else if(id=='gcl1A'){foes.forEach(x=>{x.n=Math.max(0,x.n-2);x.stun=1;upd(x)});say('Bát Quái Đồ!')}
+ else if(id=='gcl2A'){al.forEach(a=>{healU(a,Math.round(a.mhp*.3));a.n=a.cd;upd(a)});treeDraw(s,3);say('Thiên Mệnh: toàn quân hồi phục!')}
+ draw()}
+function treeShow(){show('tree');const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
+ if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
+ const body=$('#tree-body');body.innerHTML='';
+ L.branches.forEach(br=>{
+  const wrap=document.createElement('div');wrap.className='chap';
+  const spent=treeSpent(br.id);
+  wrap.innerHTML=`<h3>🌳 ${br.n} <span style="opacity:.7;font-size:12px">· đã dùng ${spent} điểm nhánh</span></h3><p style="opacity:.85;margin:2px 0 8px">${br.d}</p>`;
+  const grid=document.createElement('div');grid.className='stages';
+  [...br.nodes,...br.caps].forEach(n=>{
+   const owned=treeHas(n.id),can=treeCanBuy(n,br.id),need=TREE_TIER_REQ[n.t];
+   const b=document.createElement('button');b.className='node'+(owned?' done':'')+(n.act?' cap':'');
+   b.innerHTML=`<b>${owned?'✓ ':''}${n.n}</b><br><small>Tầng ${n.t} · ${n.c} điểm</small><br><small>${n.d}</small>${!owned&&!can?`<br><small style="opacity:.7">${(S.tp||0)<n.c?'Thiếu điểm':'Cần '+need+' điểm nhánh'}</small>`:''}`;
+   b.disabled=!owned&&!can;
+   b.onclick=()=>{if(!treeCanBuy(n,br.id))return;S.tp-=n.c;S.tree=S.tree||{};S.tree[S.lord]=S.tree[S.lord]||[];S.tree[S.lord].push(n.id);saveGame();treeShow()};
+   grid.appendChild(b)});
+  wrap.appendChild(grid);body.appendChild(wrap)})}
+function treeReset(){const L=TREE[S.lord];if(!L)return;const spent=L.branches.reduce((a,b)=>a+treeSpent(b.id),0);if(!spent)return;S.tp=(S.tp||0)+spent;S.tree[S.lord]=[];saveGame();treeShow();say('🌳 Đã reset cây kỹ năng, hoàn lại '+spent+' điểm')}
+
 // MENU
 const TH={"4": ["Tào Tháo", "Hứa Chử", "Điển Vi"], "5": ["Quan Vũ", "Trương Phi", "Hoàng Trung"], "6": ["Tào Tháo", "Trương Liêu", "Từ Hoảng"], "7": ["Lưu Bị", "Gia Cát Lượng"], "8": ["Chu Du", "Tôn Quyền", "Hoàng Cái"], "9": ["Lưu Bị", "Mã Siêu", "Triệu Vân"], "10": ["Tôn Quyền", "Trương Liêu", "Từ Hoảng"], "11": ["Lục Tốn", "Lã Mông", "Quan Vũ"], "12": ["Hoàng Trung", "Hạ Hầu Uyên", "Hạ Hầu Đôn"], "13": ["Lưu Bị", "Triệu Vân", "Quan Vũ"], "14": ["Lục Tốn", "Lăng Thống", "Chu Thái"], "15": ["Mạnh Hoạch", "Gia Cát Lượng", "Mã Lương"], "16": ["Khương Duy", "Ngụy Diên", "Gia Cát Lượng"], "17": ["Tư Mã Ý", "Tư Mã Sư", "Tư Mã Chiêu"], "18": ["Đặng Ngải", "Tư Mã Chiêu", "Tư Mã Ý"], "19": ["Tư Mã Ý", "Hạ Hầu Đôn", "Tuân Úc"]};
 function thPick(ch,fs){const th=TH[ch];if(!th)return{f:fs[Math.random()*fs.length|0],tm:null};
@@ -381,7 +648,7 @@ function thPick(ch,fs){const th=TH[ch];if(!th)return{f:fs[Math.random()*fs.lengt
  return{f:p.f,tm}}
 function newGame(lk){S.lord=lk||S.lord||'tao';S.mode=BOSSNEXT?'boss':null;BOSSNEXT=false;
  const b=C.map((c,i)=>i).filter(i=>C[i].r=='N'||C[i].r=='R');
- S.lv={};S.xp={};S.pend=0;S.pb=0;S.own=sh(b).slice(0,10);S.team=[];S.cur=0;S.stage=0;UP={c:{},a:1,d:1,h:1};
+ S.lv={};S.xp={};S.pend=0;S.pb=0;S.own=sh(b).slice(0,10);S.team=[];S.cur=0;S.stage=0;UP={c:{},a:1,d:1,h:1};S.tp=0;S.tree={};S.tpGot=[];S.tg=0;S.treeUsed={};
  S.nodes=[];CHAP.forEach((c,ch)=>{for(let k=0;k<STG[ch];k++){S.nodes.push({ch,k,...thPick(ch,c.fs),elv:Math.min(20,2*ch+1),sc:1,tier:ch<4?['N']:ch<10?['N','R']:ch<15?['N','R','S']:['N','R','S','SR'],hs:+((ch<4?.6:ch<10?.8:1)*(1+.02*ch)).toFixed(3),boss:k==STG[ch]-1,done:false,stars:0})}});
  if(S.mode!='boss')mapShow()}
 $('#go-new').onclick=()=>lordShow();
@@ -414,8 +681,8 @@ async function cloudRef(){try{const c=window.claude;if(!c)return null;const db=a
 async function cloudRaw(){try{const r=await cloudRef();if(!r)return null;const s=await r.get();return s.exists?((s.data()||{}).json||null):null}catch(e){return null}}
 function cloudPut(raw){cloudRef().then(r=>r&&r.set({json:raw})).catch(()=>{})}
 function cloudDel(){cloudRef().then(r=>r&&r.delete()).catch(()=>{})}
-function saveGame(){try{const isB=S.mode=='boss';const raw=JSON.stringify({own:S.own,team:S.team,nodes:(isB&&S.cnodes)?S.cnodes:S.nodes,cur:(isB&&S.cnodes)?S.ccur:S.cur,bp:BP,stage:S.stage,lv:S.lv,xp:S.xp,UP:UP,pend:S.pend||0,lord:S.lord});localStorage.setItem(SK_KEY,raw);cloudPut(raw);return true}catch(e){return false}}
-function loadGame(raw){try{const d=JSON.parse(raw||localStorage.getItem(SK_KEY)||'null');if(!d)return false;Object.assign(S,{mode:null,own:d.own,team:d.team,nodes:d.nodes,cur:d.cur,stage:d.stage,lv:d.lv,xp:d.xp,pend:d.pend||0});BP=d.bp||{};S.lord=LORDS[d.lord]?d.lord:'tao';UP=d.UP;return true}catch(e){return false}}
+function saveGame(){try{const isB=S.mode=='boss';const raw=JSON.stringify({own:S.own,team:S.team,nodes:(isB&&S.cnodes)?S.cnodes:S.nodes,cur:(isB&&S.cnodes)?S.ccur:S.cur,bp:BP,stage:S.stage,lv:S.lv,xp:S.xp,UP:UP,pend:S.pend||0,lord:S.lord,tp:S.tp||0,tree:S.tree||{},tpGot:S.tpGot||[]});localStorage.setItem(SK_KEY,raw);cloudPut(raw);return true}catch(e){return false}}
+function loadGame(raw){try{const d=JSON.parse(raw||localStorage.getItem(SK_KEY)||'null');if(!d)return false;Object.assign(S,{mode:null,own:d.own,team:d.team,nodes:d.nodes,cur:d.cur,stage:d.stage,lv:d.lv,xp:d.xp,pend:d.pend||0,tp:d.tp||0,tree:d.tree||{},tpGot:d.tpGot||[]});treeGrant();BP=d.bp||{};S.lord=LORDS[d.lord]?d.lord:'tao';UP=d.UP;return true}catch(e){return false}}
 function refreshMenu(){let has=false;try{has=!!localStorage.getItem(SK_KEY)}catch(e){}has=has||CLOUD_HAS;
  const live=!!(S.nodes&&S.nodes.length);
  $('#go-cont').style.display=has?'':'none';$('#go-del').style.display=has?'':'none';$('#go-save').style.display=live?'':'none'}
@@ -489,7 +756,7 @@ function mk(i,side,sc,elv=1){const c=C[i],lv=side?(S.lv[i]||1):elv,k=sc*(side?UP
  const GR={N:[5,1,1],R:[10,2,2],S:[15,3,3],SR:[20,4,4]},g=GR[c.r]||GR.N,L=lv-1;
  const A=1+(p=='ATK'?pv/100:0),Dm=1+(p=='DEF'?pv/100:0),H=1+(p=='HP'?pv/100:0);
  const u={c,atk:(c.a+L*g[1])*k*(side?UP.a:1)*A*(side&&S.lord=='tao'&&c.f=='wei'?1.1:1)*(side&&S.lord=='tonkien'&&c.f=='wu'?1.08:1),def:(c.d+L*g[2])*k*(side?UP.d:1)*Dm*(side&&S.lord=='tonquyen'&&c.f=='wu'?1.1:1)*(side&&S.lord=='gcl'&&c.f=='shu'?1.05:1),mhp:Math.round((250+c.d*3+L*g[0])*k*(side?UP.h:1)*H),buf:0,dbuf:0,stun:0,burn:0,bd:0,n:(c.xq&&c.xq.code=='PRE')?1:0,fresh:0,nn:0,wk:0,sh:0,au:1,cd:(c.t=='X'&&c.sp=='none')?999:3,lv:lv,lp:!!(side&&S.lord=='simay'&&c.f=='wei')};
- u.hp=u.mhp;u.shp=p=='SHD'?pv:0;return u}
+ u.hp=u.mhp;u.shp=p=='SHD'?pv:0;if(side)applyTreeFx(u);return u}
 function el(u){const d=document.createElement('div');d.className='u tr-'+u.c.r;d.style.setProperty('--c','var(--'+u.c.f+')');d.style.setProperty('--r',RC[u.c.r]);
  d.innerHTML=`<img src="${u.c.i}" alt="${u.c.n}"><div class="bar"><i class="hp"></i><i class="shi"></i></div><div class="bar rg"><i></i></div><div class="st"></div><b class="ic"></b><span class="ib">!</span>`;d.querySelector('.ib').onclick=e=>{e.stopPropagation();cardInfo(u.c,u.lv)};u.el=d;upd(u);return d}
 function heroEl(h){const d=document.createElement('div');d.className='hero';
@@ -516,6 +783,7 @@ function bossInfo(){const h=S.en.hero,c=h.c;const ps=(c.pl||[]).map(k=>'• '+(P
 function draw(){aura(S.me);aura(S.en);sets(S.me);sets(S.en);
  const wa=$('#w-auto');if(wa){const ok=autoUnlocked();wa.style.display=ok?'':'none';if(!ok&&S.auto){S.auto=false;wa.classList.remove('on')}}
  const lb=$('#lord-sk');if(lb){const rd=(S.lg||0)>=3&&!S.lordUsed;lb.classList.toggle('on',rd);lb.textContent=S.lordUsed?'✓':rd?'⚜':(S.lg||0)+'/3';lb.title=S.lordUsed?'Đã dùng trong ải này':'Kỹ năng chủ tướng [L] · dùng 1 lần mỗi ải';}
+ const tb=$('#tree-sk');if(tb){const hasA=treeHasAct(),rd=hasA&&(S.tg||0)>=3&&treeActReady();tb.style.display=hasA?'':'none';tb.classList.toggle('on',rd);tb.textContent=rd?'🌳':(S.tg||0)+'/3';tb.title=rd?'Kỹ năng cây Lưu Bị — sẵn sàng!':'Kỹ năng cây Lưu Bị · tích lũy '+(S.tg||0)+'/3';}
  
  const sp=$('#sup'),on=S.phase=='place'&&S.sel>=0&&S.me.field.every(Boolean);sp.style.display=on?'flex':'none';
  if(on)sp.replaceChildren(...[['d','🥁 Đánh trống [D]'],['f','🚩 Vẫy cờ [F]']].map(([k,l])=>{const b=document.createElement('button');b.className='btn';b.textContent=l;b.onclick=()=>useSup(k);return b}));
@@ -532,9 +800,13 @@ function stage(){if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);
  const mf=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'wu';
  const side=(ids,k,s,f)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?heroC:C[HD[f]]},deck:sh(ids).map(i=>mk(i,s,k,node.elv)),hand:[],field:[null,null,null,null,null],gy:0}};
- S.pb=S.pend||0;S.me=side(S.team,1,1,mf);S.en=side(ids,sc,0,fac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*node.hs*(node.ch<5?.8:1));
- for(const s of[S.me,S.en])for(let n=0;n<3;n++)if(s.deck.length)s.hand.push(s.deck.shift());
- S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.aiq=Math.min(1,.25+.035*node.ch);S.phase='';tok++;$('#w-t').textContent=`Chương ${node.ch+1}/20 · Ải ${node.k+1} — quân ${FN[fac]}${node.boss?' (★ thủ lĩnh)':''}`;
+ S.pb=S.pend||0;S.me=side(S.team,1,1,mf);S.en=side(ids,sc,0,fac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*node.hs*(node.ch<5?.8:1));const TM=treeMod();if(TM.lordHp){S.me.hero.mhp+=TM.lordHp;S.me.hero.hp+=TM.lordHp}S.me.hero.def+=TM.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;S.me.rv=0;S.me.wv=0;
+ for(const s of[S.me,S.en])for(let n=0;n<3+(s===S.me&&treeHas('lb2P')?1:0)+(s===S.me&&treeHas('gcl16')?2:0);n++)if(s.deck.length)s.hand.push(s.deck.shift());
+ if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});
+ if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});
+ if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});
+ if(treeHas('tk16'))S.en.deck.forEach(u=>{u.burn=1;u.bd=Math.round(u.mhp*.03)});
+ S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=Math.min(1,.25+.035*node.ch);S.phase='';tok++;$('#w-t').textContent=`Chương ${node.ch+1}/20 · Ải ${node.k+1} — quân ${FN[fac]}${node.boss?' (★ thủ lĩnh)':''}`;
  $('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
 $('#w-go').onclick=()=>{$('#cov').style.display='none';ambStart();sfx('horn');sfx('wardrums');battle()};
 function autoUnlocked(){if(SET.autoSecret)return true;const ns=(S.mode=='boss'&&S.cnodes)?S.cnodes:S.nodes;if(!ns||!ns.length)return false;return ns.every(n=>n.ch>14||n.done)}
@@ -544,16 +816,17 @@ $('#w-spd').onclick=e=>{S.spd=S.spd%3+1;e.currentTarget.textContent='x'+S.spd};
 $('#w-end').onclick=()=>{if(S.phase=='place'){S.phase='';S.sel=-1;S.done&&S.done()}};
 const say=t=>$('#log').textContent=t;
 function fl(u,t,g,cls){if(!u.el)return;const s=document.createElement('span');s.className='fl'+(g?' g':'')+(cls?' '+cls:'');s.textContent=t;u.el.appendChild(s);setTimeout(()=>s.remove(),900)}
-function hit(t,d){if(HP(t,'B_ARMOR'))d=Math.round(d*.875);if(t.dr>0)d=Math.round(d*.6);if(t.c&&!t.H&&t.c.p=='BULWARK')d=Math.round(d*(1-t.c.pv/100));if(t.c&&!t.H)t.stk=0;if(hx(t,'GUARD'))d=Math.round(d*.9);if(t.lp)d=Math.round(d*.92);if(t.sh>0){const a=Math.min(t.sh,d);t.sh-=a;d-=a}const crit=d>=Math.round(t.mhp*.25);t.hp=Math.max(0,t.hp-d);if(d>0)sfx(t.hp<=0?'die':crit?'crit':'hit');fl(t,'-'+d,0,t.hp<=0?'kill':crit?'crit':'');upd(t);if(t.hp<=0&&t.el)t.el.classList.add('dying');if(t.el){t.el.classList.remove('hurt');void t.el.offsetWidth;t.el.classList.add('hurt');setTimeout(()=>t.el&&t.el.classList.remove('hurt'),600)}}
+function hit(t,d){if(HP(t,'B_ARMOR'))d=Math.round(d*.875);if(t.dr>0)d=Math.round(d*.6);if(t.c&&!t.H&&t.c.p=='BULWARK')d=Math.round(d*(1-t.c.pv/100));if(t.c&&!t.H)t.stk=0;if(hx(t,'GUARD'))d=Math.round(d*.9);if(t.lp)d=Math.round(d*.92);if(t.drR)d=Math.round(d*t.drR);if(t.sh>0){const a=Math.min(t.sh,d);t.sh-=a;d-=a}const crit=d>=Math.round(t.mhp*.25);t.hp=Math.max(0,t.hp-d);if(d>0)sfx(t.hp<=0?'die':crit?'crit':'hit');fl(t,'-'+d,0,t.hp<=0?'kill':crit?'crit':'');upd(t);if(t.hp<=0&&t.el)t.el.classList.add('dying');if(t.el){t.el.classList.remove('hurt');void t.el.offsetWidth;t.el.classList.add('hurt');setTimeout(()=>t.el&&t.el.classList.remove('hurt'),600)}}
 let SKF=0;
 function hx(u,code){return !!(u&&!u.H&&u.c&&u.c.xq&&u.c.xq.code==code)}
-function dmg(a,t,m,p=0){return Math.round(ea(a)*1.6*m*100/(100+ed(t)*(1-p))*(.92+Math.random()*.16)*(SKF&&a.c&&(a.c.r=='R'||a.c.r=='N')?.85:1))}
-async function reap(){await sleep(450);for(const s of[S.me,S.en])s.field.forEach((u,i)=>{if(u&&u.hp<=0){s.field[i]=null;s.gy++}});draw()}
-function put(s,k,i){const u=s.hand.splice(k,1)[0];u.n=0;u.fresh=u.c.p=='FIRST'?0:1;if(u.shp){u.sh=Math.round(u.mhp*u.shp/100);u.shp=0}s.field[i]=u;{const opp=s===S.me?S.en:S.me;if(u.c&&u.c.srp&&u.c.srp.trig=='deploy')applyLvD(u.c.srp.d,u,s,opp)}{const opp=s===S.me?S.en:S.me;if((u.lv||1)>=10&&u.c){const fo=opp.field.filter(x=>x&&x.hp>0);const tgt=opp.field[i]&&opp.field[i].hp>0?opp.field[i]:(fo[0]||opp.hero);sfx('cast');cbanner(u.c.n+' · Lv'+(u.lv>=20?20:10),'Kỹ năng Lv'+(u.lv>=20?20:10)+' kích hoạt');extra(u,s,opp,fo,tgt)}}
+function dmg(a,t,m,p=0){let d=Math.round(ea(a)*1.6*m*100/(100+ed(t)*(1-p))*(.92+Math.random()*.16)*(SKF&&a.c&&(a.c.r=='R'||a.c.r=='N')?.85:1));if(t.H&&S.me&&S.me.field.includes(a)&&treeHas('lb23'))d=Math.round(d*1.1);if(S.me&&S.me.field.includes(a)){if(treeHas('tao21')&&t.def>t.atk)d=Math.round(d*1.1);if(treeHas('tao24')&&t.hp<t.mhp*.3)d=Math.round(d*1.15);if(treeHas('tk15')&&t.burn>0&&a.c.f=='wu')d=Math.round(d*1.1);if(treeHas('tk24')&&t.mhp<a.mhp)d=Math.round(d*1.12);if(treeHas('tq21')&&a.c.f=='wu'&&(t.stun>0||t.burn>0))d=Math.round(d*1.1);if(treeHas('sm21')&&t.stun>0)d=Math.round(d*1.2);if(treeHas('sm22')&&t.atk>a.atk)d=Math.round(d*1.1);if(treeHas('gcl22')&&t.n>=t.cd-1)d=Math.round(d*1.1)}return d}
+async function reap(){await sleep(450);for(const s of[S.me,S.en])s.field.forEach((u,i)=>{if(u&&u.hp<=0){s.field[i]=null;s.gy++;if(s===S.en){if(S.me&&(S.me.rv||0)<3&&treeHas('lb24')){S.me.rv=(S.me.rv||0)+1;S.me.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*1.05)});say('Phục Hưng: cả đội +5% sức mạnh')}if(treeHas('tk13')&&u.burn>0){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.burn=2;nb.bd=Math.round(nb.mhp*.04)}})}if(S.me&&treeHas('tk25'))S.me.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.08))});if(treeHas('tao23'))S.en.field.forEach(a=>{if(a&&a.hp>0)a.atk=Math.round(a.atk*.9)});if(treeHas('sm13')){[i-1,i+1].forEach(j=>{const nb=S.en.field[j];if(nb&&nb.hp>0){nb.stun=1;upd(nb)}})}if(S.me&&treeHas('sm27'))treeDraw(S.me,1);if(S.me&&treeHas('gcl24')&&S.me.hero.hp>0)healU(S.me.hero,Math.round(S.me.hero.mhp*.1))}if(s===S.me){if(treeHas('tq27')&&u.c.f=='wu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wu')a.atk=Math.round(a.atk*1.1)});if(treeHas('sm23')&&u.c.f=='wei'){const fe=S.en.field[i];if(fe&&fe.hp>0){fe.stun=1;upd(fe)}}if(treeHas('gcl25')&&u.c.f=='shu')S.me.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')healU(a,Math.round(a.mhp*.15))})}}});draw()}
+function put(s,k,i){const u=s.hand.splice(k,1)[0];u.n=0;if(s===S.me&&treeHas('lb26')&&u.cd<999)u.n=1;u.fresh=u.c.p=='FIRST'?0:1;if(u.shp){u.sh=Math.round(u.mhp*u.shp/100);u.shp=0}s.field[i]=u;if(s===S.me){if(treeHas('tao13')&&u.c.f=='wei'&&(S.me.wv||0)<5){S.me.wv=(S.me.wv||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f=='wei')a.atk=Math.round(a.atk*1.04)})}if(treeHas('tao25'))u.sh=(u.sh||0)+Math.round(u.mhp*.15);if(treeHas('sm25')&&u.c.f=='wei')u.sh=(u.sh||0)+Math.round(u.mhp*.1);if(treeHas('tk26')&&u.c.f=='wu'&&u.cd<999)u.n=1;if(treeHas('gcl1P')&&u.c.f=='shu'&&u.cd<999)u.n=1;if(treeHas('tk23')&&s.field.filter(x=>x&&x.hp>0).length==1)u.atk=Math.round(u.atk*1.2);if(treeHas('tq24')&&u.c.f=='wu'){const fe=S.en.field[i];if(fe&&fe.hp>0)hit(fe,Math.round(fe.mhp*.05))}}{const opp=s===S.me?S.en:S.me;if(u.c&&u.c.srp&&u.c.srp.trig=='deploy')applyLvD(u.c.srp.d,u,s,opp)}{const opp=s===S.me?S.en:S.me;if((u.lv||1)>=10&&u.c){const fo=opp.field.filter(x=>x&&x.hp>0);const tgt=opp.field[i]&&opp.field[i].hp>0?opp.field[i]:(fo[0]||opp.hero);sfx('cast');cbanner(u.c.n+' · Lv'+(u.lv>=20?20:10),'Kỹ năng Lv'+(u.lv>=20?20:10)+' kích hoạt');extra(u,s,opp,fo,tgt)}}
  if(u.c.p=='ORDER'){const boosted=[];s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f==u.c.f&&a.n<a.cd){a.n++;boosted.push(a)}});S.sel=-1;draw();boosted.forEach(a=>fl(a,'⚡+1',1));return u}S.sel=-1;draw();return u}
 function ai(s,o){
  const mine=s===S.me;
  if(mine&&(S.lg||0)>=3&&!S.lordUsed){const al=s.field.filter(x=>x&&x.hp>0).length;if(al>=3||s.hero.hp<s.hero.mhp*.5)lordSkill()}
+ if(mine&&(S.tg||0)>=3){const al=s.field.filter(x=>x&&x.hp>0).length;if(al>=3||s.hero.hp<s.hero.mhp*.5){const act=(TREE[S.lord]||{branches:[]}).branches.flatMap(b=>b.caps).find(a=>a.act&&treeHas(a.id)&&!(S.treeUsed||{})[a.id]);if(act)treeSkill(act.id)}}
  const e=[0,1,2,3,4].filter(i=>!s.field[i]);
  if(!e.length)return;
  if(!s.hand.length)return;
@@ -593,6 +866,9 @@ function dtShow(){show('dt');const order={SR:0,S:1},fo={wu:0,wei:1,shu:2};
  $('#dtlist').innerHTML=list.map(c=>{const eff=c.t=='X'?c.sd:SK[c.t];const pas=c.srp?srpText(c.srp):(PT[c.p]?PT[c.p].replace('#',c.pv):'');
   return '<div class="dtr" style="--c:'+RC[c.r]+'"><img src="'+c.i+'" alt="'+c.n+'"><div><b>'+c.n+'</b> <span class="chip" style="--c:'+RC[c.r]+'">'+c.r+'</span> <span class="chip" style="--c:var(--'+c.f+')">'+FN[c.f]+'</span><small>⚔'+c.a+' 🛡'+c.d+'</small><div class="sec"><b>'+c.s+'</b>: '+eff+'.</div><div class="sec"><i>Nội tại:</i> '+pas+'</div></div></div>'}).join('');[...document.querySelectorAll('#dtlist .dtr')].forEach((el,i)=>{el.onclick=()=>cardInfo(list[i]);el.style.cursor='pointer'})}
 $('#go-dt').onclick=dtShow;
+$('#go-tree').onclick=()=>treeShow();
+$('#tree-back').onclick=()=>show('menu');
+$('#tree-reset').onclick=()=>treeReset();
 $('#dt-back').onclick=()=>show('menu');
 function lordShow(){show('lord');$('#lords').replaceChildren(...Object.keys(LORDS).map(k=>{const l=LORDS[k],cc=C.find(c=>c.n==l.n);const b=document.createElement('button');b.className='lord';
  b.innerHTML=(cc?'<img src="'+cc.i+'" alt="">':'<span class="lav">⚜</span>')+'<span><b>'+l.n+'</b><br><small>'+l.pas+'</small><br><small>⚜ '+l.sk+'</small></span>';b.onclick=()=>newGame(k);return b}))}
@@ -614,28 +890,29 @@ function lordSkillInfo(){if(!S.me||!S.en)return;const L=LORDS[S.lord],rd=(S.lg||
  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
 function lordSkill(){if((S.lg||0)<3||S.lordUsed||S.phase=='busy'||!S.me||!S.en)return;S.lg=0;S.lordUsed=true;sfx('big');shakeField('lg');
  const s=S.me,o=S.en,al=s.field.filter(x=>x&&x.hp>0),foes=o.field.filter(x=>x&&x.hp>0),k=S.lord;
- if(k=='tao'){al.forEach(a=>{a.buf=Math.max(a.buf,2);upd(a)});say('Hiệu lệnh Thiên tử: đồng minh tăng sức mạnh')}
- else if(k=='luubi'){al.forEach(a=>healU(a,Math.round(a.mhp*.2)));say('Tam cố thảo lư: toàn quân hồi máu')}
- else if(k=='tonkien'){foes.forEach(x=>{hit(x,Math.round(x.mhp*.08));x.burn=2;x.bd=Math.round(x.mhp*.04)});say('Hỏa thiêu Dương Thành!')}
- else if(k=='tonquyen'){al.forEach(a=>healU(a,Math.round(a.mhp*.1)));const h=Math.round(s.hero.mhp*.2);s.hero.sh=(s.hero.sh||0)+h;fl(s.hero,'🛡',1);upd(s.hero);say('Hộ giá Giang Đông: toàn quân được bảo vệ')}
- else if(k=='simay'){foes.forEach(x=>{x.stun=1;upd(x)});say('Phế lập: địch bị choáng')}
- else if(k=='gcl'){foes.forEach(x=>{x.n=Math.max(0,x.n-1);upd(x)});say('Thiên nhãn: tiến độ kỹ năng địch bị đẩy lùi')}
+ if(k=='tao'){al.forEach(a=>{a.buf=Math.max(a.buf,2);upd(a)});if(treeHas('tao17'))treeDraw(s,2);if(treeHas('tao2P'))al.forEach(a=>healU(a,Math.round(a.mhp*.2)));say('Hiệu lệnh Thiên tử: đồng minh tăng sức mạnh')}
+ else if(k=='luubi'){al.forEach(a=>healU(a,Math.round(a.mhp*.2)));if(treeHas('lb17'))al.forEach(a=>{a.sh=(a.sh||0)+Math.round(a.mhp*.1);upd(a)});say('Tam cố thảo lư: toàn quân hồi máu')}
+ else if(k=='tonkien'){foes.forEach(x=>{hit(x,Math.round(x.mhp*.08));x.burn=2;x.bd=Math.round(x.mhp*.04)});if(treeHas('tk17'))foes.forEach(x=>{hit(x,Math.round(x.mhp*.05));x.burn=(x.burn||0)+2;x.bd=Math.round(x.mhp*.04)});say('Hỏa thiêu Dương Thành!')}
+ else if(k=='tonquyen'){al.forEach(a=>healU(a,Math.round(a.mhp*.1)));if(treeHas('tq17'))al.forEach(a=>healU(a,Math.round(a.mhp*.15)));const h=Math.round(s.hero.mhp*.2);s.hero.sh=(s.hero.sh||0)+h;fl(s.hero,'🛡',1);upd(s.hero);say('Hộ giá Giang Đông: toàn quân được bảo vệ')}
+ else if(k=='simay'){foes.forEach(x=>{x.stun=treeHas('sm17')?2:1;upd(x)});say('Phế lập: địch bị choáng')}
+ else if(k=='gcl'){foes.forEach(x=>{x.n=Math.max(0,x.n-(treeHas('gcl17')?2:1));upd(x)});if(treeHas('gcl17'))treeDraw(s,1);say('Thiên nhãn: tiến độ kỹ năng địch bị đẩy lùi')}
  draw()}
 $('#lord-sk').onclick=()=>lordSkillInfo();
+$('#tree-sk').onclick=()=>treeSkillInfo();
 function fsToggle(){try{if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen()}catch(e){}}
 $('#w-fs').onclick=fsToggle;$('#go-fs').onclick=fsToggle;
 document.addEventListener('fullscreenchange',()=>{const b=$('#w-fs');if(b)b.title=document.fullscreenElement?'Thoát toàn màn hình':'Toàn màn hình'});
 function place(i){if(S.phase!='place'||S.sel<0)return;put(S.me,S.sel,i);S.phase='';setTimeout(()=>S.done&&S.done(),500)}
 async function checkCombo(s){if(!s.cf)s.cf={};const fired=[];SETS.forEach((z,zi)=>{if(!s.cf[zi]&&z[1].every(n=>s.field.some(x=>x&&x.hp>0&&x.c.n==n))){s.cf[zi]=1;fired.push(zi)}});for(const zi of fired)await comboFx(zi,s,s===S.me?S.en:S.me)}
 async function begin(s){s.field.forEach(u=>{if(u&&u.hp>0&&u.c&&u.c.srp&&u.c.srp.trig=='turn')applyLvD(u.c.srp.d,u,s,s===S.me?S.en:S.me)});await checkCombo(s);s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='SOVEREIGN'){healU(u,Math.round(u.mhp*.04));s.field.forEach(a=>{if(a&&a.hp>0&&a!==u&&a.c.f==u.c.f)healU(a,Math.round(a.mhp*.02))})}});s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='CLEANSE'){u.burn=0;u.stun=0}});
- s.field.forEach(u=>{if(u&&u.hp>0){if(hx(u,'REGEN'))healU(u,Math.round(u.mhp*.03));if(hx(u,'SHIELDREG'))u.sh=(u.sh||0)+Math.round(u.mhp*.05)}});if(s===S.me){S.lg=Math.min(3,(S.lg||0)+1);if(S.lord=='luubi')s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu')healU(u,Math.round(u.mhp*.03))})}s.field.forEach(u=>{if(u){u.drum=0;u.flag=1}});$('#turn').textContent=s===S.me?'― Lượt của bạn ―':'― Lượt của địch ―';
+ s.field.forEach(u=>{if(u&&u.hp>0){if(hx(u,'REGEN'))healU(u,Math.round(u.mhp*.03));if(hx(u,'SHIELDREG'))u.sh=(u.sh||0)+Math.round(u.mhp*.05)}});if(s===S.me){S.lg=Math.min(3,(S.lg||0)+1);S.tg=Math.min(3,(S.tg||0)+1);if(S.lord=='luubi'){s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu')healU(u,Math.round(u.mhp*(treeHas('lb11')?.05:.03)))});if(treeHas('lb13'))s.field.forEach(u=>{if(u&&u.hp>0&&u.hp<u.mhp*.5)healU(u,Math.round(u.mhp*.08))});if(treeHas('lb15')&&s.hero.hp>0)healU(s.hero,Math.round(s.hero.mhp*.03))}if(treeHas('tq13')&&s.hero.hp>0)s.hero.sh=(s.hero.sh||0)+Math.round(s.hero.mhp*.05);if(treeHas('tq15'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wu'&&u.hp<u.mhp*.5)u.sh=(u.sh||0)+Math.round(u.mhp*.15)});if(treeHas('sm26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wei')healU(u,Math.round(u.mhp*.02))});if(treeHas('gcl27')&&s.hero.hp>0)healU(s.hero,Math.round(s.hero.mhp*.02));if(treeHas('gcl28')&&s.field.filter(u=>u&&u.hp>0&&u.c.f=='shu').length>=3)s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu'){u.buf=1;u.bp=1.12}});if(treeHas('tao26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wei'&&u.n<u.cd)u.n++});if(treeHas('tq26'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='wu'&&u.n<u.cd)u.n++});if(treeHas('gcl14'))s.field.forEach(u=>{if(u&&u.hp>0&&u.c.f=='shu'&&u.n<u.cd)u.n++})}if(s===S.en){if(treeHas('sm15')){const foes=s.field.filter(u=>u&&u.hp>0);if(foes.length){const mx=foes.reduce((a,b)=>b.n>a.n?b:a);mx.n=Math.max(0,mx.n-1)}}if(treeHas('sm24')){const foes=s.field.filter(u=>u&&u.hp>0);if(foes.length){const lw=foes.reduce((a,b)=>b.hp/b.mhp<a.hp/a.mhp?b:a);hit(lw,Math.round(lw.mhp*.03))}}}s.field.forEach(u=>{if(u){u.drum=0;u.flag=1}});$('#turn').textContent=s===S.me?'― Lượt của bạn ―':'― Lượt của địch ―';
  s.field.forEach(u=>{if(u&&u.wk>0)u.wk--;if(u&&u.dd>0)u.dd--;if(u&&u.dr>0)u.dr--});
- const dr=1+s.field.reduce((a,u)=>a+(u&&u.hp>0&&u.c.p=='DRAW'?u.c.pv:0),0);
- for(let n=0;n<dr&&s.deck.length&&s.hand.length<5;n++)s.hand.push(s.deck.shift());
+ const dr=1+s.field.reduce((a,u)=>a+(u&&u.hp>0&&u.c.p=='DRAW'?u.c.pv:0),0)+(s===S.me&&treeHas('tao22')?1:0)+(s===S.me&&treeHas('sm2P')?1:0)+(s===S.me&&treeHas('gcl2P')?1:0);
+ for(let n=0;n<dr&&s.deck.length&&s.hand.length<(s===S.me?5+(treeHas('tq22')?1:0)+(treeHas('gcl15')?2:0):5);n++)s.hand.push(s.deck.shift());
  S.sel=-1;draw();
  s.field.forEach(u=>{if(u&&u.hp>0&&u.c.p=='HEAL'){const t=s.field.filter(x=>x&&x.hp>0).sort((a,b)=>a.hp/a.mhp-b.hp/b.mhp)[0];if(t)healU(t,Math.round(t.mhp*u.c.pv/100))}});
  s.field.forEach(u=>{if(u&&u.imm>0){u.burn=0;u.stun=0;u.wk=0;u.dd=0;u.imm--}});
- let b=0;s.field.forEach(u=>{if(u&&u.burn>0){u.burn--;hit(u,u.bd);b=1}});
+ let b=0;s.field.forEach(u=>{if(u&&u.burn>0){u.burn--;hit(u,Math.round(u.bd*(treeHas('tk11')?1.5:1)*(treeHas('tk1P')?2:1)));b=1}});
  if(b)await reap();else await sleep(450)}
 function spec(u,s,o,foes,tg,forceSp){const sp=forceSp||u.c.sp,allies=s.field.filter(x=>x&&x.hp>0),idx=o.field.indexOf(tg),dm=(x,m,p=0)=>dmg(u,x,m,p);
  switch(sp){
@@ -856,7 +1133,7 @@ function applyCombo(e,s,o){const al=s.field.filter(x=>x&&x.hp>0),foes=o.field.fi
  case 'DRAIN': {let g=0;foes.forEach(x=>{const d=dmg(rep,x,.6);hit(x,d);g+=d});healU(rep,Math.round(g*.5));break}
  }}
 async function comboFx(zi,s,o){const cb=COMBOS[zi];sfx('big');shakeField('md');cbanner(cb.n,'Kết hợp · '+SETS[zi][0]);
- applyCombo(cb.e,s,o);draw();await sleep(1300);await reap()}
+ applyCombo(cb.e,s,o);if(s===S.me){if(treeHas('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHas('gcl13'))treeDraw(s,1);if(treeHas('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHas('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHas('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem=SETS[zi][1];if(treeHas('tao14')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))treeDraw(s,1);if(treeHas('tq23')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}})}draw();await sleep(1300);await reap()}
 function setPct(k,size){return (5*(k-1)+(k==size?5:0))/100}
 function activeSets(s){const out=[];SETS.forEach(z=>{const k=z[1].filter(n=>s.field.some(x=>x&&x.hp>0&&x.c.n==n)).length;if(k>=2)out.push({n:z[0],k,size:z[1].length,pct:setPct(k,z[1].length)})});return out}
 function sets(s){s.field.forEach(u=>{if(u){u.sa=1;u.sd2=1}});
@@ -894,10 +1171,11 @@ function bstage(node){const b=BOSSES[node.bossIdx],mh=Math.round(1100*UP.h);
  const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);const mf=Object.keys(cnt).sort((x,y)=>cnt[y]-cnt[x])[0]||'wu';
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};
  S.pb=S.pend||0;S.pend=0;
- S.me={f:mf,hero:{H:1,hp:mh,mhp:mh,def:30,c:heroC},deck:sh(S.team).map(i=>mk(i,1,1)),hand:[],field:[null,null,null,null,null],gy:0};
+ S.me={f:mf,hero:{H:1,hp:mh,mhp:mh,def:30,c:heroC},deck:sh(S.team).map(i=>mk(i,1,1)),hand:[],field:[null,null,null,null,null],gy:0};const TMB=treeMod();if(TMB.lordHp){S.me.hero.mhp+=TMB.lordHp;S.me.hero.hp+=TMB.lordHp}S.me.hero.def+=TMB.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;
  S.en={f:b.f,hero:bossHero(b),deck:[],hand:[],field:[null,null,null,null,null],gy:0};
- for(let n=0;n<3;n++)if(S.me.deck.length)S.me.hand.push(S.me.deck.shift());
- S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.aiq=1;S.phase='';tok++;
+ for(let n=0;n<3+(treeHas('lb2P')?1:0)+(treeHas('gcl16')?2:0);n++)if(S.me.deck.length)S.me.hand.push(S.me.deck.shift());
+ if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});
+ S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};S.me.rv=0;S.me.wv=0;if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=1;S.phase='';tok++;
  $('#w-t').textContent='Thách đấu · '+b.n;$('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
 async function bossAct(){const b=S.en.hero,s=S.me;if(b.hp<=0)return;b.n++;
  if(!b.ph2&&b.hp<b.mhp*.5){b.ph2=1;b.sk=1;if(b.el)b.el.classList.add('enraged');say('⚠ '+b.c.n+' nổi giận! Giai đoạn 2 — mở thêm 2 kỹ năng mới!');shakeField('lg');sfx('big');await sleep(600)}
@@ -1140,6 +1418,7 @@ function end(w){ambStop();S.team.forEach(gainXp);sfx(w?'win':'lose');say(w?'Quâ
  if(!w){say('Thất bại. Hãy chỉnh đội hình và thử lại ải này.');return setTimeout(mapShow,1200)}
  const node=S.nodes[S.stage],p=S.me.hero.hp/S.me.hero.mhp,wasDone=node.done;node.done=true;node.stars=Math.max(node.stars||0,p>=.7?3:p>=.35?2:1);if(S.mode=='boss')BP[node.bossIdx]={d:true,s:node.stars};
  S.cur=S.nodes.findIndex(n=>!n.done);
+ if(S.mode!='boss')treeGrant();
  if(S.cur<0&&!wasDone)return fin(S.mode=='boss'?(S.bgroup=='than'?'Đã hạ gục 3 Thần tướng!':'Đã hạ gục 3 Ma tướng!'):'Thống nhất thiên hạ!',`Đã hoàn thành 20 chương. Tổng sao: ${S.nodes.reduce((a,n)=>a+n.stars,0)}/${S.nodes.length*3}. Tướng sở hữu: ${S.own.length}.`);
  reward()},1400)}
 function fin(t,p){$('#e-t').textContent=t;$('#e-p').textContent=p;show('end')}
