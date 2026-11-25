@@ -50,7 +50,13 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .cov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#140f0ccc;border-radius:10px;z-index:9}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .pk{background:none;border:0;padding:0;text-align:center}
-.pk.sel img{box-shadow:0 0 0 3px var(--gold)}
+.pk.sel img{box-shadow:0 0 0 3px #2ee06f,0 0 14px #2ee06f99}
+.pk.sel::after{content:'✓';position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#2ee06f;color:#062b12;font:800 13px/20px 'Be Vietnam Pro',sans-serif;text-align:center;z-index:8;box-shadow:0 0 6px #000}
+#dk-team{display:flex;gap:6px;align-items:center;padding:2px;min-height:48px;overflow-x:auto}
+.dk-mini{position:relative;flex:0 0 auto;width:34px;height:46px;padding:0;border:2px solid #2ee06f;border-radius:6px;background:#0008;overflow:hidden;cursor:pointer}
+.dk-mini img{width:100%;height:100%;object-fit:cover;display:block}
+.dk-mini b{position:absolute;left:0;top:0;width:15px;height:15px;border-radius:0 0 6px 0;background:#2ee06f;color:#062b12;font:800 10px/15px 'Be Vietnam Pro',sans-serif;text-align:center}
+.dk-empty{flex:0 0 auto;width:34px;height:46px;border:2px dashed #6b5a3c;border-radius:6px;color:#8a7a5c;font:800 14px/42px 'Be Vietnam Pro',sans-serif;text-align:center}
 .info{position:sticky;bottom:0;background:#201713f2;border:1px solid #6b5a3c;border-radius:8px;padding:10px 12px;margin-top:4px}
 .info b{color:var(--gold)}
 .bar2{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -83,7 +89,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .tnode.cap{border:2px solid var(--gold)}
 .tnode.cap .tn-ic{font-size:30px}
 .tnode.locked{opacity:.45}
-.tnode.sel{outline:2px solid var(--gold);outline-offset:1px}
+.tnode.sel{outline:2px solid #2ee06f;outline-offset:1px}
 .tdetail{display:flex;gap:10px;align-items:center;background:#0006;border:1px solid #4a3a2e;border-radius:10px;padding:10px;margin:8px 0}
 .tdetail .td-ic{font-size:30px}
 .tnode.el-fire,.td-ic.el-fire{background:linear-gradient(160deg,#7a1f12,#3d0f08);box-shadow:0 0 8px #ff6a0044}
@@ -360,6 +366,7 @@ body.pc #s-war .hero img{width:42px}
 
 <section class="scr" id="s-deck">
 <div class="bar2"><h2 id="dk-t"></h2><span id="dk-n"></span></div>
+<div id="dk-team"></div>
 <div class="tabs" style="margin:4px 0"><button class="ghost tab" id="sort-lc">Lực chiến</button><button class="ghost tab" id="sort-phe">Phe</button><button class="ghost tab" id="sort-lv">Lv</button><button class="ghost tab" id="sort-kd">Kích duyên</button></div>
 <div class="grid" id="grid"></div>
 <div class="info"><div id="inf">Chạm vào thẻ để xem chi tiết, chọn đủ 8 tướng.</div>
@@ -772,6 +779,7 @@ function cardInfo(c,lvo){const hp=Math.round(250+c.d*3),ix=C.indexOf(c),lvc=lvo|
  $('#modal').style.display='flex';
  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
 function dkUp(){document.querySelectorAll('.pk').forEach(b=>b.classList.toggle('sel',S.team.includes(S.own[+b.dataset.k])));
+ $('#dk-team').innerHTML=S.team.map((i,k)=>`<button class="dk-mini" data-i="${i}"><img src="${C[i].i}" alt="${C[i].n}"><b>${k+1}</b></button>`).join('')+Array.from({length:8-S.team.length},(_,k)=>`<span class="dk-empty">${S.team.length+k+1}</span>`).join('');$('#dk-team').querySelectorAll('.dk-mini').forEach(b=>b.onclick=()=>{S.team.splice(S.team.indexOf(+b.dataset.i),1);dkUp()});
  $('#dk-n').textContent=S.team.length+'/8';$('#dk-go').disabled=S.team.length<Math.min(8,S.own.length);
  if(foc>=0){const c=C[foc];$('#inf').innerHTML=`<b>${c.n}</b> · ${FN[c.f]} · ⚔ ${c.a} · 🛡 ${c.d}<br><b>${c.s}</b> (mỗi 3 lần ra đòn): ${c.t=='X'?c.sd:SK[c.t]}.`}}
 $('#dk-b').onclick=()=>mapShow();
