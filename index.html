@@ -295,7 +295,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   #s-menu,#s-rw,#s-end{justify-content:center;align-items:center;text-align:center}
   #s-menu p,#s-rw p,#s-end p{max-width:720px;font-size:16px}
   #s-menu .btn,#s-menu .ghost,#s-rw .btn,#s-end .btn{width:min(420px,100%)}
-  #s-deck .grid,#s-map #nodes,#s-dt #dtlist,#s-lord #lords{flex:1;min-height:0;overflow-y:auto;padding-right:4px}
+  #s-deck .grid,#s-map #nodes,#s-map #map-tree,#s-dt #dtlist,#s-lord #lords{flex:1;min-height:0;overflow-y:auto;padding-right:4px}
   #s-deck .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
   .stages{grid-template-columns:repeat(5,1fr)}
   .mbox{max-width:440px}
@@ -317,7 +317,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 /* Che do PC bat buoc trong Cai dat: dung ca khi cua so hep hon 900px */
 body.pc .scr{max-width:1120px;padding:22px 28px 26px;height:100vh;height:100dvh;overflow:hidden}
 body.pc #s-menu,body.pc #s-rw,body.pc #s-end{justify-content:center;align-items:center;text-align:center}
-body.pc #s-deck .grid,body.pc #s-map #nodes,body.pc #s-dt #dtlist,body.pc #s-lord #lords{flex:1;min-height:0;overflow-y:auto;padding-right:4px}
+body.pc #s-deck .grid,body.pc #s-map #nodes,body.pc #s-map #map-tree,body.pc #s-dt #dtlist,body.pc #s-lord #lords{flex:1;min-height:0;overflow-y:auto;padding-right:4px}
 body.pc #s-war{max-width:1180px;padding:10px 20px 12px}
 body.pc #s-war .field{padding:8px 14px;gap:6px;justify-content:space-evenly}
 body.pc #s-war .row,body.pc #s-war .hand{width:100%;max-width:min(920px,60vh);margin:0 auto}
@@ -335,7 +335,6 @@ body.pc #s-war .hero img{width:42px}
 <button class="btn" id="go-new">Bắt đầu chiến dịch</button>
 <button class="ghost" id="go-dt">Danh tướng lục</button>
 <button class="ghost" id="go-set">Cài đặt</button>
-<button class="ghost" id="go-tree">🌳 Cây Kỹ Năng</button>
 <button class="ghost" id="go-fs">⛶ Toàn màn hình</button>
 <button class="btn" id="go-cont" style="display:none">Tải game</button>
 <button class="ghost" id="go-save" style="display:none">Lưu game</button>
@@ -365,14 +364,14 @@ body.pc #s-war .hero img{width:42px}
 <section class="scr" id="s-map">
 <div class="bar2"><h2>Bản đồ Tam Quốc</h2><span id="m-own"></span></div>
 <div class="ctl"><button class="ghost" id="m-menu">Về menu</button><button class="btn" id="m-save">Lưu game</button></div>
-<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button></div>
+<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button><button class="ghost tab" id="tab-tree">🌳 Cây kỹ năng</button></div>
 <p class="c" style="opacity:.8">Đánh lần lượt từng ải. Hoàn thành 20 chương để thống nhất thiên hạ.</p>
 <div id="nodes"></div>
+<div id="map-tree" style="display:none"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></div>
 </section>
 <section class="scr" id="s-dt"><div class="bar2"><h2>Danh tướng lục</h2><button class="ghost" id="dt-back">Quay lại</button></div><div id="dtlist" class="dtl"></div></section>
 <section class="scr c" id="s-lord"><h2>Chọn chủ tướng</h2><p>Chủ tướng quyết định nội tại suốt trận và kỹ năng chủ tướng (⚜) khi nạp đủ 3 lượt.</p><div id="lords" class="lords"></div><button class="ghost" id="lord-back">Quay lại</button></section>
 
-<section class="scr" id="s-tree"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-back">Quay lại</button><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></section>
 <section class="scr c" id="s-rw"><h2 id="rw-t">Thắng ải!</h2><p>Vòng quay may mắn: nhận 1 tướng từ hạng N đến SR.</p>
 <div class="wbox"><div class="ptr"></div><div id="wheel" class="wheel"></div></div>
 <div id="wres" class="wres"></div>
@@ -637,7 +636,7 @@ function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S
  draw()}
 
 const TREE_IC={healShu:'🌿',lordHp150:'💗',healLow:'💗',bondHeal:'💞',lordRegen:'💓',atk8:'⚔️',lordSkillShield:'🛡️',lordHp300Def8:'💗',actTrungHung:'👑',thienTu:'👑',atk5:'⚔️',def5:'🛡️',lordDmg10:'🎯',killAtk:'💀',openBuf:'📯',fastSkill:'⏳',openCharge:'⚡',atk8hp100:'💪',actPhaQuan:'🐉',deNghiep:'👑',weiAtk8:'⚔️',weiHp100:'💗',weiDeployAtk:'🪖',bondWeiBuff:'📯',weiAtk12:'⚔️',weiOpenShield:'🛡️',lordSkillWeaken:'🌀',lordDef8:'🛡️',actGianHung:'👑',weiKing:'👑',dmgVsTank:'🔨',weiOpenBuf:'📯',deathWeaken:'🌀',dmgExecute:'🗡️',deployShield15:'🛡️',weiChargeAura:'⏳',lordDr10:'🛡️',def10hp100:'💪',actNguyDe:'👑',lordHp400:'💗',burnBoost:'🔥',lordHp200wuHp100:'💗',burnSpread:'🔥',bondBurn:'🔥',dmgVsBurn:'🔥',openBurn:'🔥',lordSkillBurn:'🔥',wuAtk10def10:'💪',actXichBich:'🔥',burnDoubleWuAtk12:'🔥',wuAtk8:'⚔️',wuDef8:'🛡️',firstDeployAtk:'🐅',dmgVsSmaller:'🎯',killHeal:'❤️',wuFastSkill:'⏳',wuDef12hp100:'💪',openLg1:'⚡',actHoGam:'🐅',wuAtk15lordHp300:'👑',wuDr5:'🛡️',lordHp200shield100:'🛡️',lordShieldTurn:'🛡️',bondShield:'🛡️',wuLowShield:'🛡️',wuHp100def5:'💪',lordSkillHeal15:'❤️',lordDef10:'🛡️',actThietBich:'🛡️',wuDr10lordHp400:'🛡️',wuDmgVsStatus:'🎯',handPlus1:'🃏',bondWuBuff:'📯',wuDeployAmbush:'🗡️',wuAtk10def5:'💪',wuChargeAura:'⏳',wuDeathAtk:'💀',atk8def8:'💪',actNgoDe:'👑',wuAtk12def12lordHp300:'👑',weiDef8:'🛡️',lordHp250Def5:'💗',deathStunAdj:'💫',bondDelay:'⏳',enemyDelay:'⏳',weiAtk10def10:'💪',lordSkillStun2:'💫',openLg2:'⚡',actPheLap:'👑',weiDr12Atk10:'🛡️',dmgVsStun:'💫',dmgVsStronger:'🎯',weiDeathStun:'💫',enemyLowHpDrain:'🩸',weiDeployShield10:'🛡️',weiRegen:'💓',weiKillAtk:'💀',atk10def5:'💪',actQuyMuu:'👑',weiAtk12def12Dr5:'🛡️',shuDef8:'🛡️',lordHp150Lg1:'💗',bondCharge:'⏳',shuChargeAura:'⏳',handPlus2:'🃏',shuOpenShield:'🛡️',lordSkillDelay2Heal:'❤️',shuAtk10def10:'💪',actBatQuai:'👑',shuAtk12def12Fast:'💪',shuAtk8:'⚔️',dmgVsReady:'🎯',shuHp100:'💗',killLordHeal:'❤️',shuDeathHeal:'❤️',shuOpenBuf:'📯',lordHp300Regen2:'💓',shuTrioAtk:'⚔️',actThienMenh:'👑',shuBondAtk:'📯'};
-function treeShow(){show('tree');const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
+function treeShow(){show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='block';const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
  if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
  const body=$('#tree-body');body.innerHTML='';
  const sel=S.treeSel?TNODE[S.treeSel]:null;
@@ -717,7 +716,7 @@ $('#m-save').onclick=e=>{const ok=saveGame();e.currentTarget.textContent=ok?'Đ�
 function farmChaps(){const d=new Set();if(S.mode=='boss'||!S.nodes.length)return d;
  let c=S.cur<0?Math.max(...S.nodes.map(n=>n.ch)):S.cur>0?S.nodes[S.cur-1].ch:-1;
  if(c<0)return d;d.add(c);if(c>0)d.add(c-1);return d}
-function mapShow(){saveGame();show('map');$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
+function mapShow(){saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#tab-tree').classList.toggle('on',false);$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
  const farm=farmChaps();
  const out=CHAP.map((c,ch)=>{const idx=S.nodes.map((n,i)=>i).filter(i=>S.nodes[i].ch==ch);
@@ -892,8 +891,7 @@ function dtShow(){show('dt');const order={SR:0,S:1},fo={wu:0,wei:1,shu:2};
  $('#dtlist').innerHTML=list.map(c=>{const eff=c.t=='X'?c.sd:SK[c.t];const pas=c.srp?srpText(c.srp):(PT[c.p]?PT[c.p].replace('#',c.pv):'');
   return '<div class="dtr" style="--c:'+RC[c.r]+'"><img src="'+c.i+'" alt="'+c.n+'"><div><b>'+c.n+'</b> <span class="chip" style="--c:'+RC[c.r]+'">'+c.r+'</span> <span class="chip" style="--c:var(--'+c.f+')">'+FN[c.f]+'</span><small>⚔'+c.a+' 🛡'+c.d+'</small><div class="sec"><b>'+c.s+'</b>: '+eff+'.</div><div class="sec"><i>Nội tại:</i> '+pas+'</div></div></div>'}).join('');[...document.querySelectorAll('#dtlist .dtr')].forEach((el,i)=>{el.onclick=()=>cardInfo(list[i]);el.style.cursor='pointer'})}
 $('#go-dt').onclick=dtShow;
-$('#go-tree').onclick=()=>treeShow();
-$('#tree-back').onclick=()=>show('menu');
+$('#tab-tree').onclick=()=>treeShow();
 $('#tree-reset').onclick=()=>treeReset();
 $('#dt-back').onclick=()=>show('menu');
 function lordShow(){show('lord');$('#lords').replaceChildren(...Object.keys(LORDS).map(k=>{const l=LORDS[k],cc=C.find(c=>c.n==l.n);const b=document.createElement('button');b.className='lord';
