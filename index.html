@@ -216,19 +216,15 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #s-war{height:100vh;height:100dvh;overflow:hidden;padding:6px 8px;gap:4px;justify-content:space-between}
 #s-war h2{font-size:17px}
 #s-war .hero-row{display:flex;justify-content:center;min-height:0}
-#s-war .hero img{width:26px;border-radius:4px}
-#s-war .u img{max-height:68px;object-fit:cover;object-position:top}
+#s-war .hero img{width:30px;border-radius:4px}
 #s-war .hero b{font-size:12px}#s-war .ht{font-size:11px}
-#s-war .field{flex:1;min-height:0;gap:3px;padding:3px 6px;justify-content:space-evenly}
+#s-war .field{flex:1;min-height:0;gap:4px;padding:4px 6px;justify-content:space-evenly}
 #s-war .row{gap:4px}
 #s-war .u .st{font-size:9.5px;line-height:1.15}
 #s-war .u .ic{font-size:9px}
 #s-war .hand{min-height:0;gap:4px}
 #s-war .hand .u{flex:0 0 calc(20% - 4px)}
 #s-war #log{min-height:16px;font-size:12px;line-height:1.2}
-#ke-strip{display:none;gap:3px;justify-content:space-between;padding:2px;min-height:40px}
-.ke-side{display:flex;gap:3px;align-items:center}
-.ke-lab{font-size:9px;opacity:.7;writing-mode:vertical-rl}
 .ke-card{width:38px;height:40px;border-radius:5px;border:1px solid #6b5a3c;background:#1a1410;color:#8a7a5c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;line-height:1.1;text-align:center;cursor:default;position:relative;overflow:hidden}
 .ke-card .q{font-size:15px;color:#c9a86a}
 .ke-card.lit{border-color:#ffd97a;box-shadow:0 0 8px #ffd97a88;color:#ffe9a8;cursor:pointer;animation:kePulse 1.2s infinite}
@@ -448,7 +444,6 @@ body.pc #s-war .hero img{width:42px}
 <div class="cov" id="cov"><button class="btn" id="w-go">Khai chiến <span class="kh">[Space]</span></button></div></div>
 <div class="hero-row"><div class="hero" id="hP"></div></div>
 <div class="row hand" id="hand"></div>
-<div id="ke-strip"></div>
 <div class="row sup" id="sup" style="display:none;justify-content:center;gap:8px"></div>
 <div id="log"></div>
 
@@ -753,11 +748,11 @@ function thcAttackPick(b){const pfac=LORDS[S.lord].f,c=THC_CITIES[b];const org=[
  h+=org.length?org.map(a=>'<button class="ghost" style="margin:2px" onclick="thcAttackFrom('+a+','+b+')">⚔️ '+THC_CITIES[a].n+' ('+S.thcGar[a].length+' thẻ)</button>').join(''):'<small style="opacity:.7">Không có thành nào của bạn kề thành này để tấn công.</small>';
  h+='<br><button class="ghost" style="margin-top:6px" onclick="thcCityInfo('+b+')">← Quay lại</button>';
  $('#thc-info').innerHTML=h}
-function thcAdj(a,b){const dx=THC_CITIES[a].x-THC_CITIES[b].x,dy=THC_CITIES[a].y-THC_CITIES[b].y;return dx*dx+dy*dy<625}
+function thcAdj(a,b){const dx=THC_CITIES[a].x-THC_CITIES[b].x,dy=THC_CITIES[a].y-THC_CITIES[b].y;return dx*dx+dy*dy<361}
 function thcGenGar(f,cap){const ids=C.map((c,i)=>i).filter(i=>C[i].f===f);return cap?ids.sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d).slice(0,8):sh(ids).slice(0,8)}
 function thcThreat(i){const f=S.thcOwn[i];let t=0;for(let j=0;j<27;j++){if(j!==i&&thcAdj(i,j)&&S.thcOwn[j]!==f)t++}return t}
 function thcReinforce(i,target){const f=S.thcOwn[i];let gar=S.thcGar[i]||[];if(gar.length>=target)return;const donors=[];for(let j=0;j<27;j++){if(j===i||!thcAdj(i,j)||S.thcOwn[j]!==f)continue;if((S.thcGar[j]||[]).length>1)donors.push(j)}donors.sort((a,b)=>{const ea=thcThreat(a),eb=thcThreat(b);if(ea!==eb)return ea-eb;return (S.thcGar[b]||[]).length-(S.thcGar[a]||[]).length});for(const j of donors){while(gar.length<target&&(S.thcGar[j]||[]).length>1){gar.push(S.thcGar[j].pop())}if(gar.length>=target)break}S.thcGar[i]=gar}
-function thcDealGar(f){const ids=C.map((x,i)=>i).filter(i=>C[i].f===f);const sorted=ids.slice().sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d);const cities=THC_CITIES.map((c,i)=>i).filter(i=>THC_CITIES[i].f===f);const cap=cities.find(i=>THC_CITIES[i].cap);const gar={};const pfac=LORDS[S.lord].f;const thr=i=>{let t=0;for(let j=0;j<27;j++){if(j!==i&&thcAdj(i,j)&&isEnemy(THC_CITIES[j].f))t+=3}return t};const isEnemy=jf=>jf!==f&&(f===pfac||jf===pfac);const faceP=cities.filter(i=>i!==cap&&THC_CITIES.some((cc,j)=>isEnemy(cc.f)&&thcAdj(i,j)));const restC=cities.filter(i=>i!==cap&&!faceP.includes(i));const rest=sorted.slice();faceP.sort((a,b)=>thr(b)-thr(a));faceP.forEach(ci=>{gar[ci]=rest.splice(0,8)});gar[cap]=rest.splice(0,8);restC.forEach(ci=>{gar[ci]=rest.splice(0,1)});return gar}
+function thcDealGar(f){const ids=C.map((x,i)=>i).filter(i=>C[i].f===f);const sorted=ids.slice().sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d);const cities=THC_CITIES.map((c,i)=>i).filter(i=>THC_CITIES[i].f===f);const cap=cities.find(i=>THC_CITIES[i].cap);const gar={};const pfac=LORDS[S.lord].f;const thr=i=>{let t=0;for(let j=0;j<27;j++){if(j!==i&&thcAdj(i,j)&&isEnemy(THC_CITIES[j].f))t+=3}return t};const isEnemy=jf=>jf!==f&&(f===pfac||jf===pfac);const faceP=cities.filter(i=>i!==cap&&THC_CITIES.some((cc,j)=>isEnemy(cc.f)&&thcAdj(i,j)));const restC=cities.filter(i=>i!==cap&&!faceP.includes(i));const rest=sorted.slice();faceP.sort((a,b)=>thr(b)-thr(a));faceP.forEach(ci=>{gar[ci]=rest.splice(0,8)});gar[cap]=rest.splice(0,8);restC.forEach(ci=>{gar[ci]=rest.splice(0,1)});while(rest.length){const cands=cities.filter(i=>(gar[i]||[]).length<8);if(!cands.length)break;cands.sort((a,b)=>thr(b)-thr(a));gar[cands[0]].push(rest.shift())}return gar}
 function thcRetreat(city,fac){const gar=[...(S.thcGar[city]||[])];if(!gar.length)return;S.thcGar[city]=[];const tg=[];for(let i=0;i<27;i++){if(i===city||S.thcOwn[i]!==fac)continue;tg.push(i)}if(!tg.length)return;const safe=i=>{for(let j=0;j<27;j++){if(j!==i&&thcAdj(i,j)&&S.thcOwn[j]!==fac)return false}return true};tg.sort((a,b)=>{const sa=safe(a)?1:0,sb=safe(b)?1:0;if(sa!==sb)return sb-sa;const da=(THC_CITIES[a].x-THC_CITIES[city].x)**2+(THC_CITIES[a].y-THC_CITIES[city].y)**2,db=(THC_CITIES[b].x-THC_CITIES[city].x)**2+(THC_CITIES[b].y-THC_CITIES[city].y)**2;return da-db});let rest=gar.slice();for(const t2 of tg){if(!rest.length)break;const room=8-(S.thcGar[t2]||[]).length;if(room<=0)continue;const add=rest.splice(0,room);S.thcGar[t2]=[...(S.thcGar[t2]||[]),...add]}return gar.length-rest.length}
 function thcFillGar(i,f){const used=new Set();S.thcGar.forEach((g,j)=>{if(j!==i)g.forEach(h=>used.add(h))});const pool=C.map((x,k)=>k).filter(k=>C[k].f===f&&!used.has(k));const pfac=LORDS[S.lord].f;const faceP=THC_CITIES.some((cc,j)=>cc.f===pfac&&thcAdj(i,j));const n=(THC_CITIES[i].cap||faceP)?8:1;S.thcGar[i]=pool.slice().sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d).slice(0,n)}
 function thcDedup(){const seen=new Set();(S.thcGar||[]).forEach(g=>{for(let k=g.length-1;k>=0;k--){if(seen.has(g[k]))g.splice(k,1);else seen.add(g[k])}})}
@@ -778,7 +773,7 @@ function thcAttackFrom(a,b){const pfac=LORDS[S.lord].f;
  if(S.thcOwn[b]===pfac||S.thcOwn[a]!==pfac||!thcAdj(a,b))return;
  if(!(S.thcGar[a]&&S.thcGar[a].length))return;
  if(!(S.thcGar[b]&&S.thcGar[b].length)){S.thcOwn[b]=pfac;S.thcGar[b]=[];saveGame();say('Đã chiếm '+THC_CITIES[b].n+' (không có thủ quân)!');setTimeout(()=>thcCounter(),1200);return}
- const before=(S.thcGar[b]||[]).length;thcReinforce(b,8);const after=(S.thcGar[b]||[]).length;if(after>before)say('⚔️ '+FN[S.thcOwn[b]]+' điều '+(after-before)+' tướng từ các thành kề bên về thủ '+THC_CITIES[b].n+'!');S.thcCity=b;S.thcFrom=a;S.thcDef=false;S.mode='thc';S.thcTeam=[...(S.thcGar[a]||[])];kePick(()=>thcStage())}
+ const before=(S.thcGar[b]||[]).length;thcReinforce(b,8);const after=(S.thcGar[b]||[]).length;if(after>before)say('⚔️ '+FN[S.thcOwn[b]]+' điều '+(after-before)+' tướng từ các thành kề bên về thủ '+THC_CITIES[b].n+'!');S.thcCity=b;S.thcFrom=a;S.thcDef=false;S.mode='thc';S.thcTeam=[...(S.thcGar[a]||[])];thcStage()}
 
 // ===== KẾ ÚP (v59) — stratagems in Thiên Hạ Chiến battles =====
 let keP=[],keE=[],keTurn=0,keFlipP=false,keFlipE=false,keELast=[];
@@ -1021,7 +1016,7 @@ function thcNextDay(){S.thcDay=(S.thcDay||1)+1;thcDayPend=[];thcDayLog=[];thcDay
 function thcDayNext(){saveGame();thcShow();
  if(thcDayPend.length){const p=thcDayPend.shift(),c=THC_CITIES[p.to];
   $('#m-box').innerHTML='<h2>⚔️ '+THC_CITIES[p.to].n+' bị tấn công!</h2><p>Quân '+FN[p.f]+' từ '+THC_CITIES[p.from].n+' đánh vào thành của bạn ('+(S.thcGar[p.to]||[]).length+' thẻ thủ). Bạn có muốn phòng thủ?</p><div class="ctl"><button class="btn" id="thc-dd">🛡️ Phòng thủ</button><button class="ghost" id="thc-ds">⏭️ Bỏ qua</button></div>';
-  $('#thc-dd').onclick=()=>{$('#modal').style.display='none';S.thcCity=p.to;S.thcDef=true;S.thcAtkFac=p.f;S.mode='thc';S.thcTeam=[...(S.thcGar[p.to]||[])];kePick(()=>thcStage())};
+  $('#thc-dd').onclick=()=>{$('#modal').style.display='none';S.thcCity=p.to;S.thcDef=true;S.thcAtkFac=p.f;S.mode='thc';S.thcTeam=[...(S.thcGar[p.to]||[])];thcStage()};
   $('#thc-ds').onclick=()=>{thcRetreat(p.to,LORDS[S.lord].f);S.thcOwn[p.to]=p.f;thcFillGar(p.to,p.f);thcDayLog.push('⚔️ '+FN[p.f]+' tấn công '+c.n+' của bạn — bạn bỏ qua, mất thành');$('#modal').style.display='none';thcDayNext()};
   $('#modal').style.display='flex';return}
  thcDayOn=false;const h='<button class="mx" id="m-x">×</button><h3>📅 Ngày '+(S.thcDay||1)+' — Thiên Hạ Chiến</h3>'+(thcDayLog.length?thcDayLog.map(e=>'<p style="margin:4px 0">• '+e+'</p>').join(''):'<p>Các nước đều án binh bất động.</p>')+'<button class="btn" id="thc-dok" style="margin-top:8px">Đã rõ</button>';
@@ -1037,7 +1032,7 @@ function thcCounter(){const pfac=LORDS[S.lord].f;
  for(let j=0;j<27;j++){if(S.thcOwn[j]===pfac)continue;if(thcAdj(ci,j))near.add(S.thcOwn[j])}
  const af=[...near][Math.floor(Math.random()*near.size)];
  $('#m-box').innerHTML='<h2>⚔️ '+THC_CITIES[ci].n+' bị tấn công!</h2><p>Quân '+FN[af]+' đang tấn công '+THC_CITIES[ci].n+' ('+S.thcGar[ci].length+' thẻ thủ). Bạn có muốn phòng thủ?</p><div class="ctl"><button class="btn" id="thc-def">🛡️ Phòng thủ</button><button class="ghost" id="thc-skip">⏭️ Bỏ qua</button></div>';
- $('#thc-def').onclick=()=>{$('#modal').style.display='none';S.thcCity=ci;S.thcDef=true;S.thcAtkFac=af;S.mode='thc';S.thcTeam=[...(S.thcGar[ci]||[])];kePick(()=>thcStage())};
+ $('#thc-def').onclick=()=>{$('#modal').style.display='none';S.thcCity=ci;S.thcDef=true;S.thcAtkFac=af;S.mode='thc';S.thcTeam=[...(S.thcGar[ci]||[])];thcStage()};
  $('#thc-skip').onclick=()=>{$('#modal').style.display='none';thcRetreat(ci,pfac);S.thcOwn[ci]=af;thcFillGar(ci,af);saveGame();say(THC_CITIES[ci].n+' đã rơi vào tay '+FN[af]+'.');thcShow()};
  $('#modal').style.display='flex'}
 function testFull(){
@@ -1069,19 +1064,32 @@ function thcTry(){if(SET.thcSecret){thcShow();return}
 let thcSel=-1;
 function thcRenderMap(){
   let svg='<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block">';
-  THC_CITIES.forEach((c,i)=>{const of=(S.thcOwn&&S.thcOwn[i])||c.f;svg+='<path d="'+c.path+'" fill="'+THC_COL[of]+'" fill-opacity="0.65" stroke="'+THC_COL[of]+'" stroke-width="0.45" stroke-linejoin="round" onclick="thcCityInfo('+i+')"/>'});
+  for(let a=0;a<27;a++)for(let b=a+1;b<27;b++)if(thcAdj(a,b)){
+    const A=THC_CITIES[a],B=THC_CITIES[b];
+    svg+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="#d8c9a3" stroke-width="0.6" opacity="0.75" style="pointer-events:none"/>';
+  }
   if(thcSel>=0){
     const A=THC_CITIES[thcSel];
     for(let b=0;b<27;b++)if(b!==thcSel&&thcAdj(thcSel,b)){
       const B=THC_CITIES[b];
-      svg+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="#ffd97a" stroke-width="0.9" stroke-dasharray="1.5,1" opacity="1" style="pointer-events:none"/>';
+      svg+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="#ffd97a" stroke-width="1" stroke-dasharray="1.5,1" opacity="1" style="pointer-events:none"/>';
     }
   }
-  THC_CITIES.forEach((c,i)=>{svg+='<text x="'+c.x+'" y="'+(c.y+(c.cap?1.1:0.9))+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>'});
+  THC_CITIES.forEach((c,i)=>{
+    const of=(S.thcOwn&&S.thcOwn[i])||c.f;
+    const sz=c.cap?8:7;
+    svg+='<rect x="'+(c.x-sz/2)+'" y="'+(c.y-sz/2)+'" width="'+sz+'" height="'+sz+'" fill="'+THC_COL[of]+'" stroke="'+(c.cap?'#ffd97a':'#2a1f14')+'" stroke-width="'+(c.cap?0.9:0.5)+'" onclick="thcCityInfo('+i+')"/>';
+  });
+  THC_CITIES.forEach((c,i)=>{
+    const g=(S.thcGar&&S.thcGar[i])?S.thcGar[i].length:0;
+    const sz=c.cap?8:7;
+    svg+='<text x="'+c.x+'" y="'+(c.y+1.3)+'" text-anchor="middle" font-size="3.4" font-weight="bold" fill="#fff" stroke="#2a1f14" stroke-width="0.4" paint-order="stroke" style="pointer-events:none">'+g+'</text>';
+    svg+='<text x="'+c.x+'" y="'+(c.y+sz/2+2.4)+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>';
+  });
   svg+='</svg>';
   $('#thc-map').innerHTML=svg;
 }
-function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const nd=$('#thc-nextday');if(nd)nd.onclick=()=>thcNextDay();const dd=$('#thc-day');if(dd)dd.textContent='Ngày '+(S.thcDay||1);const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);thcRenderMap();$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Chạm 1 thành để xem đường công (vàng) và tấn công thành địch.</small>'}
+function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const nd=$('#thc-nextday');if(nd)nd.onclick=()=>thcNextDay();const dd=$('#thc-day');if(dd)dd.textContent='Ngày '+(S.thcDay||1);const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);thcRenderMap();$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Mỗi thành là 1 ô vuông, số trong ô = số thẻ thủ thành. Đường nối = 2 thành kề nhau, có thể công nhau. Chạm 1 thành để xem đường công (vàng) và tấn công thành địch.</small>'}
 function treeShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',true);$('#tab-thc').classList.toggle('on',false);$('#nodes').style.display='none';$('#map-tree').style.display='block';$('#map-thc').style.display='none';const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
  if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
  const sc=$('#map-tree').scrollTop;const body=$('#tree-body');body.innerHTML='';
@@ -1222,7 +1230,7 @@ function synScore(team){let sc=0;SETS.forEach(z=>{const k=z[1].filter(n=>team.so
 function autoTeam(){const pool=S.own.slice(),team=[];
  while(team.length<8&&pool.length){let best=0,bv=-1e9;pool.forEach((i,k)=>{const v=(C[i].a+C[i].d)+synScore([...team,i])-synScore(team);if(v>bv){bv=v;best=k}});team.push(pool.splice(best,1)[0])}
  S.team=team}
-$('#dk-go').onclick=()=>kePick(()=>stage());
+$('#dk-go').onclick=()=>stage();
 
 // BATTLE
 const RC={SR:'#ff7a59',S:'#f2c94c',R:'#7ab8ff',N:'#b8b8b8'};
@@ -1266,7 +1274,7 @@ function bossInfo(){const h=S.en.hero,c=h.c;const ps=(c.pl||[]).map(k=>'• '+(P
  +'<div class="sk" style="--c:var(--'+c.f+')"><b>Kỹ năng chủ động: '+c.s+'</b><br>'+c.sd+'.</div><div class="sk" style="--c:#ff7a59"><b>Giai đoạn 2 (dưới 50% máu)</b><br>• '+c.s2[0]+' — '+c.sd2[0]+'<br>• '+c.s2[1]+' — '+c.sd2[1]+'</div><div class="sk"><b>Nội tại (3)</b><br>'+ps+'</div>';
  $('#m-x').onclick=()=>$('#modal').style.display='none';$('#modal').style.display='flex';
  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
-function draw(){keRender();aura(S.me);aura(S.en);sets(S.me);sets(S.en);
+function draw(){aura(S.me);aura(S.en);sets(S.me);sets(S.en);
  const wa=$('#w-auto');if(wa){const ok=autoUnlocked();wa.style.display=ok?'':'none';if(!ok&&S.auto){S.auto=false;wa.classList.remove('on')}}
  const lb=$('#lord-sk');if(lb){const rd=(S.lg||0)>=3&&!S.lordUsed;lb.classList.toggle('on',rd);lb.textContent=S.lordUsed?'✓':rd?'⚜':(S.lg||0)+'/3';lb.title=S.lordUsed?'Đã dùng trong ải này':'Kỹ năng chủ tướng [L] · dùng 1 lần mỗi ải';}
  const tb=$('#tree-sk');if(tb){const hasA=treeHasAct(),rd=hasA&&(S.tg||0)>=3&&treeActReady();tb.style.display=hasA?'':'none';tb.classList.toggle('on',rd);tb.textContent=rd?'🌳':(S.tg||0)+'/3';tb.title=rd?'Kỹ năng cây Lưu Bị — sẵn sàng!':'Kỹ năng cây Lưu Bị · tích lũy '+(S.tg||0)+'/3';}
