@@ -106,6 +106,20 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .lordfx .lf-name{font-size:34px;font-weight:900;color:var(--gold);text-shadow:0 0 18px #000,0 2px 0 #000;letter-spacing:2px}
 .lordfx .lf-sub{font-size:20px;font-weight:800;color:#fff;text-shadow:0 0 14px #000,0 2px 0 #000;margin-top:8px}
 .lf-img{width:min(300px,72vw);border-radius:12px;border:2px solid var(--gold);box-shadow:0 0 24px #000,0 0 36px rgba(0,0,0,.6);margin:10px 0}
+.lf-ring{position:absolute;left:50%;top:50%;width:min(340px,80vw);height:min(340px,80vw);border-radius:50%;border:3px solid var(--gold);pointer-events:none;animation:lfRing 1s ease-out forwards}
+@keyframes lfRing{from{opacity:.95;transform:translate(-50%,-50%) scale(.35)}to{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+.lordfx .lf-name{animation:lfNameIn .5s ease-out}
+@keyframes lfNameIn{from{opacity:0;transform:translateY(14px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+.lf-tao .lf-img,.lf-tonkien .lf-img{animation:lfSlam .5s ease-out}
+.lf-luubi .lf-img{animation:lfBloom .6s ease-out}
+.lf-tonquyen .lf-img{animation:lfWaveIn .6s ease-out}
+.lf-simay .lf-img{animation:lfFlick .45s ease-out}
+.lf-gcl .lf-img{animation:lfSpinIn .65s ease-out}
+@keyframes lfSlam{0%{transform:scale(1.45);filter:brightness(1.8)}60%{transform:scale(.96)}100%{transform:scale(1);filter:brightness(1)}}
+@keyframes lfBloom{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes lfWaveIn{from{opacity:0;transform:translateY(24px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes lfFlick{0%{opacity:0}30%{opacity:1}55%{opacity:.25}100%{opacity:1}}
+@keyframes lfSpinIn{from{opacity:0;transform:rotate(-14deg) scale(.85)}to{opacity:1;transform:rotate(0) scale(1)}}
 .lordfx.lf-out{opacity:0;transition:opacity .6s}
 @keyframes lfIn{from{opacity:0;transform:scale(1.18)}to{opacity:1;transform:scale(1)}}
 .tdetail{position:sticky;top:0;z-index:2;background:var(--lac)}
@@ -267,6 +281,16 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .cbanner small{display:block;font-size:12px;color:#ffe9b0;text-shadow:0 1px 4px #000}
 @keyframes cban{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}16%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}28%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%)}}
 .cflash{position:absolute;inset:0;z-index:20;pointer-events:none;border-radius:10px;background:radial-gradient(circle,#ffeaa0b3 0,#ff8a3a44 42%,transparent 72%);animation:cfl 1.6s ease-out forwards}
+.u.combo-up{transform:translateY(-16px) scale(1.06);box-shadow:0 0 18px var(--gold);z-index:5}
+.combo-ring{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:22;display:flex;flex-direction:column;align-items:center;pointer-events:none;animation:crPop .35s ease-out}
+.combo-ring .cr-in{position:relative;width:170px;height:170px;border-radius:50%;background:#000a;border:2px solid var(--gold);box-shadow:0 0 30px #000,0 0 44px rgba(201,162,75,.55);display:flex;align-items:center;justify-content:center;padding:6px}
+.combo-ring .cr-in img{width:40px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #c9a24b;box-shadow:0 0 10px #000}
+.combo-ring .cr-in img+img{margin-left:-12px}
+.combo-ring .cr-spin{position:absolute;inset:-9px;border-radius:50%;border:3px dashed var(--gold);animation:crSpin 1s linear infinite;pointer-events:none}
+.combo-ring b{margin-top:10px;font-size:22px;font-weight:900;color:#fff4cc;text-shadow:0 0 12px #ffd45a,0 2px 0 #000}
+.combo-ring small{font-size:12px;color:#ffe9b0;text-shadow:0 1px 4px #000}
+@keyframes crSpin{to{transform:rotate(360deg)}}
+@keyframes crPop{from{opacity:0;transform:translate(-50%,-50%) scale(.6)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes cfl{0%{opacity:0}22%{opacity:1}100%{opacity:0}}
 .bar{position:relative;overflow:hidden}
 .bar .shi{position:absolute;top:0;bottom:0;left:0;width:0;background:linear-gradient(#ffffff,#dfe6ee);box-shadow:0 0 5px #ffffffaa}
@@ -580,7 +604,8 @@ const TNODE={};Object.values(TREE).forEach(L=>L.branches.forEach(b=>[...b.nodes,
 function treeIds(){return (S.tree&&S.tree[S.lord])||[]}
 function treeHas(id){return treeIds().includes(id)}
 function treeHasE(id){return(S.etree||[]).includes(id)}
-const ELORD_BY_FAC={wu:'tonquyen',wei:'tao',shu:'luubi'};
+const ELORDS_BY_FAC={wu:['tonkien','tonquyen'],wei:['tao','simay'],shu:['luubi','gcl']};
+function elordFor(node){return ELORDS_BY_FAC[node.f][(node.ch+node.k)%2]}
 const FAC_COL={wu:'#c0392b',wei:'#3f74bd',shu:'#2f9a64'};
 function treeBranch(id){return (TREE[S.lord]||{branches:[]}).branches.find(b=>b.id==id)}
 function treeSpent(br){const b=treeBranch(br);if(!b)return 0;const ids=treeIds();return [...b.nodes,...b.caps].filter(n=>ids.includes(n.id)).reduce((a,n)=>a+n.c,0)}
@@ -646,7 +671,7 @@ function treeSkillInfo(){if(!S.me||!S.en)return;const L=TREE[S.lord];if(!L)retur
  $('#m-x').onclick=()=>$('#modal').style.display='none';$('#ls-no').onclick=()=>$('#modal').style.display='none';
  $('#m-box').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{$('#modal').style.display='none';treeSkill(b.dataset.act)});
  $('#modal').style.display='flex';$('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
-async function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S.me||!S.en)return;S.tg=0;S.treeUsed=S.treeUsed||{};S.treeUsed[id]=1;sfx('big');shakeField('lg');lordFx(LORDS[S.lord].n,TNODE[id].n,FAC_COL[LORDS[S.lord].f]||'#c9a24b',LSKILL_IMG[S.lord]);
+async function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='busy'||!S.me||!S.en)return;S.tg=0;S.treeUsed=S.treeUsed||{};S.treeUsed[id]=1;sfx('big');shakeField('lg');lordFx(LORDS[S.lord].n,TNODE[id].n,FAC_COL[LORDS[S.lord].f]||'#c9a24b',LSKILL_IMG[S.lord],S.lord);
  const s=S.me,o=S.en,al=s.field.filter(x=>x&&x.hp>0),foes=o.field.filter(x=>x&&x.hp>0);
  const burnAll=(n,bd)=>{foes.forEach(x=>{x.burn=n;x.bd=Math.round(x.mhp*bd)})};
  if(id=='lb1A'){await lfxCast(s.hero,TNODE[id].n,'#9be28a');for(const a of al){if(a.hp<=0)continue;healU(a,Math.round(a.mhp*.4));a.buf=Math.max(a.buf,2);a.bp=1.3;upd(a);await lfxOne(a,'heal','#9be28a');await sleep(120)}s.hero.sh=(s.hero.sh||0)+Math.round(s.hero.mhp*.3);fl(s.hero,'🛡',1);upd(s.hero);await lfxOne(s.hero,'shield','#9fd8ff');say('Thục Hán Trung Hưng: toàn quân hồi phục!')}
@@ -801,7 +826,6 @@ function autoTeam(){const pool=S.own.slice(),team=[];
 $('#dk-go').onclick=()=>stage();
 
 // BATTLE
-const HD={wu:C.findIndex(c=>c.n=='Tôn Quyền'),wei:C.findIndex(c=>c.n=='Tào Tháo'),shu:C.findIndex(c=>c.n=='Lưu Bị')};
 const RC={SR:'#ff7a59',S:'#f2c94c',R:'#7ab8ff',N:'#b8b8b8'};
 const PT={B_ARMOR:'giảm 12,5% sát thương nhận.',B_REFLECT:'phản 15% sát thương đòn thường.',B_STUNHIT:'12,5% khả năng choáng khi tấn công.',B_LIFE:'hồi 30% sát thương gây ra.',B_RAMPAGE:'mỗi lượt tăng 10% sức mạnh (tối đa 5 lần).',B_SPLIT:'đánh lan 40% sát thương sang ô kề.',B_BURNHIT:'đòn đánh thiêu đốt 3 lượt.',B_REGEN:'mỗi lượt hồi 5% máu.',B_EXEC:'kết liễu mục tiêu dưới 20% máu.',B_SHACKLE:'đòn đánh làm mục tiêu giảm 20% sức mạnh trong 2 lượt.',B_DOUBLE:'25% khả năng đánh thêm 1 đòn.',B_DEVOUR:'khi hạ được địch, hồi 20% máu tối đa.',BULWARK:'giảm #% sát thương nhận từ mọi nguồn.',SOVEREIGN:'đầu mỗi lượt hồi 4% máu tối đa cho bản thân và 2% cho đồng minh cùng thế lực.',DOMINION:'đòn thường có 15% khả năng làm choáng mục tiêu 1 lượt.',MARTIAL:'mỗi đòn thường tích thêm 10% sát thương, tối đa 3 lần; bị đánh thì mất tích lũy.',LEGEND:'khi hạ được địch, hồi 15% máu bản thân và đồng minh cùng thế lực +5% sức mạnh trong trận.',RETALIATE:'khi bị đánh thường, phản lại #% sát thương nhận được.',FORTUNE:'có 20% khả năng né đòn thường.',SPLIT:'đòn thường đánh thêm mục tiêu kề cạnh với 30% sát thương.',COMBO:'mỗi 3 đòn thường, đánh thêm 1 địch ngẫu nhiên với #% sát thương.',WEAKHIT:'đòn thường làm mục tiêu giảm 10% sức mạnh trong 2 lượt.',CLEANSE:'đầu mỗi lượt gỡ thiêu đốt và choáng của bản thân.',LEECH:'đòn thường hồi cho đồng minh yếu nhất #% sát thương gây ra.',ECHO:'khi hạ được địch, đồng minh cùng thế lực hồi 5% máu tối đa.',ORDER:'khi xuống sân, đồng minh cùng thế lực trên sân được +1 tiến độ kỹ năng.',ATK:'+#% sức mạnh cho chính thẻ.',DEF:'+#% phòng thủ cho chính thẻ.',HP:'+#% máu tối đa cho chính thẻ.',LS:'Hồi lại #% sát thương đã gây bằng đòn thường.',CTR:'Khi bị đánh thường và còn sống, phản đòn bằng #% sức mạnh.',SHD:'Khi xuống sân có lá chắn bằng #% máu tối đa.',EVA:'Mỗi đòn thường của địch có #% khả năng bị né hoàn toàn.',PEN:'Đòn thường xuyên qua #% phòng thủ của mục tiêu.',RAGE:'Khi dưới 50% máu, tăng #% sức mạnh.',TAUNT:'Địch đánh thường vào thẻ này trước khi còn sống.',BURN:'Đòn thường thiêu đốt mục tiêu 2 lượt.',STUNHIT:'Đòn thường có #% khả năng làm choáng mục tiêu 1 lượt.',FIRST:'Ra sân là hành động ngay ở lượt đầu tiên.',DAURA:'Đồng minh cùng thế lực trên sân +#% phòng thủ.',AURA:'Đồng minh cùng thế lực trên sân +#% sức mạnh.',DRAW:'Đầu mỗi lượt rút thêm # thẻ.',HEAL:'Đầu mỗi lượt hồi #% máu tối đa cho đồng minh yếu nhất.'};
 function mk(i,side,sc,elv=1){const c=C[i],lv=side?(S.lv[i]||1):elv,k=sc*(side?UP.c[i]||1:1)*(side&&S.pb&&(c.r=='S'||c.r=='SR')?1+S.pb/100:1),p=c.p,pv=c.pv;
@@ -875,8 +899,8 @@ function stage(){if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage
  if(node.tm){const ex=node.tm.map(n=>C.findIndex(c=>c.n==n)).filter(i=>i>=0);ids=[...ex,...ids.filter(i=>!ex.includes(i))].slice(0,8)}
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);
  const mf=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'wu';
- S.elord=ELORD_BY_FAC[fac];const eTier=node.ch<11?0:Math.min(5,Math.floor((node.ch-11)/2)+1);S.etier=eTier;const ePool=eTier?TREE[S.elord].branches.flatMap(b=>[...b.nodes,...b.caps]).filter(n=>n.t<=eTier&&!n.act):[];const eB=node.ch>=12?enemyTreeBuild(ePool,S.stage,eTier):{ids:ePool.map(n=>n.id),drop:[]};S.etree=eB.ids;S.etreeDrop=eB.drop;
- const side=(ids,k,s,f)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?heroC:C[HD[f]]},deck:sh(ids).map(i=>mk(i,s,k,node.elv)),hand:[],field:[null,null,null,null,null],gy:0}};
+ S.elord=elordFor(node);const eTier=node.ch<11?0:Math.min(5,Math.floor((node.ch-11)/2)+1);S.etier=eTier;const ePool=eTier?TREE[S.elord].branches.flatMap(b=>[...b.nodes,...b.caps]).filter(n=>n.t<=eTier&&!n.act):[];const eB=node.ch>=12?enemyTreeBuild(ePool,S.stage,eTier):{ids:ePool.map(n=>n.id),drop:[]};S.etree=eB.ids;S.etreeDrop=eB.drop;
+ const side=(ids,k,s,f)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?heroC:(C.find(x=>x.n==LORDS[S.elord].n)||{n:LORDS[S.elord].n,i:'',f:fac})},deck:sh(ids).map(i=>mk(i,s,k,node.elv)),hand:[],field:[null,null,null,null,null],gy:0}};
  S.pb=S.pend||0;S.me=side(S.team,1,1,mf);S.en=side(ids,sc,0,fac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*node.hs*(node.ch<5?.8:1));const TM=treeMod();if(TM.lordHp){S.me.hero.mhp+=TM.lordHp;S.me.hero.hp+=TM.lordHp}S.me.hero.def+=TM.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;const TME=treeMod(S.etree);if(TME.lordHp){S.en.hero.mhp+=TME.lordHp;S.en.hero.hp+=TME.lordHp}S.en.hero.def+=TME.lordDef;if(treeHasE('tao18')){const h=Math.min(200,20*S.en.deck.filter(u=>u.c.f=='wei').length);S.en.hero.mhp+=h;S.en.hero.hp+=h}if(treeHasE('tq18')){const h=Math.min(250,25*S.en.deck.filter(u=>u.c.f=='wu').length);S.en.hero.mhp+=h;S.en.hero.hp+=h}if(treeHasE('tq12'))S.en.hero.sh=100;if(treeHasE('tao27'))S.en.hero.drR=0.9;S.me.rv=0;S.me.wv=0;S.me.sb=0;S.me.s27=0;S.en.rv=0;S.en.wv=0;S.en.sb=0;S.en.s27=0;
  for(const s of[S.me,S.en])for(let n=0;n<3;n++)if(s.deck.length)s.hand.push(s.deck.shift());
  if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});
@@ -968,9 +992,9 @@ function lordSkillInfo(){if(!S.me||!S.en)return;const L=LORDS[S.lord],rd=(S.lg||
  const use=$('#ls-use');if(use)use.onclick=()=>{$('#modal').style.display='none';lordSkill()};
  $('#modal').style.display='flex';
  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'}}
-async function lordFx(name,sk,color,img){if(!lordFx.n)lordFx.old=S.spd;lordFx.n=(lordFx.n||0)+1;S.spd=Math.max(.4,(S.spd||1)*.5);sfx('horn');
- const d=document.createElement('div');d.className='lordfx';d.style.background='radial-gradient(60% 50% at 50% 50%,'+color+'99,transparent 70%)';
- d.innerHTML='<div class="lf-name">'+name+'</div>'+(img?'<img class="lf-img" src="'+img+'" alt="">':'')+'<div class="lf-sub">«'+sk+'»</div>';
+async function lordFx(name,sk,color,img,key){if(!lordFx.n)lordFx.old=S.spd;lordFx.n=(lordFx.n||0)+1;S.spd=Math.max(.4,(S.spd||1)*.5);sfx('horn');
+ const d=document.createElement('div');d.className='lordfx'+(key?' lf-'+key:'');d.style.background='radial-gradient(60% 50% at 50% 50%,'+color+'99,transparent 70%)';
+ d.innerHTML='<div class="lf-ring" style="border-color:'+color+';box-shadow:0 0 44px '+color+'"></div><div class="lf-name">'+name+'</div>'+(img?'<img class="lf-img" src="'+img+'" alt="">':'')+'<div class="lf-sub">«'+sk+'»</div>';
  document.body.appendChild(d);await sleep(650);d.classList.add('lf-out');await sleep(450);d.remove();lordFx.n--;if(!lordFx.n)S.spd=lordFx.old}
 async function lfxOne(x,look,color){if(!x||!x.el)return;const sp=document.createElement('span');sp.className='fx fx-'+look;x.el.appendChild(sp);setTimeout(()=>sp.remove(),1500);burstAtEl(x.el,color,6,0)}
 async function lfxWave(color){const f=$('.field');if(!f)return;const w=document.createElement('div');w.className='fxw';w.style.setProperty('--c',color);f.appendChild(w);setTimeout(()=>w.remove(),1500);await sleep(450)}
@@ -978,7 +1002,7 @@ async function lfxCast(hero,skName,color){sfx('charge');if(hero&&hero.el){const 
 async function lordSkill(s){s=s||S.me;const o=s===S.me?S.en:S.me;const k=s===S.me?S.lord:S.elord;const has=s===S.me?treeHas:treeHasE;
  if((s===S.me?(S.lg||0):(S.elg||0))<3||(s===S.me?S.lordUsed:S.elordUsed)||S.phase=='busy'||!S.me||!S.en||!k)return;
  if(s===S.me){S.lg=0;S.lordUsed=true}else{S.elg=0;S.elordUsed=true}
- sfx('big');shakeField('lg');lordFx(LORDS[k].n,LORDS[k].sk,FAC_COL[LORDS[k].f]||'#c9a24b',LSKILL_IMG[k]);
+ sfx('big');shakeField('lg');lordFx(LORDS[k].n,LORDS[k].sk,FAC_COL[LORDS[k].f]||'#c9a24b',LSKILL_IMG[k],k);
  const al=s.field.filter(x=>x&&x.hp>0),foes=o.field.filter(x=>x&&x.hp>0);
  if(k=='tao'){await lfxCast(s.hero,LORDS[k].sk,'#ffd23a');await lfxWave('#ffd23a');for(const a of al){if(a.hp<=0)continue;a.buf=Math.max(a.buf,2);upd(a);await lfxOne(a,'buff','#ffd23a');await sleep(130)}if(has('tao17'))for(const x of foes){if(x.hp<=0)continue;x.wk=2;x.wkp=.9;upd(x);await lfxOne(x,'debuff','#b06cff');await sleep(100)}if(has('tao2P'))for(const a of al){if(a.hp<=0)continue;healU(a,Math.round(a.mhp*.2));await lfxOne(a,'heal','#9be28a');await sleep(100)}say('Hiệu lệnh Thiên tử: đồng minh tăng sức mạnh')}
  else if(k=='luubi'){await lfxCast(s.hero,LORDS[k].sk,'#9be28a');for(const a of al){if(a.hp<=0)continue;healU(a,Math.round(a.mhp*.2));await lfxOne(a,'heal','#9be28a');await sleep(130)}if(has('lb17'))for(const a of al){if(a.hp<=0)continue;a.sh=(a.sh||0)+Math.round(a.mhp*.1);upd(a);await lfxOne(a,'shield','#9fd8ff');await sleep(100)}say('Tam cố thảo lư: toàn quân hồi máu')}
@@ -1221,7 +1245,11 @@ function applyCombo(e,s,o){const al=s.field.filter(x=>x&&x.hp>0),foes=o.field.fi
  case 'SPEED': al.forEach(a=>{a.n=a.cd;upd(a)});break;
  case 'DRAIN': {let g=0;foes.forEach(x=>{const d=dmg(rep,x,.6);hit(x,d);g+=d});healU(rep,Math.round(g*.5));break}
  }}
-async function comboFx(zi,s,o){const cb=COMBOS[zi];sfx('big');shakeField('md');cbanner(cb.n,'Kết hợp · '+SETS[zi][0]);
+async function comboFx(zi,s,o){const cb=COMBOS[zi];sfx('big');shakeField('md');
+ const memU=SETS[zi][1].map(n=>s.field.find(x=>x&&x.hp>0&&x.c.n==n)).filter(Boolean);
+ memU.forEach(u=>{if(u.el)u.el.classList.add('combo-up')});await sleep(450);
+ const ring=document.createElement('div');ring.className='combo-ring';ring.innerHTML='<div class="cr-in"><i class="cr-spin"></i>'+memU.map(u=>'<img src="'+u.c.i+'" alt="">').join('')+'</div><b>'+cb.n+'</b><small>Kết hợp · '+SETS[zi][0]+'</small>';const fld=$('.field');if(fld)fld.appendChild(ring);await sleep(750);ring.remove();memU.forEach(u=>{if(u.el)u.el.classList.remove('combo-up')});
+ cbanner(cb.n,'Kết hợp · '+SETS[zi][0]);
  applyCombo(cb.e,s,o);if(s===S.me){if(treeHas('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHas('gcl13'))s.field.forEach(a=>{if(a&&a.hp>0&&a.n<a.cd)a.n++});if(treeHas('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHas('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHas('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem=SETS[zi][1];if(treeHas('tao14')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei'){a.buf=Math.max(a.buf,2);a.bp=1.15;upd(a)}});if(treeHas('tq23')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}});if(treeHas('gcl2P')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='shu'})&&(S.me.sb||0)<5){S.me.sb=(S.me.sb||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')a.atk=Math.round(a.atk*1.05)})}}if(s===S.en){if(treeHasE('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHasE('gcl13'))s.field.forEach(a=>{if(a&&a.hp>0&&a.n<a.cd)a.n++});if(treeHasE('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHasE('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHasE('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem2=SETS[zi][1];if(treeHasE('tao14')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei'){a.buf=Math.max(a.buf,2);a.bp=1.15;upd(a)}});if(treeHasE('tq23')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}});if(treeHasE('gcl2P')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='shu'})&&(S.en.sb||0)<5){S.en.sb=(S.en.sb||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')a.atk=Math.round(a.atk*1.05)})}}draw();await sleep(1300);await reap()}
 function setPct(k,size){return (5*(k-1)+(k==size?5:0))/100}
 function activeSets(s){const out=[];SETS.forEach(z=>{const k=z[1].filter(n=>s.field.some(x=>x&&x.hp>0&&x.c.n==n)).length;if(k>=2)out.push({n:z[0],k,size:z[1].length,pct:setPct(k,z[1].length)})});return out}
