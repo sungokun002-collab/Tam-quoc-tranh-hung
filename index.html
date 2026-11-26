@@ -281,15 +281,20 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .cbanner small{display:block;font-size:12px;color:#ffe9b0;text-shadow:0 1px 4px #000}
 @keyframes cban{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}16%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}28%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%)}}
 .cflash{position:absolute;inset:0;z-index:20;pointer-events:none;border-radius:10px;background:radial-gradient(circle,#ffeaa0b3 0,#ff8a3a44 42%,transparent 72%);animation:cfl 1.6s ease-out forwards}
-.u.combo-up{transform:translateY(-16px) scale(1.06);box-shadow:0 0 18px var(--gold);z-index:5}
+.u.combo-up{transform:translateY(-20px) scale(1.08);box-shadow:0 0 22px var(--gold),0 0 34px rgba(201,162,75,.6);z-index:5}
 .combo-ring{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:22;display:flex;flex-direction:column;align-items:center;pointer-events:none;animation:crPop .35s ease-out}
-.combo-ring .cr-in{position:relative;width:170px;height:170px;border-radius:50%;background:#000a;border:2px solid var(--gold);box-shadow:0 0 30px #000,0 0 44px rgba(201,162,75,.55);display:flex;align-items:center;justify-content:center;padding:6px}
-.combo-ring .cr-in img{width:40px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #c9a24b;box-shadow:0 0 10px #000}
-.combo-ring .cr-in img+img{margin-left:-12px}
-.combo-ring .cr-spin{position:absolute;inset:-9px;border-radius:50%;border:3px dashed var(--gold);animation:crSpin 1s linear infinite;pointer-events:none}
-.combo-ring b{margin-top:10px;font-size:22px;font-weight:900;color:#fff4cc;text-shadow:0 0 12px #ffd45a,0 2px 0 #000}
+.combo-ring .cr-in{position:relative;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#3a2a12cc 0,#000a 70%);border:2px solid var(--gold);box-shadow:0 0 30px #000,0 0 54px rgba(201,162,75,.6),inset 0 0 34px rgba(201,162,75,.35)}
+.combo-ring .cr-spin{position:absolute;inset:-10px;border-radius:50%;border:3px dashed var(--gold);animation:crSpin 1.2s linear infinite reverse;pointer-events:none}
+.combo-ring .cr-orbit{position:absolute;inset:0;animation:crSpin 1.8s linear infinite;pointer-events:none}
+.combo-ring .cr-card{position:absolute;translate:-50% -50%;animation:crRev 1.8s linear infinite;text-align:center;pointer-events:none}
+.combo-ring .cr-card img{width:52px;height:70px;object-fit:cover;border-radius:8px;border:2px solid #c9a24b;box-shadow:0 0 14px #000,0 0 18px rgba(201,162,75,.55);display:block;margin:0 auto}
+.combo-ring .cr-card span{display:block;margin-top:2px;font-size:10px;font-weight:800;color:#ffe9b0;text-shadow:0 1px 3px #000;white-space:nowrap}
+.combo-ring .cr-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:radial-gradient(circle,#ffeaa0,#c9a24b 60%,#7a5c14);display:flex;align-items:center;justify-content:center;font-size:28px;color:#3a2208;box-shadow:0 0 22px #ffd45a,0 0 40px rgba(255,212,90,.5);animation:crCore 1s ease-in-out infinite alternate}
+.combo-ring b{margin-top:12px;font-size:24px;font-weight:900;color:#fff4cc;text-shadow:0 0 14px #ffd45a,0 0 26px #ff8a3a,0 2px 0 #000}
 .combo-ring small{font-size:12px;color:#ffe9b0;text-shadow:0 1px 4px #000}
 @keyframes crSpin{to{transform:rotate(360deg)}}
+@keyframes crRev{to{rotate:-360deg}}
+@keyframes crCore{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.12)}}
 @keyframes crPop{from{opacity:0;transform:translate(-50%,-50%) scale(.6)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes cfl{0%{opacity:0}22%{opacity:1}100%{opacity:0}}
 .bar{position:relative;overflow:hidden}
@@ -1247,8 +1252,9 @@ function applyCombo(e,s,o){const al=s.field.filter(x=>x&&x.hp>0),foes=o.field.fi
  }}
 async function comboFx(zi,s,o){const cb=COMBOS[zi];sfx('big');shakeField('md');
  const memU=SETS[zi][1].map(n=>s.field.find(x=>x&&x.hp>0&&x.c.n==n)).filter(Boolean);
- memU.forEach(u=>{if(u.el)u.el.classList.add('combo-up')});await sleep(450);
- const ring=document.createElement('div');ring.className='combo-ring';ring.innerHTML='<div class="cr-in"><i class="cr-spin"></i>'+memU.map(u=>'<img src="'+u.c.i+'" alt="">').join('')+'</div><b>'+cb.n+'</b><small>Kết hợp · '+SETS[zi][0]+'</small>';const fld=$('.field');if(fld)fld.appendChild(ring);await sleep(750);ring.remove();memU.forEach(u=>{if(u.el)u.el.classList.remove('combo-up')});
+ memU.forEach(u=>{if(u.el)u.el.classList.add('combo-up')});await sleep(400);
+ const ring=document.createElement('div');ring.className='combo-ring';const n=memU.length,rad=36;
+ ring.innerHTML='<div class="cr-in"><i class="cr-spin"></i><div class="cr-orbit">'+memU.map((u,i)=>{const a=(i/n)*Math.PI*2-Math.PI/2;return '<div class="cr-card" style="left:'+(50+rad*Math.cos(a)).toFixed(1)+'%;top:'+(50+rad*Math.sin(a)).toFixed(1)+'%"><img src="'+u.c.i+'" alt=""><span>'+u.c.n+'</span></div>'}).join('')+'</div><div class="cr-core">✦</div></div><b>'+cb.n+'</b><small>Kết hợp · '+SETS[zi][0]+'</small>';const fld=$('.field');if(fld)fld.appendChild(ring);await sleep(1100);ring.remove();memU.forEach(u=>{if(u.el)u.el.classList.remove('combo-up')});
  cbanner(cb.n,'Kết hợp · '+SETS[zi][0]);
  applyCombo(cb.e,s,o);if(s===S.me){if(treeHas('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHas('gcl13'))s.field.forEach(a=>{if(a&&a.hp>0&&a.n<a.cd)a.n++});if(treeHas('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHas('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHas('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem=SETS[zi][1];if(treeHas('tao14')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei'){a.buf=Math.max(a.buf,2);a.bp=1.15;upd(a)}});if(treeHas('tq23')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}});if(treeHas('gcl2P')&&mem.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='shu'})&&(S.me.sb||0)<5){S.me.sb=(S.me.sb||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')a.atk=Math.round(a.atk*1.05)})}}if(s===S.en){if(treeHasE('lb14'))s.field.forEach(a=>{if(a&&a.hp>0)healU(a,Math.round(a.mhp*.05))});if(treeHasE('gcl13'))s.field.forEach(a=>{if(a&&a.hp>0&&a.n<a.cd)a.n++});if(treeHasE('tk14'))o.field.forEach(x=>{if(x&&x.hp>0){x.burn=1;x.bd=Math.round(x.mhp*.03)}});if(treeHasE('tq14'))s.field.forEach(a=>{if(a&&a.hp>0)a.sh=(a.sh||0)+Math.round(a.mhp*.08)});if(treeHasE('sm14'))o.field.forEach(x=>{if(x&&x.hp>0){x.n=Math.max(0,x.n-1);upd(x)}});const mem2=SETS[zi][1];if(treeHasE('tao14')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wei'}))s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='wei'){a.buf=Math.max(a.buf,2);a.bp=1.15;upd(a)}});if(treeHasE('tq23')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='wu'}))s.field.forEach(a=>{if(a&&a.hp>0){a.buf=Math.max(a.buf,2);a.bp=1.1;upd(a)}});if(treeHasE('gcl2P')&&mem2.some(n=>{const c=C.find(x=>x.n==n);return c&&c.f=='shu'})&&(S.en.sb||0)<5){S.en.sb=(S.en.sb||0)+1;s.field.forEach(a=>{if(a&&a.hp>0&&a.c.f=='shu')a.atk=Math.round(a.atk*1.05)})}}draw();await sleep(1300);await reap()}
 function setPct(k,size){return (5*(k-1)+(k==size?5:0))/100}
