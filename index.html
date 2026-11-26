@@ -792,14 +792,14 @@ let thcDayPend=[],thcDayLog=[],thcDayOn=false;
 function thcStr(gar){return (gar||[]).reduce((a,h)=>a+C[h].a+C[h].d,0)}
 function thcBondN(gar){const names=new Set((gar||[]).map(h=>C[h].n));let n=0;SETS.forEach(st=>{if(st[1].every(x=>names.has(x)))n++});return n}
 function thcEffStr(gar){return thcStr(gar)*(1+thcBondN(gar)*0.15)}
-function thcAiTurn(f){let best=null;for(let a=0;a<27;a++){if(S.thcOwn[a]!==f)continue;const gar=S.thcGar[a]||[];if(!gar.length)continue;const att=thcEffStr(gar);for(let b=0;b<27;b++){if(S.thcOwn[b]===f)continue;if(!thcAdj(a,b))continue;const def=thcEffStr(S.thcGar[b]||[]);const adv=att/Math.max(1,def);if(!best||adv>best.adv)best={a,b,adv,att,def}}}
+function thcAiTurn(f,onlyFac){let best=null;for(let a=0;a<27;a++){if(S.thcOwn[a]!==f)continue;const gar=S.thcGar[a]||[];if(!gar.length)continue;const att=thcEffStr(gar);for(let b=0;b<27;b++){if(S.thcOwn[b]===f)continue;if(onlyFac&&S.thcOwn[b]!==onlyFac)continue;if(!thcAdj(a,b))continue;const def=thcEffStr(S.thcGar[b]||[]);const adv=att/Math.max(1,def);if(!best||adv>best.adv)best={a,b,adv,att,def}}}
  if(!best||best.adv<1)return;const pfac=LORDS[S.lord].f,defFac=S.thcOwn[best.b];
  thcReinforce(best.a,8);const att2=thcEffStr(S.thcGar[best.a]||[]);
  if(defFac===pfac){thcDayPend.push({f,from:best.a,to:best.b});return}
  const win=att2*(0.9+Math.random()*0.2)>best.def;
  if(win){S.thcOwn[best.b]=f;S.thcGar[best.b]=[...S.thcGar[best.a]];S.thcGar[best.a]=[];thcDayLog.push('⚔️ '+FN[f]+' tấn công '+THC_CITIES[best.b].n+' ('+FN[defFac]+') — thắng, chiếm thành')}
  else{thcDayLog.push('⚔️ '+FN[f]+' tấn công '+THC_CITIES[best.b].n+' ('+FN[defFac]+') — bị đẩy lùi')}}
-function thcNextDay(){S.thcDay=(S.thcDay||1)+1;thcDayPend=[];thcDayLog=[];thcDayOn=true;const pfac=LORDS[S.lord].f;for(const f of['wu','wei','shu']){if(f===pfac)continue;thcAiTurn(f)}thcDayNext()}
+function thcNextDay(){S.thcDay=(S.thcDay||1)+1;thcDayPend=[];thcDayLog=[];thcDayOn=true;const pfac=LORDS[S.lord].f;const ais=['wu','wei','shu'].filter(x=>x!==pfac);for(const f of ais){thcAiTurn(f);const other=ais.find(x=>x!==f);if(other)thcAiTurn(f,other)}thcDayNext()}
 function thcDayNext(){saveGame();thcShow();
  if(thcDayPend.length){const p=thcDayPend.shift(),c=THC_CITIES[p.to];
   $('#m-box').innerHTML='<h2>⚔️ '+THC_CITIES[p.to].n+' bị tấn công!</h2><p>Quân '+FN[p.f]+' từ '+THC_CITIES[p.from].n+' đánh vào thành của bạn ('+(S.thcGar[p.to]||[]).length+' thẻ thủ). Bạn có muốn phòng thủ?</p><div class="ctl"><button class="btn" id="thc-dd">🛡️ Phòng thủ</button><button class="ghost" id="thc-ds">⏭️ Bỏ qua</button></div>';
