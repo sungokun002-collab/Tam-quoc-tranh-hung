@@ -741,8 +741,9 @@ async function treeSkill(id){if((S.tg||0)<3||(S.treeUsed||{})[id]||S.phase=='bus
  else if(id=='gcl2A'){await lfxCast(s.hero,TNODE[id].n,'#9be28a');for(const a of al){if(a.hp<=0)continue;healU(a,Math.round(a.mhp*.3));a.n=a.cd;a.buf=Math.max(a.buf,2);a.bp=1.3;upd(a);await lfxOne(a,'heal','#9be28a');await sleep(120)}say('Thiên Mệnh: toàn quân hồi phục!')}
  draw()}const TREE_IC={healShu:'🌿',lordHp150:'💗',healLow:'💗',bondHeal:'💞',lordRegen:'💓',atk8:'⚔️',lordSkillShield:'🛡️',lordHp300Def8:'💗',actTrungHung:'👑',thienTu:'👑',atk5:'⚔️',def5:'🛡️',lordDmg10:'🎯',killAtk:'💀',openBuf:'📯',fastSkill:'⏳',openCharge:'⚡',atk8hp100:'💪',actPhaQuan:'🐉',deNghiep:'👑',weiAtk8:'⚔️',weiHp100:'💗',weiDeployAtk:'🪖',bondWeiBuff:'📯',weiAtk12:'⚔️',weiOpenShield:'🛡️',lordSkillWeaken:'🌀',lordDef8:'🛡️',actGianHung:'👑',weiKing:'👑',dmgVsTank:'🔨',weiOpenBuf:'📯',deathWeaken:'🌀',dmgExecute:'🗡️',deployShield15:'🛡️',weiChargeAura:'⏳',lordDr10:'🛡️',def10hp100:'💪',actNguyDe:'👑',lordHp400:'💗',burnBoost:'🔥',lordHp200wuHp100:'💗',burnSpread:'🔥',bondBurn:'🔥',dmgVsBurn:'🔥',openBurn:'🔥',lordSkillBurn:'🔥',wuAtk10def10:'💪',actXichBich:'🔥',burnDoubleWuAtk12:'🔥',wuAtk8:'⚔️',wuDef8:'🛡️',firstDeployAtk:'🐅',dmgVsSmaller:'🎯',killHeal:'❤️',wuFastSkill:'⏳',wuDef12hp100:'💪',openLg1:'⚡',actHoGam:'🐅',wuAtk15lordHp300:'👑',wuDr5:'🛡️',lordHp200shield100:'🛡️',lordShieldTurn:'🛡️',bondShield:'🛡️',wuLowShield:'🛡️',wuHp100def5:'💪',lordSkillHeal15:'❤️',lordDef10:'🛡️',actThietBich:'🛡️',wuDr10lordHp400:'🛡️',wuDmgVsStatus:'🎯',wuOpenShield5:'🛡️',bondWuBuff:'📯',wuDeployAmbush:'🗡️',wuAtk10def5:'💪',wuChargeAura:'⏳',wuDeathAtk:'💀',atk8def8:'💪',actNgoDe:'👑',wuAtk12def12lordHp300:'👑',weiDef8:'🛡️',lordHp250Def5:'💗',deathStunAdj:'💫',bondDelay:'⏳',enemyDelay:'⏳',weiAtk10def10:'💪',lordSkillStun2:'💫',openLg2:'⚡',actPheLap:'👑',weiDr12Atk10:'🛡️',dmgVsStun:'💫',dmgVsStronger:'🎯',weiDeathStun:'💫',enemyLowHpDrain:'🩸',weiDeployShield10:'🛡️',weiRegen:'💓',weiKillAtk:'💀',atk10def5:'💪',actQuyMuu:'👑',weiAtk12def12Dr5:'🛡️',shuDef8:'🛡️',lordHp150Lg1:'💗',bondCharge:'⏳',shuChargeAura:'⏳',shuAtk8def8:'💪',shuOpenShield:'🛡️',lordSkillDelay2Heal:'❤️',shuAtk10def10:'💪',actBatQuai:'👑',shuAtk12def12Fast:'💪',shuAtk8:'⚔️',dmgVsReady:'🎯',shuHp100:'💗',killLordHeal:'❤️',shuDeathHeal:'❤️',shuOpenBuf:'📯',lordHp300Regen2:'💓',shuTrioAtk:'⚔️',actThienMenh:'👑',shuBondAtk:'📯'};
 const TREE_EL={healShu:'heal',lordHp150:'hp',healLow:'heal',bondHeal:'heal',lordRegen:'heal',atk8:'phys',lordSkillShield:'shield',lordHp300Def8:'hp',actTrungHung:'gold',thienTu:'gold',atk5:'phys',def5:'phys',lordDmg10:'phys',killAtk:'phys',openBuf:'arcane',fastSkill:'arcane',openCharge:'arcane',atk8hp100:'phys',actPhaQuan:'gold',deNghiep:'gold',weiAtk8:'phys',weiHp100:'hp',weiDeployAtk:'phys',bondWeiBuff:'arcane',weiAtk12:'phys',weiOpenShield:'shield',lordSkillWeaken:'stun',lordDef8:'shield',actGianHung:'gold',weiKing:'gold',dmgVsTank:'phys',weiOpenBuf:'arcane',deathWeaken:'stun',dmgExecute:'phys',deployShield15:'shield',weiChargeAura:'arcane',lordDr10:'shield',def10hp100:'phys',actNguyDe:'gold',lordHp400:'hp',burnBoost:'fire',lordHp200wuHp100:'hp',burnSpread:'fire',bondBurn:'fire',dmgVsBurn:'fire',openBurn:'fire',lordSkillBurn:'fire',wuAtk10def10:'phys',actXichBich:'gold',burnDoubleWuAtk12:'fire',wuAtk8:'phys',wuDef8:'phys',firstDeployAtk:'phys',dmgVsSmaller:'phys',killHeal:'heal',wuFastSkill:'arcane',wuDef12hp100:'phys',openLg1:'arcane',actHoGam:'gold',wuAtk15lordHp300:'gold',wuDr5:'shield',lordHp200shield100:'shield',lordShieldTurn:'shield',bondShield:'shield',wuLowShield:'shield',wuHp100def5:'phys',lordSkillHeal15:'heal',lordDef10:'shield',actThietBich:'gold',wuDr10lordHp400:'shield',wuDmgVsStatus:'phys',wuOpenShield5:'shield',bondWuBuff:'arcane',wuDeployAmbush:'phys',wuAtk10def5:'phys',wuChargeAura:'arcane',wuDeathAtk:'phys',atk8def8:'phys',actNgoDe:'gold',wuAtk12def12lordHp300:'gold',weiDef8:'shield',lordHp250Def5:'hp',deathStunAdj:'stun',bondDelay:'stun',enemyDelay:'stun',weiAtk10def10:'phys',lordSkillStun2:'stun',openLg2:'arcane',actPheLap:'gold',weiDr12Atk10:'shield',dmgVsStun:'stun',dmgVsStronger:'phys',weiDeathStun:'stun',enemyLowHpDrain:'stun',weiDeployShield10:'shield',weiRegen:'heal',weiKillAtk:'phys',atk10def5:'phys',actQuyMuu:'gold',weiAtk12def12Dr5:'shield',shuDef8:'shield',lordHp150Lg1:'hp',bondCharge:'arcane',shuChargeAura:'arcane',shuAtk8def8:'phys',shuOpenShield:'shield',lordSkillDelay2Heal:'arcane',shuAtk10def10:'phys',actBatQuai:'gold',shuAtk12def12Fast:'phys',shuAtk8:'phys',dmgVsReady:'phys',shuHp100:'hp',killLordHeal:'heal',shuDeathHeal:'heal',shuOpenBuf:'arcane',lordHp300Regen2:'heal',shuTrioAtk:'phys',actThienMenh:'gold',shuBondAtk:'arcane'};
-function thcCityInfo(i){const c=THC_CITIES[i];if(!c)return;const own=(S.thcOwn&&S.thcOwn[i])||c.f,pfac=LORDS[S.lord].f,mine=own===pfac;
+function thcCityInfo(i){const c=THC_CITIES[i];if(!c)return;thcSel=i;thcRenderMap();const own=(S.thcOwn&&S.thcOwn[i])||c.f,pfac=LORDS[S.lord].f,mine=own===pfac;
  let h='<b>'+c.n+'</b> · '+FN[own]+(c.cap?' · 👑 Đô thành':'')+'<br><small>'+(mine?'Thuộc phe mình.':'Thuộc phe '+FN[own]+'.')+'</small>';
+ h+='<div style="margin-top:6px"><b>🛣️ Có thể công:</b><br><small>'+(()=>{const a=[];for(let b=0;b<27;b++)if(b!==i&&thcAdj(i,b))a.push(THC_CITIES[b].n);return a.length?a.join(', '):'Không có thành kề.'})()+'</small></div>';
  h+='<div style="margin-top:6px"><b>🛡️ Thẻ thủ thành ('+((S.thcGar&&S.thcGar[i])?S.thcGar[i].length:0)+'/8):</b><br>'+thcGarHTML(i)+'</div>';
  if(mine){h+='<br><button class="btn" style="margin-top:6px" onclick="thcGarEdit('+i+')">🛡️ Bố trí thẻ</button>'}
  else{h+='<br><button class="btn" style="margin-top:6px" onclick="thcAttackPick('+i+')">⚔️ Tấn công</button>'}
@@ -780,7 +781,7 @@ function thcAttackFrom(a,b){const pfac=LORDS[S.lord].f;
  const before=(S.thcGar[b]||[]).length;thcReinforce(b,8);const after=(S.thcGar[b]||[]).length;if(after>before)say('⚔️ '+FN[S.thcOwn[b]]+' điều '+(after-before)+' tướng từ các thành kề bên về thủ '+THC_CITIES[b].n+'!');S.thcCity=b;S.thcFrom=a;S.thcDef=false;S.mode='thc';S.thcTeam=[...(S.thcGar[a]||[])];kePick(()=>thcStage())}
 
 // ===== KẾ ÚP (v59) — stratagems in Thiên Hạ Chiến battles =====
-let keP=[],keE=[],keTurn=0,keFlipP=false,keFlipE=false;
+let keP=[],keE=[],keTurn=0,keFlipP=false,keFlipE=false,keELast=[];
 function keOwned(){return (S.ke||[]).map(id=>KE.find(k=>k.id===id)).filter(Boolean)}
 let kePickSel=new Set(),kePickCb=null;
 function kePickTg(id){
@@ -790,7 +791,7 @@ function kePickTg(id){
 function kePickRender(){
   const own=keOwned();
   const box=$('#m-box');
-  let h='<button class="mx" id="m-x">×</button><h2>📜 Chọn kế sách</h2><p style="font-size:12px;opacity:.8">Chọn tối đa 4 lá mang vào trận Thiên Hạ Chiến. Lá úp xuống bàn, đủ điều kiện mới sáng lên để lật. Địch cũng mang 4 lá.</p><p>Đã chọn <b>'+kePickSel.size+'/4</b></p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+  let h='<button class="mx" id="m-x">×</button><h2>📜 Chọn kế sách</h2><p style="font-size:12px;opacity:.8">Chọn tối đa 4 lá mang vào trận. Lá úp xuống bàn, đủ điều kiện mới sáng lên để lật. Địch cũng mang 4 lá (mỗi trận một bộ khác).</p><p>Đã chọn <b>'+kePickSel.size+'/4</b></p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
   own.forEach(k=>{
     const on=kePickSel.has(k.id);
     h+='<div class="bp-card'+(on?'':' lock')+'" style="cursor:pointer;'+(on?'outline:2px solid #2ee06f':'')+'" onclick="kePickTg(\''+k.id+'\')"><img src="'+KE_IMG[k.id]+'" alt=""><b style="font-size:11px">'+k.n+'</b><small style="font-size:10px;opacity:.75">'+k.b.slice(0,40)+'…</small></div>';
@@ -801,7 +802,7 @@ function kePickRender(){
   $('#ke-go').onclick=()=>{
     $('#modal').style.display='none';
     keP.length=0;[...kePickSel].forEach(id=>keP.push({id,lit:false,used:false,wait:0,bluff:false}));
-    keE.length=0;sh(KE.map(k=>k.id)).slice(0,4).forEach(id=>keE.push({id,lit:false,used:false,wait:0,bluff:Math.random()<.25}));
+    keE.length=0;let kePool=KE.map(k=>k.id).filter(id=>!(keELast||[]).includes(id));if(kePool.length<4)kePool=KE.map(k=>k.id);sh(kePool).slice(0,4).forEach(id=>keE.push({id,lit:false,used:false,wait:0,bluff:Math.random()<.25}));keELast=keE.map(c=>c.id);
     keTurn=0;keFlipP=false;keFlipE=false;
     const cb=kePickCb;kePickCb=null;
     if(cb)cb();
@@ -823,7 +824,7 @@ function keRender(){
       const k=KE.find(x=>x.id===c.id);
       if(c.used)h+='<div class="ke-card used"><span>✓</span><span>'+(k?k.n:'')+'</span></div>';
       else if(c.bluff)h+='<div class="ke-card"><span class="q">?</span><span>Úp</span></div>';
-      else if(c.lit)h+='<div class="ke-card lit" '+(who=='P'?'onclick="keFlip(\'P\','+i+')"':'')+'><span>'+(k?k.n:'')+'</span><span style="font-size:9px">SẴN SÀNG</span>'+(c.wait>0?'<span class="mul">×'+(1+c.wait*.1).toFixed(1)+'</span>':'')+'</div>';
+      else if(c.lit)h+='<div class="ke-card lit" '+(who=='P'?'onclick="keAsk(\'P\','+i+')"':'')+'><span>'+(k?k.n:'')+'</span><span style="font-size:9px">SẴN SÀNG</span>'+(c.wait>0?'<span class="mul">×'+(1+c.wait*.1).toFixed(1)+'</span>':'')+'</div>';
       else h+='<div class="ke-card"><span class="q">?</span><span>Úp</span></div>';
     });
     return h+'</div>';
@@ -868,6 +869,18 @@ function keCheck(sd,od){
 }
 function keLordAtk(sd){return (sd.hero&&sd.hero.c&&sd.hero.c.a)||80}
 function kePseudo(sd){return {atk:keLordAtk(sd),c:sd.hero.c}}
+function keAsk(who,idx){
+  const arr=who==='P'?keP:keE;
+  const c=arr[idx];if(!c||c.used||!c.lit||c.bluff)return;
+  const k=KE.find(x=>x.id===c.id);if(!k)return;
+  const box=$('#m-box');
+  box.innerHTML='<button class="mx" id="m-x">×</button><div class="head"><img src="'+KE_IMG[k.id]+'" alt="'+k.n+'"><div><h2>'+k.n+'</h2><span class="chip">'+(k.t=='cong'?'⚔️ Công':k.t=='thu'?'🛡️ Thủ':'🎭 Mưu')+'</span></div></div><div class="sk"><b>⚔️ Hiệu ứng</b><br>'+k.b+'</div>'+(c.wait>0?'<div class="sk"><b>⏳ Đã nhịn '+c.wait+' lượt</b><br>Hiệu lực hiện tại ×'+(1+c.wait*.1).toFixed(1)+'</div>':'')+'<div class="ctl" style="margin-top:10px"><button class="btn" id="ke-use">📜 Dùng lá này</button><button class="ghost" id="ke-later">Để sau</button></div>';
+  $('#m-x').onclick=()=>{$('#modal').style.display='none'};
+  $('#ke-later').onclick=()=>{$('#modal').style.display='none'};
+  $('#ke-use').onclick=()=>{$('#modal').style.display='none';keFlip(who,idx)};
+  $('#modal').style.display='flex';
+  $('#modal').onclick=e=>{if(e.target.id=='modal')$('#modal').style.display='none'};
+}
 function keFlip(who,idx){
   const arr=who==='P'?keP:keE,sd=who==='P'?S.me:S.en,od=who==='P'?S.en:S.me;
   const c=arr[idx];if(!c||c.used||!c.lit||c.bluff)return false;
@@ -1053,7 +1066,22 @@ function thcTry(){if(SET.thcSecret){thcShow();return}
  $('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';
  $('#thc-map').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px">🔒</div>';
  $('#thc-info').innerHTML='<b>Thiên Hạ Chiến chưa mở.</b><br><small>Bản đồ này đang bị khóa.</small>'}
-function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const nd=$('#thc-nextday');if(nd)nd.onclick=()=>thcNextDay();const dd=$('#thc-day');if(dd)dd.textContent='Ngày '+(S.thcDay||1);const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);let svg='<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block">';THC_CITIES.forEach((c,i)=>{const of=(S.thcOwn&&S.thcOwn[i])||c.f;svg+='<path d="'+c.path+'" fill="'+THC_COL[of]+'" fill-opacity="0.65" stroke="'+THC_COL[of]+'" stroke-width="0.45" stroke-linejoin="round" onclick="thcCityInfo('+i+')"/>'});THC_CITIES.forEach((c,i)=>{svg+='<text x="'+c.x+'" y="'+(c.y+(c.cap?1.1:0.9))+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>'});svg+='</svg>';$('#thc-map').innerHTML=svg;$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Chạm 1 thành để xem, tấn công thành địch.</small>'}
+let thcSel=-1;
+function thcRenderMap(){
+  let svg='<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block">';
+  THC_CITIES.forEach((c,i)=>{const of=(S.thcOwn&&S.thcOwn[i])||c.f;svg+='<path d="'+c.path+'" fill="'+THC_COL[of]+'" fill-opacity="0.65" stroke="'+THC_COL[of]+'" stroke-width="0.45" stroke-linejoin="round" onclick="thcCityInfo('+i+')"/>'});
+  if(thcSel>=0){
+    const A=THC_CITIES[thcSel];
+    for(let b=0;b<27;b++)if(b!==thcSel&&thcAdj(thcSel,b)){
+      const B=THC_CITIES[b];
+      svg+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="#ffd97a" stroke-width="0.9" stroke-dasharray="1.5,1" opacity="1" style="pointer-events:none"/>';
+    }
+  }
+  THC_CITIES.forEach((c,i)=>{svg+='<text x="'+c.x+'" y="'+(c.y+(c.cap?1.1:0.9))+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>'});
+  svg+='</svg>';
+  $('#thc-map').innerHTML=svg;
+}
+function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const nd=$('#thc-nextday');if(nd)nd.onclick=()=>thcNextDay();const dd=$('#thc-day');if(dd)dd.textContent='Ngày '+(S.thcDay||1);const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);thcRenderMap();$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Chạm 1 thành để xem đường công (vàng) và tấn công thành địch.</small>'}
 function treeShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',true);$('#tab-thc').classList.toggle('on',false);$('#nodes').style.display='none';$('#map-tree').style.display='block';$('#map-thc').style.display='none';const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
  if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
  const sc=$('#map-tree').scrollTop;const body=$('#tree-body');body.innerHTML='';
@@ -1194,7 +1222,7 @@ function synScore(team){let sc=0;SETS.forEach(z=>{const k=z[1].filter(n=>team.so
 function autoTeam(){const pool=S.own.slice(),team=[];
  while(team.length<8&&pool.length){let best=0,bv=-1e9;pool.forEach((i,k)=>{const v=(C[i].a+C[i].d)+synScore([...team,i])-synScore(team);if(v>bv){bv=v;best=k}});team.push(pool.splice(best,1)[0])}
  S.team=team}
-$('#dk-go').onclick=()=>stage();
+$('#dk-go').onclick=()=>kePick(()=>stage());
 
 // BATTLE
 const RC={SR:'#ff7a59',S:'#f2c94c',R:'#7ab8ff',N:'#b8b8b8'};
