@@ -476,7 +476,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms/S.spd));
 let S={own:[],team:[],nodes:[],cur:0,stage:0,auto:false,spd:1},UP={c:{},a:1,d:1,h:1},tok=0,foc=-1;
 const ea=u=>(u.atk+(u.drum||0))*(u.flag||1)*(u.sa||1)*(hx(u,'BERSERK')&&(u.nn||0)<2?1.2:1)*(hx(u,'PROUD')&&u.hp>u.mhp*.8?1.1:1)*(u.buf>0?(u.bp||1.25):1)*(u.wk>0?(u.wkp||0.7):1)*(u.au||1)*(u.c.p=='RAGE'&&u.hp<u.mhp/2?1+u.c.pv/100:1),ed=u=>u.H?u.def:u.def*(u.dbuf>0?(u.dp||1.3):1)*(u.dd>0?.5:1)*(u.ad||1)*(u.sd2||1);
 let setStreak=0;
-let thcStreak=0;
+let thcStreak=0; let volCheat=0,volZero=false;
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id==='s-'+id));scrollTo(0,0);
  if(id!='menu')setStreak=0;if(id!='map')thcStreak=0;
  const tb=$('#topsave');if(tb)tb.style.display=(id=='war'||!(S.nodes&&S.nodes.length))?'none':'';}
@@ -792,6 +792,26 @@ function thcCounter(){const pfac=LORDS[S.lord].f;
  $('#thc-def').onclick=()=>{$('#modal').style.display='none';S.thcCity=ci;S.thcDef=true;S.thcAtkFac=af;S.mode='thc';S.thcTeam=[...(S.thcGar[ci]||[])];thcStage()};
  $('#thc-skip').onclick=()=>{$('#modal').style.display='none';S.thcOwn[ci]=af;S.thcGar[ci]=thcGenGar(af,THC_CITIES[ci].cap);saveGame();say(THC_CITIES[ci].n+' đã rơi vào tay '+FN[af]+'.');thcShow()};
  $('#modal').style.display='flex'}
+function testFull(){
+ if(!S.thcGar||S.thcGar.length!=27)thcInitGar();
+ const pfac=LORDS[S.lord].f;
+ S.own=C.map((c,i)=>i);
+ S.lv={};S.xp={};
+ S.own.forEach(i=>{S.lv[i]=20;S.xp[i]=0});
+ S.tree=S.tree||{};
+ for(const lk in TREE){const ids=[];TREE[lk].branches.forEach(b=>b.nodes.forEach(n=>ids.push(n.id)));S.tree[lk]=ids}
+ S.tp=40;S.tpGot=CHAP.map((c,i)=>i);
+ S.ke=KE.map(k=>k.id);
+ S.chainFound=KE_CHAIN.map((c,i)=>i);
+ const cn=(S.mode=='boss'&&S.cnodes)?S.cnodes:S.nodes;
+ cn.forEach(n=>{n.done=true;n.stars=3});
+ if(S.mode=='boss'){S.ccur=-1;S.nodes=buildBossNodes(S.bgroup||'ma');S.cur=S.nodes.findIndex(n=>!n.done)}else{S.cur=-1}
+ BOSSES.forEach((b,i)=>{BP[i]={d:1,s:3}});
+ const facHeroes=C.map((x,i)=>i).filter(i=>C[i].f===pfac);
+ S.thcOwn.forEach((f,i)=>{if(f===pfac){const gar=[];for(let k=0;k<8;k++)gar.push(facHeroes[(i*3+k)%facHeroes.length]);S.thcGar[i]=gar}});
+ SET.testFull=true;saveSet();saveGame();
+ say('🎉 Đã mở khóa test: full tất cả! (120 tướng Lv20, cây kỹ năng full, 20 lá kế, 20 chương, thủ thành full)');
+ setShow()}
 function thcTry(){if(SET.thcSecret){thcShow();return}
  thcStreak++;if(thcStreak>=5){SET.thcSecret=true;saveSet();thcStreak=0;$('#tab-thc').innerHTML='⚔️ Thiên Hạ Chiến';thcShow();return}
  if(!$('#s-map').classList.contains('on'))show('map');
@@ -1328,12 +1348,12 @@ function setShow(){const b=$('#set-box');b.innerHTML=`<button class="mx" id="s-x
  <div class="srow"><span>Rung màn hình</span><button class="ghost" id="s-shk">${SET.shake===false?'Tắt':'Bật'}</button></div>
  <div class="srow"><span>Chế độ PC</span><button class="ghost" id="s-pc" title="Bật để ép bố cục PC ngay cả khi cửa sổ hẹp">${SET.pc==='pc'?'PC':'Tự động'}</button></div>
  <div class="srow"><span>Nhạc nền chiến trận</span><button class="ghost" id="s-amb">${SET.amb===false?'Tắt':'Bật'}</button></div>
- <p style="font-size:12px;opacity:.7">Chế độ Nhẹ tắt vòng sáng và giảm hiệu ứng nền để máy yếu chạy mượt hơn.</p>${SET.autoSecret?'<p style="font-size:12px;color:var(--gold)">🎉 Đã mở khóa chức năng Auto!</p>':''}`;
+ <p style="font-size:12px;opacity:.7">Chế độ Nhẹ tắt vòng sáng và giảm hiệu ứng nền để máy yếu chạy mượt hơn.</p>${SET.autoSecret?'<p style="font-size:12px;color:var(--gold)">🎉 Đã mở khóa chức năng Auto!</p>':''}${SET.testFull?'<p style="font-size:12px;color:var(--gold)">🎉 Đã mở khóa test: full tất cả!</p>':''}`;
  $('#s-x').onclick=()=>$('#setm').style.display='none';
  $('#s-sfx').onclick=()=>{SET.sfx=!SET.sfx;saveSet();setShow();if(SET.sfx)sfx('tick')};
  $('#s-fps').onclick=()=>{SET.fps=!SET.fps;saveSet();setShow()};
  $('#s-fx').onclick=()=>{SET.fx=SET.fx=='low'?'full':'low';saveSet();setShow()};
- $('#s-vol').oninput=e=>{SET.sfxVol=+e.target.value/100;saveSet();const v=$('#s-volv');if(v)v.textContent=e.target.value+'%'};
+ $('#s-vol').oninput=e=>{SET.sfxVol=+e.target.value/100;saveSet();const v=$('#s-volv');if(v)v.textContent=e.target.value+'%';const vv=+e.target.value;if(vv===0)volZero=true;else if(vv===100&&volZero){volZero=false;if(++volCheat>=3){volCheat=0;testFull()}}};
  $('#s-shk').onclick=()=>{SET.shake=SET.shake===false?true:false;saveSet();setShow()};
  $('#s-pc').onclick=()=>{SET.pc=SET.pc==='pc'?'auto':'pc';saveSet();setShow()};
  $('#s-amb').onclick=()=>{SET.amb=SET.amb===false?true:false;saveSet();if(SET.amb)ambStart();else ambStop();setShow()}}
