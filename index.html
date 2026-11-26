@@ -767,7 +767,7 @@ function thcAttackFrom(a,b){const pfac=LORDS[S.lord].f;
 function thcStage(){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f,efac=S.thcDef?S.thcAtkFac:S.thcOwn[S.thcCity],sc=city.cap?1.15:1;
  let ids;if(S.thcDef){ids=thcGenGar(efac,false)}else{ids=[...(S.thcGar[S.thcCity]||[])]}
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.thcTeam.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);const mf=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||pfac;
- S.elord=ELORDS_BY_FAC[efac][S.thcCity%2];S.etier=0;S.etree=[];S.etreeDrop=[];
+ S.elord=ELORDS_BY_FAC[efac][S.thcCity%2];S.etier=5;S.etree=[];TREE[S.elord].branches.forEach(b=>b.nodes.forEach(n=>S.etree.push(n.id)));S.etreeDrop=[];
  const elv=Math.max(5,Math.min(15,Math.round(S.thcTeam.reduce((a,i)=>a+(S.lv[i]||1),0)/Math.max(1,S.thcTeam.length))));
  const side=(ids,k,s,f)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?heroC:(C.find(x=>x.n==LORDS[S.elord].n)||{n:LORDS[S.elord].n,i:'',f:efac})},deck:sh(ids).map(i=>mk(i,s,k,elv)),hand:[],field:[null,null,null,null,null],gy:0}};
  S.pb=S.pend||0;S.me=side(S.thcTeam,1,1,mf);S.en=side(ids,sc,0,efac);S.en.hero.hp=S.en.hero.mhp=Math.round(1100*(city.cap?1.2:1));
@@ -788,7 +788,9 @@ function thcStage(){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f,efac=S
  $('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
 let thcDayPend=[],thcDayLog=[],thcDayOn=false;
 function thcStr(gar){return (gar||[]).reduce((a,h)=>a+C[h].a+C[h].d,0)}
-function thcAiTurn(f){let best=null;for(let a=0;a<27;a++){if(S.thcOwn[a]!==f)continue;const gar=S.thcGar[a]||[];if(!gar.length)continue;const att=thcStr(gar);for(let b=0;b<27;b++){if(S.thcOwn[b]===f)continue;if(!thcAdj(a,b))continue;const def=thcStr(S.thcGar[b]||[]);const adv=att/Math.max(1,def);if(!best||adv>best.adv)best={a,b,adv,att,def}}}
+function thcBondN(gar){const names=new Set((gar||[]).map(h=>C[h].n));let n=0;SETS.forEach(st=>{if(st[1].every(x=>names.has(x)))n++});return n}
+function thcEffStr(gar){return thcStr(gar)*(1+thcBondN(gar)*0.15)}
+function thcAiTurn(f){let best=null;for(let a=0;a<27;a++){if(S.thcOwn[a]!==f)continue;const gar=S.thcGar[a]||[];if(!gar.length)continue;const att=thcEffStr(gar);for(let b=0;b<27;b++){if(S.thcOwn[b]===f)continue;if(!thcAdj(a,b))continue;const def=thcEffStr(S.thcGar[b]||[]);const adv=att/Math.max(1,def);if(!best||adv>best.adv)best={a,b,adv,att,def}}}
  if(!best||best.adv<1)return;const pfac=LORDS[S.lord].f,defFac=S.thcOwn[best.b];
  if(defFac===pfac){thcDayPend.push({f,from:best.a,to:best.b});return}
  const win=best.att*(0.9+Math.random()*0.2)>best.def;
@@ -1074,7 +1076,7 @@ function stage(){if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage
  S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.elg=0;S.elordUsed=false;S.tg=0;S.treeUsed={};if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);if(treeHasE('lb27'))S.elg=1;if(treeHasE('tk28'))S.elg=Math.max(S.elg,1);if(treeHasE('sm18'))S.elg=2;if(treeHasE('gcl12'))S.elg=Math.max(S.elg,1);S.aiq=Math.min(1,.25+.035*node.ch);S.phase='';tok++;$('#w-t').textContent=`Chương ${node.ch+1}/20 · Ải ${node.k+1} — quân ${FN[fac]}${node.boss?' (★ thủ lĩnh)':''}`;
  $('#log').textContent='';$('#turn').textContent='';if(S.etree.length)say('⚠ Chủ công địch ('+LORDS[S.elord].n+') có cây kỹ năng tầng '+eTier+'!');draw();$('#cov').style.display='flex';show('war')}
 $('#w-go').onclick=()=>{$('#cov').style.display='none';ambStart();sfx('horn');sfx('wardrums');battle()};
-function autoUnlocked(){if(SET.autoSecret)return true;const ns=(S.mode=='boss'&&S.cnodes)?S.cnodes:S.nodes;if(!ns||!ns.length)return false;return ns.every(n=>n.ch>14||n.done)}
+function autoUnlocked(){if(S.mode=='thc')return false;if(SET.autoSecret)return true;const ns=(S.mode=='boss'&&S.cnodes)?S.cnodes:S.nodes;if(!ns||!ns.length)return false;return ns.every(n=>n.ch>14||n.done)}
 $('#w-auto').onclick=e=>{if(!autoUnlocked())return;S.auto=!S.auto;e.currentTarget.classList.toggle('on',S.auto);
  if(S.auto&&S.phase=='place'){ai(S.me,S.en);S.phase='';S.done&&S.done()}};
 $('#w-spd').onclick=e=>{S.spd=S.spd%3+1;e.currentTarget.textContent='x'+S.spd};
