@@ -764,6 +764,7 @@ function thcGarEdit(i){const c=THC_CITIES[i],pfac=LORDS[S.lord].f,gar=(S.thcGar&
  const assigned=new Set();(S.thcGar||[]).forEach(g=>g.forEach(h=>assigned.add(h)));
  const pool=S.own.filter(h=>C[h].f===pfac&&!assigned.has(h));
  let h='<button class="mx" id="m-x">×</button><h2>⚙️ Thủ thành '+c.n+'</h2><p><small>Chạm thẻ trong kho để thêm vào thành (tối đa 8), chạm thẻ trong thành để rút về kho.</small></p>';
+ h+='<div style="margin:6px 0"><button class="btn" style="margin-right:6px" onclick="thcGarSuggest('+i+')">✨ Team đề xuất</button><button class="ghost" onclick="thcGarClear('+i+')">🔄 Rút hết tướng</button></div>';
  h+='<b>Trong thành ('+gar.length+'/8):</b><div style="margin:4px 0">'+(gar.length?gar.map(hh=>'<span style="display:inline-block;text-align:center;width:52px;margin:2px;cursor:pointer" onclick="thcGarRm('+i+','+hh+')"><img src="'+C[hh].i+'" style="width:48px;border-radius:6px;display:block"><small>'+C[hh].n+'</small></span>').join(''):'<small style="opacity:.7">Chưa có thẻ nào.</small>')+'</div>';
  h+='<b>Kho thẻ phe '+FN[pfac]+' ('+pool.length+'):</b><div style="margin:4px 0;max-height:180px;overflow-y:auto">'+(pool.length?pool.map(hh=>'<span style="display:inline-block;text-align:center;width:52px;margin:2px;cursor:pointer" onclick="thcGarAdd('+i+','+hh+')"><img src="'+C[hh].i+'" style="width:48px;border-radius:6px;display:block"><small>'+C[hh].n+'</small></span>').join(''):'<small style="opacity:.7">Hết thẻ để phân.</small>')+'</div>';
  $('#m-box').innerHTML=h;
@@ -771,6 +772,8 @@ function thcGarEdit(i){const c=THC_CITIES[i],pfac=LORDS[S.lord].f,gar=(S.thcGar&
  $('#modal').style.display='flex';$('#modal').onclick=e=>{if(e.target.id=='modal'){$('#modal').style.display='none';thcCityInfo(i)}}}
 function thcGarAdd(i,h){if(!S.thcGar[i])S.thcGar[i]=[];if(S.thcGar[i].length>=8)return;S.thcGar.forEach(g=>{const k=g.indexOf(h);if(k>=0)g.splice(k,1)});S.thcGar[i].push(h);saveGame();thcGarEdit(i)}
 function thcGarRm(i,h){if(!S.thcGar[i])return;const k=S.thcGar[i].indexOf(h);if(k>=0)S.thcGar[i].splice(k,1);if(!S.own.includes(h))S.own.push(h);saveGame();thcGarEdit(i)}
+function thcGarClear(i){if(!S.thcGar||!S.thcGar[i])return;S.thcGar[i]=[];saveGame();thcGarEdit(i)}
+function thcGarSuggest(i){if(!S.thcGar)return;const pfac=LORDS[S.lord].f;const assigned=new Set();(S.thcGar||[]).forEach((g,j)=>{if(j!==i)g.forEach(h=>assigned.add(h))});const cands=S.own.filter(h=>C[h].f===pfac&&!assigned.has(h));cands.sort((a,b)=>{const ua=mk(a,1,1,1),ub=mk(b,1,1,1);return (ub.atk+ub.def)-(ua.atk+ua.def)});S.thcGar[i]=cands.slice(0,8);saveGame();thcGarEdit(i)}
 function thcAttackFrom(a,b){const pfac=LORDS[S.lord].f;
  if(S.thcOwn[b]===pfac||S.thcOwn[a]!==pfac||!thcAdj(a,b))return;
  if(!(S.thcGar[a]&&S.thcGar[a].length))return;
