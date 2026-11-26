@@ -450,7 +450,7 @@ body.pc #s-war .hero img{width:42px}
 <p class="c" style="opacity:.8">Đánh lần lượt từng ải. Hoàn thành 20 chương để thống nhất thiên hạ.</p>
 <div id="nodes"></div>
 <div id="map-tree" style="display:none"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></div>
-<div id="map-thc" style="display:none"><div class="bar2"><h2>⚔️ Thiên Hạ Chiến</h2><span>Bản đồ xem trước</span></div><p class="c" style="opacity:.8">27 thành · mỗi thành 1 mảng màu theo phe. Chạm 1 thành để xem. Chưa mở đánh nhau.</p><div id="thc-map" class="thc-map"></div><div id="thc-info" class="thc-info">Chạm 1 thành trên bản đồ để xem chi tiết.</div></div>
+<div id="map-thc" style="display:none"><div class="bar2"><h2>⚔️ Thiên Hạ Chiến</h2><span id="thc-day">Ngày 1</span></div><p class="c" style="opacity:.8">27 thành · mỗi thành 1 mảng màu theo phe. Chạm 1 thành để xem, tấn công thành địch. <button class="ghost" id="thc-nextday" style="margin-left:6px">📅 Qua ngày</button></p><div id="thc-map" class="thc-map"></div><div id="thc-info" class="thc-info">Chạm 1 thành trên bản đồ để xem chi tiết.</div></div>
 </section>
 <section class="scr" id="s-dt"><div class="bar2"><h2>Danh tướng lục</h2><button class="ghost" id="dt-back">Quay lại</button></div><div id="dtlist" class="dtl"></div></section>
 
@@ -735,11 +735,12 @@ function thcCityInfo(i){const c=THC_CITIES[i];if(!c)return;const own=(S.thcOwn&&
  h+='<div style="margin-top:6px"><b>🛡️ Thẻ thủ thành ('+((S.thcGar&&S.thcGar[i])?S.thcGar[i].length:0)+'/8):</b><br>'+thcGarHTML(i)+'</div>';
  if(mine){h+='<br><button class="btn" style="margin-top:6px" onclick="thcGarEdit('+i+')">🛡️ Bố trí thẻ</button>'}
  else{h+='<br><button class="btn" style="margin-top:6px" onclick="thcAttackPick('+i+')">⚔️ Tấn công</button>'}
+$('#thc-info').innerHTML=h}
 function thcAttackPick(b){const pfac=LORDS[S.lord].f,c=THC_CITIES[b];const org=[];for(let a=0;a<27;a++){if((S.thcOwn&&S.thcOwn[a])===pfac&&S.thcGar&&S.thcGar[a]&&S.thcGar[a].length&&thcAdj(a,b))org.push(a)}
  let h='<b>'+c.n+'</b> · '+FN[S.thcOwn[b]]+(c.cap?' · 👑 Đô thành':'')+'<br><small>Tấn công từ thành nào?</small><br>';
  h+=org.length?org.map(a=>'<button class="ghost" style="margin:2px" onclick="thcAttackFrom('+a+','+b+')">⚔️ '+THC_CITIES[a].n+' ('+S.thcGar[a].length+' thẻ)</button>').join(''):'<small style="opacity:.7">Không có thành nào của bạn kề thành này để tấn công.</small>';
  h+='<br><button class="ghost" style="margin-top:6px" onclick="thcCityInfo('+b+')">← Quay lại</button>';
- $('#thc-info').innerHTML=h} $('#thc-info').innerHTML=h}
+ $('#thc-info').innerHTML=h}
 function thcAdj(a,b){const dx=THC_CITIES[a].x-THC_CITIES[b].x,dy=THC_CITIES[a].y-THC_CITIES[b].y;return dx*dx+dy*dy<625}
 function thcGenGar(f,cap){const ids=C.map((c,i)=>i).filter(i=>C[i].f===f);return cap?ids.sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d).slice(0,8):sh(ids).slice(0,8)}
 function thcDealGar(f){const ids=C.map((x,i)=>i).filter(i=>C[i].f===f);const sorted=ids.slice().sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d);const cities=THC_CITIES.map((c,i)=>i).filter(i=>THC_CITIES[i].f===f);const cap=cities.find(i=>THC_CITIES[i].cap);const gar={};gar[cap]=sorted.slice(0,8);const rest=sorted.slice(8);const others=cities.filter(i=>i!==cap);others.forEach((ci,k)=>{gar[ci]=rest.slice(k*4,k*4+4)});return gar}
@@ -785,6 +786,25 @@ function thcStage(){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f,efac=S
  if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);
  S.aiq=0.5;S.phase='';tok++;$('#w-t').textContent='⚔️ Thiên Hạ Chiến · '+(S.thcDef?'Phòng thủ ':'Tấn công ')+city.n+' — quân '+FN[efac]+(city.cap?' (👑 đô thành)':'');
  $('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
+let thcDayPend=[],thcDayLog=[],thcDayOn=false;
+function thcStr(gar){return (gar||[]).reduce((a,h)=>a+C[h].a+C[h].d,0)}
+function thcAiTurn(f){let best=null;for(let a=0;a<27;a++){if(S.thcOwn[a]!==f)continue;const gar=S.thcGar[a]||[];if(!gar.length)continue;const att=thcStr(gar);for(let b=0;b<27;b++){if(S.thcOwn[b]===f)continue;if(!thcAdj(a,b))continue;const def=thcStr(S.thcGar[b]||[]);const adv=att/Math.max(1,def);if(!best||adv>best.adv)best={a,b,adv,att,def}}}
+ if(!best||best.adv<1)return;const pfac=LORDS[S.lord].f,defFac=S.thcOwn[best.b];
+ if(defFac===pfac){thcDayPend.push({f,from:best.a,to:best.b});return}
+ const win=best.att*(0.9+Math.random()*0.2)>best.def;
+ if(win){S.thcOwn[best.b]=f;S.thcGar[best.b]=[...S.thcGar[best.a]];S.thcGar[best.a]=[];thcDayLog.push('⚔️ '+FN[f]+' tấn công '+THC_CITIES[best.b].n+' ('+FN[defFac]+') — thắng, chiếm thành')}
+ else{thcDayLog.push('⚔️ '+FN[f]+' tấn công '+THC_CITIES[best.b].n+' ('+FN[defFac]+') — bị đẩy lùi')}}
+function thcNextDay(){S.thcDay=(S.thcDay||1)+1;thcDayPend=[];thcDayLog=[];thcDayOn=true;const pfac=LORDS[S.lord].f;for(const f of['wu','wei','shu']){if(f===pfac)continue;thcAiTurn(f)}thcDayNext()}
+function thcDayNext(){saveGame();thcShow();
+ if(thcDayPend.length){const p=thcDayPend.shift(),c=THC_CITIES[p.to];
+  $('#m-box').innerHTML='<h2>⚔️ '+THC_CITIES[p.to].n+' bị tấn công!</h2><p>Quân '+FN[p.f]+' từ '+THC_CITIES[p.from].n+' đánh vào thành của bạn ('+(S.thcGar[p.to]||[]).length+' thẻ thủ). Bạn có muốn phòng thủ?</p><div class="ctl"><button class="btn" id="thc-dd">🛡️ Phòng thủ</button><button class="ghost" id="thc-ds">⏭️ Bỏ qua</button></div>';
+  $('#thc-dd').onclick=()=>{$('#modal').style.display='none';S.thcCity=p.to;S.thcDef=true;S.thcAtkFac=p.f;S.mode='thc';S.thcTeam=[...(S.thcGar[p.to]||[])];thcStage()};
+  $('#thc-ds').onclick=()=>{S.thcOwn[p.to]=p.f;thcFillGar(p.to,p.f);thcDayLog.push('⚔️ '+FN[p.f]+' tấn công '+c.n+' của bạn — bạn bỏ qua, mất thành');$('#modal').style.display='none';thcDayNext()};
+  $('#modal').style.display='flex';return}
+ thcDayOn=false;const h='<button class="mx" id="m-x">×</button><h3>📅 Ngày '+(S.thcDay||1)+' — Thiên Hạ Chiến</h3>'+(thcDayLog.length?thcDayLog.map(e=>'<p style="margin:4px 0">• '+e+'</p>').join(''):'<p>Các nước đều án binh bất động.</p>')+'<button class="btn" id="thc-dok" style="margin-top:8px">Đã rõ</button>';
+ $('#m-box').innerHTML=h;$('#modal').style.display='flex';
+ $('#m-x').onclick=()=>{$('#modal').style.display='none'};
+ $('#thc-dok').onclick=()=>{$('#modal').style.display='none'}}
 function thcCounter(){const pfac=LORDS[S.lord].f;
  thcShow();
  if(S.thcOwn.every(f=>f===pfac))return
@@ -823,7 +843,7 @@ function thcTry(){if(SET.thcSecret){thcShow();return}
  $('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';
  $('#thc-map').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px">🔒</div>';
  $('#thc-info').innerHTML='<b>Thiên Hạ Chiến chưa mở.</b><br><small>Bản đồ này đang bị khóa.</small>'}
-function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);let svg='<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block">';THC_CITIES.forEach((c,i)=>{const of=(S.thcOwn&&S.thcOwn[i])||c.f;svg+='<path d="'+c.path+'" fill="'+THC_COL[of]+'" fill-opacity="0.65" stroke="'+THC_COL[of]+'" stroke-width="0.45" stroke-linejoin="round" onclick="thcCityInfo('+i+')"/>'});THC_CITIES.forEach((c,i)=>{svg+='<text x="'+c.x+'" y="'+(c.y+(c.cap?1.1:0.9))+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>'});svg+='</svg>';$('#thc-map').innerHTML=svg;$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Chạm 1 thành để xem, tấn công thành địch.</small>'}
+function thcShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',true);$('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='block';const nd=$('#thc-nextday');if(nd)nd.onclick=()=>thcNextDay();const dd=$('#thc-day');if(dd)dd.textContent='Ngày '+(S.thcDay||1);const cnt={wu:0,wei:0,shu:0};THC_CITIES.forEach((c,i)=>cnt[(S.thcOwn&&S.thcOwn[i])||c.f]++);let svg='<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block">';THC_CITIES.forEach((c,i)=>{const of=(S.thcOwn&&S.thcOwn[i])||c.f;svg+='<path d="'+c.path+'" fill="'+THC_COL[of]+'" fill-opacity="0.65" stroke="'+THC_COL[of]+'" stroke-width="0.45" stroke-linejoin="round" onclick="thcCityInfo('+i+')"/>'});THC_CITIES.forEach((c,i)=>{svg+='<text x="'+c.x+'" y="'+(c.y+(c.cap?1.1:0.9))+'" text-anchor="middle" font-family="Georgia,serif" font-size="'+(c.cap?3.1:2.6)+'" font-weight="'+(c.cap?'bold':'normal')+'" fill="'+(c.cap?'#ffd97a':'#fff8e7')+'" stroke="#2a1f14" stroke-width="0.7" paint-order="stroke" style="pointer-events:none">'+c.n+'</text>'});svg+='</svg>';$('#thc-map').innerHTML=svg;$('#thc-info').innerHTML='<b>Thiên Hạ Chiến.</b><br><small>27 thành · Ngụy '+cnt.wei+' · Thục '+cnt.shu+' · Ngô '+cnt.wu+' · 👑 là đô thành. Chạm 1 thành để xem, tấn công thành địch.</small>'}
 function treeShow(){if(!$('#s-map').classList.contains('on'))show('map');$('#tab-camp').classList.toggle('on',false);$('#tab-boss').classList.toggle('on',false);$('#tab-than').classList.toggle('on',false);$('#tab-tree').classList.toggle('on',true);$('#tab-thc').classList.toggle('on',false);$('#nodes').style.display='none';$('#map-tree').style.display='block';$('#map-thc').style.display='none';const L=TREE[S.lord];$('#tree-h').textContent='🌳 Cây Kỹ Năng — '+(L?L.name:S.lord);$('#tree-pts').textContent='Điểm kỹ năng: '+(S.tp||0)+' · Tổng điểm cả game: 40 = vừa đủ full cây khi qua hết 20 chương';
  if(!L){$('#tree-body').innerHTML='<p>Chủ công này chưa có cây kỹ năng.</p>';return}
  const sc=$('#map-tree').scrollTop;const body=$('#tree-body');body.innerHTML='';
@@ -860,7 +880,7 @@ function thPick(ch,fs){const th=TH[ch];if(!th)return{f:fs[Math.random()*fs.lengt
  return{f:p.f,tm}}
 function newGame(lk){S.lord=lk||S.lord||'tao';S.mode=BOSSNEXT?'boss':null;BOSSNEXT=false;
  const b=C.map((c,i)=>i).filter(i=>C[i].r=='N'||C[i].r=='R');
- S.lv={};S.xp={};S.pend=0;S.pb=0;S.own=sh(b).slice(0,10);S.team=[];S.cur=0;S.stage=0;UP={c:{},a:1,d:1,h:1};S.tp=0;S.tree={};S.tpGot=[];S.tg=0;S.treeUsed={};S.ke=['hoa','khong','muon'];S.chainFound=[];S.thcOwn=THC_CITIES.map(c=>c.f);thcInitGar();
+ S.lv={};S.xp={};S.pend=0;S.pb=0;S.own=sh(b).slice(0,10);S.team=[];S.cur=0;S.stage=0;UP={c:{},a:1,d:1,h:1};S.tp=0;S.tree={};S.tpGot=[];S.tg=0;S.treeUsed={};S.ke=['hoa','khong','muon'];S.chainFound=[];S.thcDay=1;S.thcOwn=THC_CITIES.map(c=>c.f);thcInitGar();
  S.nodes=[];CHAP.forEach((c,ch)=>{for(let k=0;k<STG[ch];k++){S.nodes.push({ch,k,...thPick(ch,c.fs),elv:Math.min(20,2*ch+1),sc:1,tier:ch<4?['N']:ch<10?['N','R']:ch<15?['N','R','S']:['N','R','S','SR'],hs:+((ch<4?.6:ch<10?.8:1)*(1+.02*ch)).toFixed(3),boss:k==STG[ch]-1,done:false,stars:0})}});
  if(S.mode!='boss')mapShow()}
 $('#go-new').onclick=()=>lordShow();
@@ -893,8 +913,8 @@ async function cloudRef(){try{const c=window.claude;if(!c)return null;const db=a
 async function cloudRaw(){try{const r=await cloudRef();if(!r)return null;const s=await r.get();return s.exists?((s.data()||{}).json||null):null}catch(e){return null}}
 function cloudPut(raw){cloudRef().then(r=>r&&r.set({json:raw})).catch(()=>{})}
 function cloudDel(){cloudRef().then(r=>r&&r.delete()).catch(()=>{})}
-function saveGame(){try{const isB=S.mode=='boss';const raw=JSON.stringify({own:S.own,team:S.team,nodes:(isB&&S.cnodes)?S.cnodes:S.nodes,cur:(isB&&S.cnodes)?S.ccur:S.cur,bp:BP,stage:S.stage,lv:S.lv,xp:S.xp,UP:UP,pend:S.pend||0,lord:S.lord,tp:S.tp||0,tree:S.tree||{},tpGot:S.tpGot||[],etry:S.etry||{},ke:S.ke||[],chainFound:S.chainFound||[],thcOwn:S.thcOwn||[],thcGar:S.thcGar||[]});localStorage.setItem(SK_KEY,raw);cloudPut(raw);return true}catch(e){return false}}
-function loadGame(raw){try{const d=JSON.parse(raw||localStorage.getItem(SK_KEY)||'null');if(!d)return false;Object.assign(S,{mode:null,own:d.own,team:d.team,nodes:d.nodes,cur:d.cur,stage:d.stage,lv:d.lv,xp:d.xp,pend:d.pend||0,tp:d.tp||0,tree:d.tree||{},tpGot:d.tpGot||[],etry:d.etry||{},ke:d.ke||['hoa','khong','muon'],chainFound:d.chainFound||[],thcOwn:d.thcOwn||[],thcGar:d.thcGar||[]});if(!S.thcOwn||S.thcOwn.length!=27)S.thcOwn=THC_CITIES.map(c=>c.f);if(!S.thcGar||S.thcGar.length!=27)thcInitGar();thcDedup();treeGrant();BP=d.bp||{};S.lord=LORDS[d.lord]?d.lord:'tao';UP=d.UP;return true}catch(e){return false}}
+function saveGame(){try{const isB=S.mode=='boss';const raw=JSON.stringify({own:S.own,team:S.team,nodes:(isB&&S.cnodes)?S.cnodes:S.nodes,cur:(isB&&S.cnodes)?S.ccur:S.cur,bp:BP,stage:S.stage,lv:S.lv,xp:S.xp,UP:UP,pend:S.pend||0,lord:S.lord,tp:S.tp||0,tree:S.tree||{},tpGot:S.tpGot||[],etry:S.etry||{},ke:S.ke||[],chainFound:S.chainFound||[],thcOwn:S.thcOwn||[],thcGar:S.thcGar||[],thcDay:S.thcDay||1});localStorage.setItem(SK_KEY,raw);cloudPut(raw);return true}catch(e){return false}}
+function loadGame(raw){try{const d=JSON.parse(raw||localStorage.getItem(SK_KEY)||'null');if(!d)return false;Object.assign(S,{mode:null,own:d.own,team:d.team,nodes:d.nodes,cur:d.cur,stage:d.stage,lv:d.lv,xp:d.xp,pend:d.pend||0,tp:d.tp||0,tree:d.tree||{},tpGot:d.tpGot||[],etry:d.etry||{},ke:d.ke||['hoa','khong','muon'],chainFound:d.chainFound||[],thcOwn:d.thcOwn||[],thcGar:d.thcGar||[],thcDay:d.thcDay||1});if(!S.thcOwn||S.thcOwn.length!=27)S.thcOwn=THC_CITIES.map(c=>c.f);if(!S.thcGar||S.thcGar.length!=27)thcInitGar();thcDedup();treeGrant();BP=d.bp||{};S.lord=LORDS[d.lord]?d.lord:'tao';UP=d.UP;return true}catch(e){return false}}
 function refreshMenu(){let has=false;try{has=!!localStorage.getItem(SK_KEY)}catch(e){}has=has||CLOUD_HAS;
  const live=!!(S.nodes&&S.nodes.length);
  $('#go-cont').style.display=has?'':'none';$('#go-del').style.display=has?'':'none';$('#go-save').style.display=live?'':'none'}
@@ -1665,7 +1685,7 @@ const EXT=['hồi 9% máu cho đồng minh yếu nhất','nhận lá chắn 20% 
 function xk(c,j){const h=[...c.n].reduce((a,ch)=>a+ch.charCodeAt(0),0);return (h+(j?3:0))%6}
 function end(w){ambStop();(S.mode=='thc'?(S.thcTeam||[]):S.team).forEach(gainXp);sfx(w?'win':'lose');say(w?'Quân địch đã bại!':'Toàn quân bị tiêu diệt...');
  setTimeout(()=>{
- if(S.mode=='thc'){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f;if(w&&!S.thcDef){S.thcOwn[S.thcCity]=pfac;S.thcGar[S.thcCity]=[];say('Đã chiếm '+city.n+'!')}else if(w){say('Đã giữ được '+city.n+'!')}else if(S.thcDef){S.thcOwn[S.thcCity]=S.thcAtkFac;thcFillGar(S.thcCity,S.thcAtkFac);say(city.n+' đã thất thủ...')}else{say('Tấn công '+city.n+' thất bại.')}saveGame();if(S.thcOwn.every(f=>f===pfac))say('🎉 Đã thống nhất thiên hạ!');if(!S.thcDef)return setTimeout(()=>thcCounter(),1200);return setTimeout(thcShow,1200)}
+ if(S.mode=='thc'){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f;if(w&&!S.thcDef){S.thcOwn[S.thcCity]=pfac;S.thcGar[S.thcCity]=[];say('Đã chiếm '+city.n+'!')}else if(w){say('Đã giữ được '+city.n+'!')}else if(S.thcDef){S.thcOwn[S.thcCity]=S.thcAtkFac;thcFillGar(S.thcCity,S.thcAtkFac);say(city.n+' đã thất thủ...')}else{say('Tấn công '+city.n+' thất bại.')}saveGame();if(S.thcOwn.every(f=>f===pfac))say('🎉 Đã thống nhất thiên hạ!');if(!S.thcDef)return setTimeout(()=>thcCounter(),1200);return setTimeout(()=>{if(thcDayPend.length||thcDayOn)thcDayNext();else thcShow()},1200)}
  if(S.mode!='boss'&&S.nodes[S.stage].ch>=12){const er=S.etry||(S.etry={});const pr=er[S.stage]||{};er[S.stage]={c:(pr.c||0)+1,w:!w,drop:S.etreeDrop||pr.drop||[]}}
  if(!w){say('Thất bại. Hãy chỉnh đội hình và thử lại ải này.');return setTimeout(mapShow,1200)}
  const node=S.nodes[S.stage],p=S.me.hero.hp/S.me.hero.mhp,wasDone=node.done;node.done=true;node.stars=Math.max(node.stars||0,p>=.7?3:p>=.35?2:1);if(S.mode=='boss')BP[node.bossIdx]={d:true,s:node.stars};
