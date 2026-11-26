@@ -791,9 +791,8 @@ $('#go-del').onclick=()=>{try{localStorage.removeItem(SK_KEY)}catch(e){}cloudDel
 $('#m-save').onclick=e=>{const ok=saveGame();e.currentTarget.textContent=ok?'Đã lưu ✓':'Không lưu được';setTimeout(()=>e.currentTarget.textContent='Lưu game',1200)};
 function farmIdx(){if(S.mode=='boss'||!S.nodes.length)return -1;
  if(S.cur<0||S.cur>=S.nodes.length){const i=S.nodes.length-1;return S.nodes[i].done?i:-1}
- const cc=S.nodes[S.cur].ch;if(cc<=0)return -1;
- const first=S.nodes.findIndex(n=>n.ch==cc);if(first<=0)return -1;
- const i=first-1;return S.nodes[i].done?i:-1}
+ if(S.cur<=0)return -1;
+ return S.nodes[S.cur-1].done?S.cur-1:-1}
 function farmChaps(){const d=new Set();const fi=farmIdx();if(fi>=0)d.add(S.nodes[fi].ch);return d}
 function mapShow(){saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
