@@ -452,7 +452,7 @@ body.pc #s-war .hero img{width:42px}
 <section class="scr" id="s-map">
 <div class="bar2"><h2>Bản đồ Tam Quốc</h2><span id="m-own"></span></div>
 <div class="ctl"><button class="ghost" id="m-menu">Về menu</button><button class="btn" id="m-save">Lưu game</button></div>
-<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button><button class="ghost tab" id="tab-tree">🌳 Cây kỹ năng</button><button class="ghost tab" id="tab-thc">⚔️ Thiên Hạ Chiến</button><button class="ghost tab" id="tab-tower">🔒 Tháp Vô Tận</button></div>
+<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button><button class="ghost tab" id="tab-tree">🌳 Cây kỹ năng</button><button class="ghost tab" id="tab-thc" style="display:none">⚔️ Thiên Hạ Chiến</button><button class="ghost tab" id="tab-tower" style="display:none">🔒 Tháp Vô Tận</button></div>
 <p class="c" style="opacity:.8">Đánh lần lượt từng ải. Hoàn thành 20 chương để thống nhất thiên hạ.</p>
 <div id="nodes"></div>
 <div id="map-tree" style="display:none"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></div>
@@ -1032,6 +1032,7 @@ function towerApplyFx(){const fx=S.towerFx;
  if(fx=='seal'){[...S.me.deck,...S.me.hand,...S.en.deck,...S.en.hand].forEach(u=>{if(u.cd!==999)u.cd=5})}
  else if(fx=='berserk'){[...S.me.deck,...S.me.hand,...S.en.deck,...S.en.hand].forEach(u=>{u.atk=Math.round(u.atk*1.5);u.def=Math.round(u.def*.7)})}}
 function towerStage(){const f=S.towerFloor||1,isBoss=towerIsBoss(f),isElite=towerIsElite(f);
+ if(!S.team)S.team=[];if(!S.team.length){autoTeam();saveGame()}else if(S.team.length<8){const pool=S.own.filter(i=>!S.team.includes(i)).sort((a,b)=>(C[b].a+C[b].d)-(C[a].a+C[a].d));while(S.team.length<8&&pool.length)S.team.push(pool.shift());saveGame()}
  const elv=Math.min(20,5+f),sc=1+f*.05*(isBoss?2:isElite?1.5:1);
  let pool=C.map((c,i)=>i);if(isBoss||isElite)pool=pool.filter(i=>C[i].r=='S'||C[i].r=='SR');
  const ids=sh(pool).slice(0,8);
@@ -1247,7 +1248,7 @@ function farmIdx(){if(S.mode=='boss'||!S.nodes.length)return -1;
  if(S.cur<=0)return -1;
  return S.nodes[S.cur-1].done?S.cur-1:-1}
 function farmChaps(){const d=new Set();const fi=farmIdx();if(fi>=0)d.add(S.nodes[fi].ch);return d}
-function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';const tt=$('#tab-tower');if(tt)tt.innerHTML=SET.towerSecret?'🗼 Tháp Vô Tận':'🔒 Tháp Vô Tận';$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
+function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';$('#tab-thc').style.display=SET.thcSecret?'':'none';const tt=$('#tab-tower');if(tt){tt.innerHTML=SET.towerSecret?'🗼 Tháp Vô Tận':'🔒 Tháp Vô Tận';tt.style.display=SET.towerSecret?'':'none'}$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
  const farm=farmChaps();const fi=farmIdx();
  const main=[],old=[];
@@ -2054,7 +2055,7 @@ function spin(){$('#rw-spin').style.display='none';
 saveSet();
 $('#setm').onclick=e=>{if(e.target.id=='setm')$('#setm').style.display='none'};
 $('#tab-camp').onclick=()=>showTab('camp');$('#tab-boss').onclick=()=>showTab('ma');$('#tab-than').onclick=()=>showTab('than');
-$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.thcSecret||!SET.towerSecret||!SET.testFull)){SET.autoSecret=true;SET.thcSecret=true;SET.towerSecret=true;saveSet();if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
+$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.thcSecret||!SET.towerSecret||!SET.testFull)){SET.autoSecret=true;SET.thcSecret=true;SET.towerSecret=true;saveSet();const t1=$('#tab-thc');if(t1)t1.style.display='';const t2=$('#tab-tower');if(t2)t2.style.display='';if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
 let fpsN=0,fpsT=0;
 function fpsLoop(t){fpsN++;if(t-fpsT>=1000){$('#fpsbox').textContent='FPS '+fpsN;fpsN=0;fpsT=t}requestAnimationFrame(fpsLoop)}
 if(typeof requestAnimationFrame=='function')requestAnimationFrame(fpsLoop);
