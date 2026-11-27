@@ -1053,8 +1053,17 @@ function towerStage(){const f=S.towerFloor||1,isBoss=towerIsBoss(f),isElite=towe
 function towerBuffDraft(){const pool=sh(TOWER_BUFFS).slice(0,3);
  $('#m-box').innerHTML=`<button class="mx" id="m-x">×</button><h2>🎁 Chọn 1 buff leo tháp</h2><p>Buff có tác dụng hết lượt chạy này, cộng dồn nếu chọn trùng.</p>`+pool.map((b,i)=>`<div class="sk" id="tbd-${i}" style="cursor:pointer"><b>${b.n}</b><br>${b.d}</div>`).join('');
  $('#m-box').style.display='flex';
- $('#m-x').onclick=()=>{$('#m-box').style.display='none';towerShow()};
- pool.forEach((b,i)=>{$('#tbd-'+i).onclick=()=>{S.towerBuffs=S.towerBuffs||[];S.towerBuffs.push(b.id);saveGame();$('#m-box').style.display='none';towerShow()}})}
+ $('#modal').style.display='flex';
+ $('#modal').onclick=e=>{if(e.target.id=='modal'){$('#modal').style.display='none';towerShow()}};
+ $('#m-x').onclick=()=>{$('#modal').style.display='none';towerShow()};
+ pool.forEach((b,i)=>{$('#tbd-'+i).onclick=()=>{
+  S.towerBuffs=S.towerBuffs||[];S.towerBuffs.push(b.id);saveGame();
+  const nf=S.towerFloor||1;
+  $('#m-box').innerHTML=`<button class="mx" id="m-x">×</button><h2>✅ Đã chọn: ${b.n}</h2><p>${b.d}</p><p>Đang ở tầng ${nf}.</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="btn" id="tbd-up">🗼 Lên tầng ${nf} — Chọn đội</button><button class="ghost" id="tbd-home">🏠 Trở về</button></div>`;
+  $('#m-x').onclick=()=>{$('#modal').style.display='none';towerShow()};
+  $('#tbd-up').onclick=()=>{$('#modal').style.display='none';S.deckTower=true;openDeck()};
+  $('#tbd-home').onclick=()=>{$('#modal').style.display='none';towerShow()};
+ }})}
 function thcStage(){const city=THC_CITIES[S.thcCity],pfac=LORDS[S.lord].f,efac=S.thcDef?S.thcAtkFac:S.thcOwn[S.thcCity],sc=city.cap?1.15:1;
  let ids;if(S.thcDef){ids=thcGenGar(efac,false)}else{ids=[...(S.thcGar[S.thcCity]||[])]}
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.thcTeam.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);const mf=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||pfac;
