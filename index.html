@@ -996,7 +996,7 @@ const TOWER_BUFFS=[{id:'atk',n:'⚔️ Tăng Công',d:'+7,5% ATK cả đội (h�
 const TOWER_FX=[{id:'poison',n:'☠️ Độc Vụ',d:'Đầu mỗi lượt, mọi tướng mất 5% máu tối đa'},{id:'storm',n:'⚡ Sấm Sét',d:'Mỗi lượt, 1 tướng ngẫu nhiên bị sét đánh 10% máu'},{id:'bloodmoon',n:'🌕 Trăng Máu',d:'Mọi sát thương +30% (cả 2 phe)'},{id:'fog',n:'🌫️ Sương Mù',d:'Đòn đánh 20% trượt (cả 2 phe)'},{id:'seal',n:'🔒 Phong Ấn',d:'Kỹ năng nạp chậm hơn (sẵn sàng sau 5 đòn)'},{id:'berserk',n:'💢 Cuồng Bạo',d:'Mọi tướng +50% ATK, −30% DEF (cả 2 phe)'},{id:'bloodrain',n:'🩸 Mưa Máu',d:'Mọi hồi máu gấp đôi'},{id:'fire',n:'🔥 Hỏa Diệm Sơn',d:'Sát thương thiêu đốt gấp đôi'}];
 function towerIsBoss(f){return f%10===0}
 function towerIsElite(f){return f%5===0&&f%10!==0}
-function towerXp(f){return towerIsBoss(f)?150:towerIsElite(f)?80:15}
+function towerXp(f){return towerIsBoss(f)?120:towerIsElite(f)?60:10}
 function towerTry(){if(SET.towerSecret){towerShow();return}
  if(!$('#s-map').classList.contains('on'))show('map');
  ['camp','boss','than','tree','thc','tower'].forEach(t=>{const el=$('#tab-'+t);if(el)el.classList.toggle('on',t=='tower')});
@@ -1009,7 +1009,7 @@ function towerShow(){if(!$('#s-map').classList.contains('on'))show('map');
  const f=S.towerFloor||1,best=S.towerBest||0,bufs=S.towerBuffs||[];
  const bl=bufs.length?bufs.map(id=>{const b=TOWER_BUFFS.find(x=>x.id==id);return b?'<div>· '+b.n+' — '+b.d+'</div>':''}).join(''):'<div style="opacity:.6">Chưa có buff nào. Thắng 1 tầng để chọn buff.</div>';
  $('#tower-box').innerHTML=`<div class="bar2"><h2>🗼 Tháp Vô Tận</h2><span>Tầng cao nhất: ${best}</span></div>
- <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Tầng thường 15 XP, tầng tinh anh (mỗi 5 tầng) 80 XP, tầng BOSS (mỗi 10 tầng) 150 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
+ <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Tầng thường 10 XP, tầng tinh anh (mỗi 5 tầng) 60 XP, tầng BOSS (mỗi 10 tầng) 120 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
  <p><b>Đang ở tầng ${f}</b>${towerIsBoss(f)?' 👑 BOSS':towerIsElite(f)?' ⭐ Tinh anh':''} · XP thắng tầng này: ${towerXp(f)}</p>
  <div><b>Buff lượt chạy này (${bufs.length}):</b>${bl}</div>
  <div style="margin-top:10px"><button class="btn" id="tower-go">🗼 Chọn đội — Tầng ${f}</button></div>`;
@@ -1033,11 +1033,11 @@ function towerApplyFx(){const fx=S.towerFx;
  else if(fx=='berserk'){[...S.me.deck,...S.me.hand,...S.en.deck,...S.en.hand].forEach(u=>{u.atk=Math.round(u.atk*1.5);u.def=Math.round(u.def*.7)})}}
 function towerStage(){const f=S.towerFloor||1,isBoss=towerIsBoss(f),isElite=towerIsElite(f);S.auto=false;
  if(!S.team)S.team=[];if(!S.team.length){autoTeam();saveGame()}else if(S.team.length<8){const pool=S.own.filter(i=>!S.team.includes(i)).sort((a,b)=>(C[b].a+C[b].d)-(C[a].a+C[a].d));while(S.team.length<8&&pool.length)S.team.push(pool.shift());saveGame()}
- const elv=Math.min(20,5+f),sc=1+f*.05*(isBoss?2:isElite?1.5:1);
+ const elv=20+5*Math.floor(f/10),sc=1+f*.05*(isBoss?2:isElite?1.5:1);
  let pool=C.map((c,i)=>i);if(isBoss||isElite)pool=pool.filter(i=>C[i].r=='S'||C[i].r=='SR');
  const ids=sh(pool).slice(0,8);
- const elords=['tao','luubi','tonkien','tonquyen','simay','gcl'];S.elord=elords[f%6];S.etier=isBoss?5:Math.min(5,Math.floor(f/10));
- S.etree=[];TREE[S.elord].branches.forEach(b=>b.nodes.forEach(n=>{if(n.t<=S.etier)S.etree.push(n.id)}));S.etreeDrop=[];
+ const elords=['tao','luubi','tonkien','tonquyen','simay','gcl'];S.elord=elords[f%6];S.etier=5;
+ S.etree=[];TREE[S.elord].branches.forEach(b=>[...b.nodes,...b.caps].forEach(n=>S.etree.push(n.id)));S.etreeDrop=[];
  const heroC=C.find(c=>c.n==LORDS[S.elord].n)||{n:LORDS[S.elord].n,i:'',f:LORDS[S.elord].f};
  const LD=LORDS[S.lord],myC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};
  const side=(ids2,k,s,f2)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f:f2,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?myC:heroC},deck:sh(ids2).map(i=>mk(i,s,k,elv)),hand:[],field:[null,null,null,null,null],gy:0}};
@@ -1393,7 +1393,7 @@ function enemyTreeBuild(pool,idx,eTier){if(!pool.length)return {ids:[],drop:[]};
  rot.sort((a,b)=>rank(a)-rank(b));
  const drop=rot.slice(0,Math.min(dropN,rot.length)).map(n=>n.id);
  return {ids:all.filter(id=>!drop.includes(id)),drop}}
-function stage(){if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage]);const node=S.nodes[S.stage],fac=node.f,sc=(node.boss?+(node.sc*.92).toFixed(2):node.sc)*(node.ch<5?.8:1);
+function stage(){S.mode=null;if(S.nodes[S.stage].bossIdx!=null)return bstage(S.nodes[S.stage]);const node=S.nodes[S.stage],fac=node.f,sc=(node.boss?+(node.sc*.92).toFixed(2):node.sc)*(node.ch<5?.8:1);
  let ids=C.map((c,i)=>i).filter(i=>C[i].f===fac&&node.tier.includes(C[i].r));ids=node.boss?ids.sort((a,b)=>C[b].a+C[b].d-C[a].a-C[a].d).slice(0,8):sh(ids).slice(0,8);
  if(node.tm){const ex=node.tm.map(n=>C.findIndex(c=>c.n==n)).filter(i=>i>=0);ids=[...ex,...ids.filter(i=>!ex.includes(i))].slice(0,8)}
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);
