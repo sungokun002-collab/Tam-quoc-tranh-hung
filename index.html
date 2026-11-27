@@ -452,7 +452,7 @@ body.pc #s-war .hero img{width:42px}
 <section class="scr" id="s-map">
 <div class="bar2"><h2>Bản đồ Tam Quốc</h2><span id="m-own"></span></div>
 <div class="ctl"><button class="ghost" id="m-menu">Về menu</button><button class="btn" id="m-save">Lưu game</button></div>
-<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button><button class="ghost tab" id="tab-tree">🌳 Cây kỹ năng</button><button class="ghost tab" id="tab-thc" style="display:none">⚔️ Thiên Hạ Chiến</button><button class="ghost tab" id="tab-tower" style="display:none">🔒 Tháp Vô Tận</button></div>
+<div class="tabs"><button class="ghost tab" id="tab-camp">Chiến dịch</button><button class="ghost tab" id="tab-boss">Ma tướng</button><button class="ghost tab" id="tab-than">Thần tướng</button><button class="ghost tab" id="tab-tree">🌳 Cây kỹ năng</button><button class="ghost tab" id="tab-thc" style="display:none">⚔️ Thiên Hạ Chiến</button><button class="ghost tab" id="tab-tower">🗼 Tháp Vô Tận</button></div>
 <p class="c" style="opacity:.8">Đánh lần lượt từng ải. Hoàn thành 20 chương để thống nhất thiên hạ.</p>
 <div id="nodes"></div>
 <div id="map-tree" style="display:none"><div class="bar2"><h2 id="tree-h">🌳 Cây Kỹ Năng</h2><span id="tree-pts"></span></div><div id="tree-body"></div><div class="bar2" style="margin-top:8px"><button class="ghost" id="tree-reset">↺ Reset điểm</button></div></div>
@@ -997,11 +997,7 @@ const TOWER_FX=[{id:'poison',n:'☠️ Độc Vụ',d:'Đầu mỗi lượt, m�
 function towerIsBoss(f){return f%10===0}
 function towerIsElite(f){return f%5===0&&f%10!==0}
 function towerXp(f){return towerIsBoss(f)?120:towerIsElite(f)?60:10}
-function towerTry(){if(SET.towerSecret){towerShow();return}
- if(!$('#s-map').classList.contains('on'))show('map');
- ['camp','boss','than','tree','thc','tower'].forEach(t=>{const el=$('#tab-'+t);if(el)el.classList.toggle('on',t=='tower')});
- $('#nodes').style.display='none';$('#map-tree').style.display='none';$('#map-thc').style.display='none';$('#map-tower').style.display='block';
- $('#tower-box').innerHTML='<b>🗼 Tháp Vô Tận chưa mở.</b><br><small>Tháp này đang bị khóa.</small>'}
+function towerTry(){towerShow()}
 function towerShow(){if(!$('#s-map').classList.contains('on'))show('map');
  ['camp','boss','than','tree','thc','tower'].forEach(t=>{const el=$('#tab-'+t);if(el)el.classList.toggle('on',t=='tower')});
  const tw=$('#tab-tower');if(tw)tw.innerHTML='🗼 Tháp Vô Tận';
@@ -1009,7 +1005,7 @@ function towerShow(){if(!$('#s-map').classList.contains('on'))show('map');
  const f=S.towerFloor||1,best=S.towerBest||0,bufs=S.towerBuffs||[];
  const bl=bufs.length?bufs.map(id=>{const b=TOWER_BUFFS.find(x=>x.id==id);return b?'<div>· '+b.n+' — '+b.d+'</div>':''}).join(''):'<div style="opacity:.6">Chưa có buff nào. Thắng 1 tầng để chọn buff.</div>';
  $('#tower-box').innerHTML=`<div class="bar2"><h2>🗼 Tháp Vô Tận</h2><span>Tầng cao nhất: ${best}</span></div>
- <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Chủ công 2 bên +50% máu trong Tháp. Tầng thường 10 XP, tầng tinh anh (mỗi 5 tầng) 60 XP, tầng BOSS (mỗi 10 tầng) 120 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
+ <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Chủ công địch +50% máu trong Tháp. Tầng thường 10 XP, tầng tinh anh (mỗi 5 tầng) 60 XP, tầng BOSS (mỗi 10 tầng) 120 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
  <p><b>Đang ở tầng ${f}</b>${towerIsBoss(f)?' 👑 BOSS':towerIsElite(f)?' ⭐ Tinh anh':''} · XP thắng tầng này: ${towerXp(f)}</p>
  <div><b>Buff lượt chạy này (${bufs.length}):</b>${bl}</div>
  <div style="margin-top:10px"><button class="btn" id="tower-go">🗼 Chọn đội — Tầng ${f}</button></div>`;
@@ -1040,7 +1036,7 @@ function towerStage(){const f=S.towerFloor||1,isBoss=towerIsBoss(f),isElite=towe
  S.etree=[];TREE[S.elord].branches.forEach(b=>[...b.nodes,...b.caps].forEach(n=>S.etree.push(n.id)));S.etreeDrop=[];
  const heroC=C.find(c=>c.n==LORDS[S.elord].n)||{n:LORDS[S.elord].n,i:'',f:LORDS[S.elord].f};
  const LD=LORDS[S.lord],myC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};
- const side=(ids2,k,s,f2)=>{const mh=Math.round(1100*k*(s?UP.h*1.5:1));return{f:f2,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?myC:heroC},deck:sh(ids2).map(i=>mk(i,s,k,elv)),hand:[],field:[null,null,null,null,null],gy:0}};
+ const side=(ids2,k,s,f2)=>{const mh=Math.round(1100*k*(s?UP.h:1));return{f:f2,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?myC:heroC},deck:sh(ids2).map(i=>mk(i,s,k,elv)),hand:[],field:[null,null,null,null,null],gy:0}};
  S.pb=S.pend||0;S.mode='tower';
  S.me=side(S.team,1,1,LORDS[S.lord].f);S.en=side(ids,sc,0,LORDS[S.elord].f);
  S.en.hero.hp=S.en.hero.mhp=Math.round(1100*1.5*(isBoss?1.5:1));
@@ -1259,7 +1255,7 @@ function farmIdx(){if(S.mode=='boss'||!S.nodes.length)return -1;
  if(S.cur<=0)return -1;
  return S.nodes[S.cur-1].done?S.cur-1:-1}
 function farmChaps(){const d=new Set();const fi=farmIdx();if(fi>=0)d.add(S.nodes[fi].ch);return d}
-function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';$('#tab-thc').style.display='none';/*THC locked v75*/const tt=$('#tab-tower');if(tt){tt.innerHTML=SET.towerSecret?'🗼 Tháp Vô Tận':'🔒 Tháp Vô Tận';tt.style.display=SET.towerSecret?'':'none'}$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
+function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';$('#tab-thc').style.display=SET.thcSecret?'':'none';const tt=$('#tab-tower');if(tt){tt.innerHTML='🗼 Tháp Vô Tận';tt.style.display=''}$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
  const farm=farmChaps();const fi=farmIdx();
  const main=[],old=[];
@@ -2066,7 +2062,7 @@ function spin(){$('#rw-spin').style.display='none';
 saveSet();
 $('#setm').onclick=e=>{if(e.target.id=='setm')$('#setm').style.display='none'};
 $('#tab-camp').onclick=()=>showTab('camp');$('#tab-boss').onclick=()=>showTab('ma');$('#tab-than').onclick=()=>showTab('than');
-$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.towerSecret||!SET.testFull)){SET.autoSecret=true;SET.towerSecret=true;saveSet();const t2=$('#tab-tower');if(t2)t2.style.display='';if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
+$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.thcSecret||!SET.testFull)){SET.autoSecret=true;SET.thcSecret=true;saveSet();const t1=$('#tab-thc');if(t1)t1.style.display='';if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
 let fpsN=0,fpsT=0;
 function fpsLoop(t){fpsN++;if(t-fpsT>=1000){$('#fpsbox').textContent='FPS '+fpsN;fpsN=0;fpsT=t}requestAnimationFrame(fpsLoop)}
 if(typeof requestAnimationFrame=='function')requestAnimationFrame(fpsLoop);
