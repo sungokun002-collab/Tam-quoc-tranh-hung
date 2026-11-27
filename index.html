@@ -213,16 +213,16 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 
 
-#s-war{height:100vh;height:100dvh;overflow:hidden;padding:6px 8px;gap:4px;justify-content:space-between}
+#s-war{height:100vh;height:100dvh;overflow-y:auto;padding:6px 8px;gap:4px;justify-content:space-between}
 #s-war h2{font-size:17px}
-#s-war .hero-row{display:flex;justify-content:center;min-height:0}
-#s-war .hero img{width:30px;border-radius:4px}
-#s-war .hero b{font-size:12px}#s-war .ht{font-size:11px}
-#s-war .field{flex:1;min-height:0;gap:4px;padding:4px 6px;justify-content:space-evenly}
-#s-war .row{gap:4px}
+#s-war .hero-row{display:flex;justify-content:center;min-height:auto}
+#s-war .hero img{width:26px;border-radius:4px}
+#s-war .hero b{font-size:11px}#s-war .ht{font-size:11px}
+#s-war .field{flex:1;min-height:auto;gap:3px;padding:3px 6px;justify-content:space-evenly}
+#s-war .row{gap:4px;max-width:min(920px,55vh);margin:0 auto}
 #s-war .u .st{font-size:9.5px;line-height:1.15}
 #s-war .u .ic{font-size:9px}
-#s-war .hand{min-height:0;gap:4px}
+#s-war .hand{min-height:auto;gap:4px}
 #s-war .hand .u{flex:0 0 calc(20% - 4px)}
 #s-war #log{min-height:16px;font-size:12px;line-height:1.2}
 .ke-card{width:38px;height:40px;border-radius:5px;border:1px solid #6b5a3c;background:#1a1410;color:#8a7a5c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;line-height:1.1;text-align:center;cursor:default;position:relative;overflow:hidden}
@@ -433,6 +433,7 @@ body.pc #s-war .row,body.pc #s-war .hand{width:100%;max-width:min(920px,60vh);ma
 body.pc #s-war .hand{justify-content:center;gap:8px}
 body.pc #s-war .hero{width:min(520px,100%)}
 body.pc #s-war .hero img{width:42px}
+@media (max-height:700px){#rowE:has(.bcard){height:150px;min-height:150px;max-height:150px}#rowE .bcard{height:144px;max-height:144px}#rowE .bcard img{height:88px}}
 
 </style></head><body>
 <div id="fpsbox" style="position:fixed;top:6px;left:6px;z-index:60;font:700 12px monospace;color:#9f9;background:#000a;padding:2px 6px;border-radius:4px;display:none">FPS --</div>
@@ -461,7 +462,7 @@ body.pc #s-war .hero img{width:42px}
 </section>
 
 <section class="scr" id="s-war">
-<div class="bar2"><h2 id="w-t"></h2><div class="ibar"><span id="w-u" style="font-size:11px;opacity:.7"></span><button class="ibtn" id="w-end" title="Bỏ lượt [S]">⏭</button><button class="ibtn" id="w-auto" title="Tự động [A]">🤖</button><button class="ibtn" id="lord-sk" title="Kỹ năng chủ tướng [L]">⚜</button><button class="ibtn" id="tree-sk" title="Kỹ năng cây Lưu Bị [T]">🌳</button><button class="ibtn" id="w-spd" title="Tốc độ [X]">x1</button><button class="ibtn" id="w-fs" title="Toàn màn hình">⛶</button></div></div>
+<div class="bar2"><h2 id="w-t"></h2><div class="ibar"><span id="w-u" style="font-size:10px;opacity:.7"></span><button class="ibtn" id="w-end" title="Bỏ lượt [S]">⏭</button><button class="ibtn" id="w-auto" title="Tự động [A]">🤖</button><button class="ibtn" id="lord-sk" title="Kỹ năng chủ tướng [L]">⚜</button><button class="ibtn" id="tree-sk" title="Kỹ năng cây Lưu Bị [T]">🌳</button><button class="ibtn" id="w-spd" title="Tốc độ [X]">x1</button><button class="ibtn" id="w-fs" title="Toàn màn hình">⛶</button></div></div>
 <div class="hero-row"><div class="hero" id="hE"></div></div>
 <div class="field"><div class="row E" id="rowE"></div><div class="vs" id="turn"></div><div class="row P" id="rowP"></div>
 <div class="cov" id="cov"><button class="btn" id="w-go">Khai chiến <span class="kh">[Space]</span></button></div></div>
@@ -1382,7 +1383,7 @@ function mk(i,side,sc,elv=1){const c=C[i],lv=side?(S.lv[i]||1):elv,k=sc*(side?UP
 function el(u){const d=document.createElement('div');d.className='u tr-'+u.c.r;d.style.setProperty('--c','var(--'+u.c.f+')');d.style.setProperty('--r',RC[u.c.r]);
  d.innerHTML=`<img src="${u.c.i}" alt="${u.c.n}"><div class="bar"><i class="hp"></i><i class="shi"></i></div><div class="bar rg"><i></i></div><div class="st"></div><b class="ic"></b><span class="ib">!</span>`;d.querySelector('.ib').onclick=e=>{e.stopPropagation();cardInfo(u.c,u.lv)};u.el=d;upd(u);return d}
 function heroEl(h){const d=document.createElement('div');d.className='hero';
- d.innerHTML=`${h.c.i?'<img src="'+h.c.i+'" alt="">':'<span class="lav">⚜</span>'}<div><b>Chủ công ${h.c.n}</b> <span class="ht"></span><div class="bar" style="height:8px"><i class="hp"></i><i class="shi"></i></div></div>`;if(S.en&&h===S.en.hero){d.style.cursor='pointer';d.title='Ấn để xem cây kỹ năng của chủ công địch';d.onclick=()=>showEnemyTree()}h.el=d;upd(h);return d}
+ d.innerHTML=`${h.c.i?'<img src="'+h.c.i+'" alt="">':'<span class="lav">⚜</span>'}<div><b>Chủ công ${h.c.n}</b> <span class="ht"></span><div class="bar" style="height:6px"><i class="hp"></i><i class="shi"></i></div></div>`;if(S.en&&h===S.en.hero){d.style.cursor='pointer';d.title='Ấn để xem cây kỹ năng của chủ công địch';d.onclick=()=>showEnemyTree()}h.el=d;upd(h);return d}
 function showEnemyTree(){if(!S.en||!S.elord||!LORDS[S.elord])return;const L=LORDS[S.elord],tier=S.etier||0;let body='';
  if(!S.etree||!S.etree.length){body='<p>Chủ công địch chưa học cây kỹ năng.<br>Từ chương 12, chủ công địch bắt đầu có cây kỹ năng — ấn vào thẻ chủ công địch trong trận để xem.</p>'}
  else{const byId={};S.etree.forEach(id=>byId[id]=1);
