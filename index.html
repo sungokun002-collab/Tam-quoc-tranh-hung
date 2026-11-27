@@ -1012,8 +1012,8 @@ function towerShow(){if(!$('#s-map').classList.contains('on'))show('map');
  <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Tầng thường 15 XP, tầng tinh anh (mỗi 5 tầng) 80 XP, tầng BOSS (mỗi 10 tầng) 150 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
  <p><b>Đang ở tầng ${f}</b>${towerIsBoss(f)?' 👑 BOSS':towerIsElite(f)?' ⭐ Tinh anh':''} · XP thắng tầng này: ${towerXp(f)}</p>
  <div><b>Buff lượt chạy này (${bufs.length}):</b>${bl}</div>
- <div style="margin-top:10px"><button class="btn" id="tower-go">🗼 Leo tháp — Tầng ${f}</button></div>`;
- $('#tower-go').onclick=()=>{towerStage()}}
+ <div style="margin-top:10px"><button class="btn" id="tower-go">🗼 Chọn đội — Tầng ${f}</button></div>`;
+ $('#tower-go').onclick=()=>{S.deckTower=true;openDeck()}}
 function towerApplyBuffs(){const bufs=S.towerBuffs||[],f=S.towerFloor||1,elite=towerIsElite(f)||towerIsBoss(f);
  [...S.me.deck,...S.me.hand].forEach(u=>{bufs.forEach(id=>{
   if(id=='atk')u.atk=Math.round(u.atk*1.15);
@@ -1241,7 +1241,7 @@ function refreshMenu(){let has=false;try{has=!!localStorage.getItem(SK_KEY)}catc
  $('#go-cont').style.display=has?'':'none';$('#go-del').style.display=has?'':'none';$('#go-save').style.display=live?'':'none'}
 $('#go-save').onclick=e=>{const ok=saveGame();refreshMenu();e.currentTarget.textContent=ok?'Đã lưu ✓':'Không lưu được';setTimeout(()=>{e.currentTarget.textContent='Lưu game';refreshMenu()},1200)};
 $('#go-cont').onclick=async()=>{const raw=await cloudRaw();if(loadGame(raw))mapShow()};
-$('#go-del').onclick=()=>{try{localStorage.removeItem(SK_KEY)}catch(e){}cloudDel();CLOUD_HAS=false;refreshMenu()};
+$('#go-del').onclick=()=>{try{localStorage.removeItem(SK_KEY)}catch(e){}try{localStorage.removeItem('tqth_set')}catch(e){}Object.keys(SET).forEach(k=>delete SET[k]);Object.assign(SET,{sfx:true,fps:false,fx:'full',sfxVol:0.8,shake:true,pc:'auto',amb:true});cloudDel();CLOUD_HAS=false;refreshMenu()};
 $('#m-save').onclick=e=>{const ok=saveGame();e.currentTarget.textContent=ok?'Đã lưu ✓':'Không lưu được';setTimeout(()=>e.currentTarget.textContent='Lưu game',1200)};
 function farmIdx(){if(S.mode=='boss'||!S.nodes.length)return -1;
  if(S.cur<0||S.cur>=S.nodes.length){const i=S.nodes.length-1;return S.nodes[i].done?i:-1}
@@ -1267,7 +1267,7 @@ function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes
   (act?main:old).push(h)});
  if(old.length){const sc=document.createElement('div');sc.className='old-scroll';const hd=document.createElement('div');hd.className='old-t';hd.textContent=`📜 Ải đã qua & sắp tới (${old.length} chương) — chạm 1 chương để xem`;sc.appendChild(hd);old.forEach(h=>sc.appendChild(h));main.unshift(sc)}
  $('#nodes').replaceChildren(...main)}
-function openDeck(){show('deck');['lc','phe','lv','kd'].forEach(k=>$('#sort-'+k).classList.toggle('on',S.dsort==k));$('#dk-t').textContent=(S.nodes[S.stage].bossIdx!=null?'Thách đấu · ':'Chương '+(S.nodes[S.stage].ch+1)+' · Ải '+(S.nodes[S.stage].k+1)+' · ')+'Chọn tối đa 8 tướng'+(S.nodes[S.stage].done?' · 🔁 Đánh lại':'');$('#dk-t').style.color='var(--gold)';
+function openDeck(){show('deck');['lc','phe','lv','kd'].forEach(k=>$('#sort-'+k).classList.toggle('on',S.dsort==k));$('#dk-t').textContent=S.deckTower?('🗼 Tháp Vô Tận · Tầng '+(S.towerFloor||1)+' · Chọn tối đa 8 tướng'):((S.nodes[S.stage].bossIdx!=null?'Thách đấu · ':'Chương '+(S.nodes[S.stage].ch+1)+' · Ải '+(S.nodes[S.stage].k+1)+' · ')+'Chọn tối đa 8 tướng'+(S.nodes[S.stage].done?' · 🔁 Đánh lại':''));$('#dk-go').textContent=S.deckTower?'🗼 Leo tháp':'Xuất chinh';$('#dk-t').style.color='var(--gold)';
  $('#grid').innerHTML=S.own.map((i,k)=>`<button class="pk tr-${C[i].r}" data-k="${k}" style="--r:${RC[C[i].r]}"><img src="${C[i].i}" alt="${C[i].n}" style="width:100%;border-radius:7px;display:block"><div class="st" style="color:${RC[C[i].r]}">${C[i].r} · Lv${S.lv[i]||1} · ⚔${C[i].a} 🛡${C[i].d}</div><span class="ib" data-i="${i}">!</span></button>`).join('');
  document.querySelectorAll('.pk').forEach(b=>b.onclick=()=>{const i=S.own[+b.dataset.k],p=S.team.indexOf(i);foc=i;
   if(p>=0)S.team.splice(p,1);else if(S.team.length<8)S.team.push(i);dkUp()});$('#grid').querySelectorAll('.ib').forEach(x=>x.onclick=e=>{e.stopPropagation();cardInfo(C[+x.dataset.i])});dkUp()}
@@ -1290,7 +1290,7 @@ function dkUp(){document.querySelectorAll('.pk').forEach(b=>b.classList.toggle('
  $('#dk-team').innerHTML=S.team.map((i,k)=>`<button class="dk-mini" data-i="${i}"><img src="${C[i].i}" alt="${C[i].n}"><b>${k+1}</b></button>`).join('')+Array.from({length:8-S.team.length},(_,k)=>`<span class="dk-empty">${S.team.length+k+1}</span>`).join('');$('#dk-team').querySelectorAll('.dk-mini').forEach(b=>b.onclick=()=>{S.team.splice(S.team.indexOf(+b.dataset.i),1);dkUp()});
  $('#dk-n').textContent=S.team.length+'/8';$('#dk-go').disabled=S.team.length<Math.min(8,S.own.length);
  if(foc>=0){const c=C[foc];$('#inf').innerHTML=`<b>${c.n}</b> · ${FN[c.f]} · ⚔ ${c.a} · 🛡 ${c.d}<br><b>${c.s}</b> (mỗi 3 lần ra đòn): ${c.t=='X'?c.sd:SK[c.t]}.`}}
-$('#dk-b').onclick=()=>mapShow();
+$('#dk-b').onclick=()=>{if(S.deckTower){S.deckTower=false;towerShow()}else mapShow()};
 function pwr(i){return (C[i].a+C[i].d)*(1+.04*((S.lv[i]||1)-1))}
 function kdCmp(){const cnt=SETS.map(z=>z[1].filter(n=>S.own.some(i=>C[i].n==n)).length);
  const order=SETS.map((z,zi)=>zi).filter(zi=>cnt[zi]>=2).sort((a,b)=>cnt[b]-cnt[a]||a-b);
@@ -1305,7 +1305,7 @@ function synScore(team){let sc=0;SETS.forEach(z=>{const k=z[1].filter(n=>team.so
 function autoTeam(){const pool=S.own.slice(),team=[];
  while(team.length<8&&pool.length){let best=0,bv=-1e9;pool.forEach((i,k)=>{const v=(C[i].a+C[i].d)+synScore([...team,i])-synScore(team);if(v>bv){bv=v;best=k}});team.push(pool.splice(best,1)[0])}
  S.team=team}
-$('#dk-go').onclick=()=>stage();
+$('#dk-go').onclick=()=>{if(S.deckTower){S.deckTower=false;towerStage()}else stage()};
 
 // BATTLE
 const RC={SR:'#ff7a59',S:'#f2c94c',R:'#7ab8ff',N:'#b8b8b8'};
