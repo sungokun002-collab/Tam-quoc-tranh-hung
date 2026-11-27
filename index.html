@@ -1009,7 +1009,7 @@ function towerShow(){if(!$('#s-map').classList.contains('on'))show('map');
  const f=S.towerFloor||1,best=S.towerBest||0,bufs=S.towerBuffs||[];
  const bl=bufs.length?bufs.map(id=>{const b=TOWER_BUFFS.find(x=>x.id==id);return b?'<div>· '+b.n+' — '+b.d+'</div>':''}).join(''):'<div style="opacity:.6">Chưa có buff nào. Thắng 1 tầng để chọn buff.</div>';
  $('#tower-box').innerHTML=`<div class="bar2"><h2>🗼 Tháp Vô Tận</h2><span>Tầng cao nhất: ${best}</span></div>
- <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Chủ công +50% máu trong Tháp. Tầng thường 10 XP, tầng tinh anh (mỗi 5 tầng) 60 XP, tầng BOSS (mỗi 10 tầng) 120 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
+ <p>Leo tháp vô tận: thắng thì lên tầng, <b>thua là về lại tầng 1</b>. Chỉ đánh tháp mới lên được Lv 21–30. Chủ công 2 bên +50% máu trong Tháp. Tầng thường 10 XP, tầng tinh anh (mỗi 5 tầng) 60 XP, tầng BOSS (mỗi 10 tầng) 120 XP + 1 vòng quay S/SR. Sau mỗi tầng được chọn 1 trong 3 buff.</p>
  <p><b>Đang ở tầng ${f}</b>${towerIsBoss(f)?' 👑 BOSS':towerIsElite(f)?' ⭐ Tinh anh':''} · XP thắng tầng này: ${towerXp(f)}</p>
  <div><b>Buff lượt chạy này (${bufs.length}):</b>${bl}</div>
  <div style="margin-top:10px"><button class="btn" id="tower-go">🗼 Chọn đội — Tầng ${f}</button></div>`;
@@ -1043,7 +1043,7 @@ function towerStage(){const f=S.towerFloor||1,isBoss=towerIsBoss(f),isElite=towe
  const side=(ids2,k,s,f2)=>{const mh=Math.round(1100*k*(s?UP.h*1.5:1));return{f:f2,hero:{H:1,hp:mh,mhp:mh,def:30,c:s?myC:heroC},deck:sh(ids2).map(i=>mk(i,s,k,elv)),hand:[],field:[null,null,null,null,null],gy:0}};
  S.pb=S.pend||0;S.mode='tower';
  S.me=side(S.team,1,1,LORDS[S.lord].f);S.en=side(ids,sc,0,LORDS[S.elord].f);
- S.en.hero.hp=S.en.hero.mhp=Math.round(1100*(isBoss?1.5:1));
+ S.en.hero.hp=S.en.hero.mhp=Math.round(1100*1.5*(isBoss?1.5:1));
  S.towerFx=null;if(f>1&&!isBoss)S.towerFx=TOWER_FX[Math.floor(Math.random()*TOWER_FX.length)].id;
  towerApplyFx();towerApplyBuffs();
  const fx=TOWER_FX.find(x=>x.id==S.towerFx);
@@ -1259,7 +1259,7 @@ function farmIdx(){if(S.mode=='boss'||!S.nodes.length)return -1;
  if(S.cur<=0)return -1;
  return S.nodes[S.cur-1].done?S.cur-1:-1}
 function farmChaps(){const d=new Set();const fi=farmIdx();if(fi>=0)d.add(S.nodes[fi].ch);return d}
-function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';$('#tab-thc').style.display=SET.thcSecret?'':'none';const tt=$('#tab-tower');if(tt){tt.innerHTML=SET.towerSecret?'🗼 Tháp Vô Tận':'🔒 Tháp Vô Tận';tt.style.display=SET.towerSecret?'':'none'}$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
+function mapShow(){if(S.mode=='thc')S.mode=null;saveGame();show('map');$('#nodes').style.display='';$('#map-tree').style.display='none';$('#map-thc').style.display='none';const mt=$('#map-tower');if(mt)mt.style.display='none';const ttb=$('#tab-tower');if(ttb)ttb.classList.toggle('on',false);$('#tab-tree').classList.toggle('on',false);$('#tab-thc').classList.toggle('on',false);$('#tab-thc').innerHTML=SET.thcSecret?'⚔️ Thiên Hạ Chiến':'🔒 Thiên Hạ Chiến';$('#tab-thc').style.display='none';/*THC locked v75*/const tt=$('#tab-tower');if(tt){tt.innerHTML=SET.towerSecret?'🗼 Tháp Vô Tận':'🔒 Tháp Vô Tận';tt.style.display=SET.towerSecret?'':'none'}$('#tab-camp').classList.toggle('on',S.mode!='boss');$('#tab-boss').classList.toggle('on',S.mode=='boss'&&S.bgroup!='than');$('#tab-than').classList.toggle('on',S.mode=='boss'&&S.bgroup=='than');if(S.mode=='boss'){$('#m-own').textContent=(S.bgroup=='than'?'Thần tướng':'Ma tướng')+' · '+S.nodes.filter(n=>n.done).length+'/'+S.nodes.length+' ải';$('#nodes').replaceChildren(...S.nodes.map((n,i)=>{const b=BOSSES[n.bossIdx],d=document.createElement('button');d.className='node'+(n.done?' done':'')+(i==S.cur?' cur':'');d.style.setProperty('--c','var(--'+b.f+')');d.disabled=n.done||i!=S.cur;d.innerHTML='<b>★ '+b.n+'</b><small>'+FN[b.f]+' · '+b.hp+' máu</small>';d.onclick=()=>{S.stage=i;openDeck()};return d}));return}const d=S.nodes.filter(n=>n.done).length;$('#m-own').textContent=`${LORDS[S.lord].n} · Tướng: ${S.own.length} · Ải: ${d}/${S.nodes.length}`+(S.pend?` · Bonus S/SR: +${S.pend}%`:'');
  S.exp=S.exp||{};
  const farm=farmChaps();const fi=farmIdx();
  const main=[],old=[];
@@ -1332,7 +1332,7 @@ function mk(i,side,sc,elv=1){const c=C[i],lv=side?(S.lv[i]||1):elv,k=sc*(side?UP
  const GR={N:[5,1,1],R:[10,2,2],S:[15,3,3],SR:[20,4,4]},g=GR[c.r]||GR.N,L=lv-1;
  const A=1+(p=='ATK'?pv/100:0),Dm=1+(p=='DEF'?pv/100:0),H=1+(p=='HP'?pv/100:0);
  const u={c,atk:(c.a+L*g[1])*k*(side?UP.a:1)*A*(side&&S.lord=='tao'&&c.f=='wei'?1.1:1)*(side&&S.lord=='tonkien'&&c.f=='wu'?1.08:1),def:(c.d+L*g[2])*k*(side?UP.d:1)*Dm*(side&&S.lord=='tonquyen'&&c.f=='wu'?1.1:1)*(side&&S.lord=='gcl'&&c.f=='shu'?1.05:1),mhp:Math.round((250+c.d*3+L*g[0])*k*(side?UP.h:1)*H),buf:0,dbuf:0,stun:0,burn:0,bd:0,n:(c.xq&&c.xq.code=='PRE')?1:0,fresh:0,nn:0,wk:0,sh:0,au:1,cd:(c.t=='X'&&c.sp=='none')?999:3,lv:lv,lp:!!(side&&S.lord=='simay'&&c.f=='wei')};
- u.hp=u.mhp;u.shp=p=='SHD'?pv:0;const h30=H30[c.n];if(side&&lv>=30&&h30){u.h30=h30;u.h30pv=(H30PV[h30]||{})[c.r]||0;if(h30=='SHIELD')u.shp=u.h30pv;if(h30=='CHARGE'&&u.cd!==999)u.cd=2;if(h30=='BLOCK')u.def=Math.round(u.def*1.1)}if(side)applyTreeFx(u);else if(S.etree&&S.etree.length)applyTreeFx(u,S.etree);return u}
+ u.hp=u.mhp;u.shp=p=='SHD'?pv:0;const h30=H30[c.n];if(lv>=30&&h30){u.h30=h30;u.h30pv=(H30PV[h30]||{})[c.r]||0;if(h30=='SHIELD')u.shp=u.h30pv;if(h30=='CHARGE'&&u.cd!==999)u.cd=2;if(h30=='BLOCK')u.def=Math.round(u.def*1.1)}if(side)applyTreeFx(u);else if(S.etree&&S.etree.length)applyTreeFx(u,S.etree);return u}
 function el(u){const d=document.createElement('div');d.className='u tr-'+u.c.r;d.style.setProperty('--c','var(--'+u.c.f+')');d.style.setProperty('--r',RC[u.c.r]);
  d.innerHTML=`<img src="${u.c.i}" alt="${u.c.n}"><div class="bar"><i class="hp"></i><i class="shi"></i></div><div class="bar rg"><i></i></div><div class="st"></div><b class="ic"></b><span class="ib">!</span>`;d.querySelector('.ib').onclick=e=>{e.stopPropagation();cardInfo(u.c,u.lv)};u.el=d;upd(u);return d}
 function heroEl(h){const d=document.createElement('div');d.className='hero';
@@ -2066,7 +2066,7 @@ function spin(){$('#rw-spin').style.display='none';
 saveSet();
 $('#setm').onclick=e=>{if(e.target.id=='setm')$('#setm').style.display='none'};
 $('#tab-camp').onclick=()=>showTab('camp');$('#tab-boss').onclick=()=>showTab('ma');$('#tab-than').onclick=()=>showTab('than');
-$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.thcSecret||!SET.towerSecret||!SET.testFull)){SET.autoSecret=true;SET.thcSecret=true;SET.towerSecret=true;saveSet();const t1=$('#tab-thc');if(t1)t1.style.display='';const t2=$('#tab-tower');if(t2)t2.style.display='';if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
+$('#go-set').onclick=()=>{setStreak++;if(setStreak>=3&&(!SET.autoSecret||!SET.towerSecret||!SET.testFull)){SET.autoSecret=true;SET.towerSecret=true;saveSet();const t2=$('#tab-tower');if(t2)t2.style.display='';if(!SET.testFull)testFull()}setShow();$('#setm').style.display='flex'};
 let fpsN=0,fpsT=0;
 function fpsLoop(t){fpsN++;if(t-fpsT>=1000){$('#fpsbox').textContent='FPS '+fpsN;fpsN=0;fpsT=t}requestAnimationFrame(fpsLoop)}
 if(typeof requestAnimationFrame=='function')requestAnimationFrame(fpsLoop);
