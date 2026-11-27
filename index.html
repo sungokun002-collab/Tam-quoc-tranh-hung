@@ -1861,13 +1861,13 @@ let BP={};
 function buildBossNodes(g){const idx=g=='than'?[3,4,5]:[0,1,2];return idx.map(i=>({ch:0,k:i,bossIdx:i,f:BOSSES[i].f,sc:1,tier:['N'],hs:1,boss:true,done:!!(BP[i]&&BP[i].d),stars:(BP[i]&&BP[i].s)||0}))}
 function bossHero(b){const c={n:b.n,i:b.i,f:b.f,r:'SR',a:b.a,d:b.d,t:'X',sp:b.sp,s:b.s,sd:b.sd,sp2:b.sp2,s2:b.s2,sd2:b.sd2,p:b.pl[0],pl:b.pl,pv:0};
  return{H:1,boss:true,hp:b.hp,mhp:b.hp,atk:b.a,def:b.d,c,n:0,fresh:0,buf:0,dbuf:0,stun:0,burn:0,bd:0,wk:0,sh:0,au:1,ad:1,nn:0,dr:0,dd:0,drum:0,flag:1,sa:1,stk:0,lv:30,rage:0,ph2:0,sk:0}}
-function bstage(node){const b=BOSSES[node.bossIdx],mh=Math.round(1100*UP.h);
+function bstage(node){S.mode='boss';const b=BOSSES[node.bossIdx],mh=Math.round(1100*UP.h);
  const cnt={};S.team.forEach(i=>cnt[C[i].f]=(cnt[C[i].f]||0)+1);const mf=Object.keys(cnt).sort((x,y)=>cnt[y]-cnt[x])[0]||'wu';
  const LD=LORDS[S.lord],heroC=C.find(c=>c.n==LD.n)||{n:LD.n,i:'',f:LD.f};
  S.pb=S.pend||0;S.pend=0;S.etree=[];S.elord=null;S.elg=0;S.elordUsed=false;
  S.me={f:mf,hero:{H:1,hp:mh,mhp:mh,def:30,c:heroC},deck:sh(S.team).map(i=>mk(i,1,1)),hand:[],field:[null,null,null,null,null],gy:0};const TMB=treeMod();if(TMB.lordHp){S.me.hero.mhp+=TMB.lordHp;S.me.hero.hp+=TMB.lordHp}S.me.hero.def+=TMB.lordDef;if(treeHas('tao18')){const h=Math.min(200,20*S.team.filter(i=>C[i].f=='wei').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq18')){const h=Math.min(250,25*S.team.filter(i=>C[i].f=='wu').length);S.me.hero.mhp+=h;S.me.hero.hp+=h}if(treeHas('tq12'))S.me.hero.sh=100;if(treeHas('tao27'))S.me.hero.drR=0.9;
  S.en={f:b.f,hero:bossHero(b),deck:[],hand:[],field:[null,null,null,null,null],gy:0};
- for(let n=0;n<3;n++)if(S.me.deck.length)S.me.hand.push(S.me.deck.shift());
+ 
  if(treeHas('lb25'))[...S.me.deck,...S.me.hand].forEach(u=>{u.buf=2;u.bp=1.15});if(treeHas('gcl26'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu'){u.buf=2;u.bp=1.2}});if(treeHas('tao22'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei'){u.buf=2;u.bp=1.1}});if(treeHas('tao16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='wei')u.sh=Math.round(u.mhp*.1)});if(treeHas('gcl16'))[...S.me.deck,...S.me.hand].forEach(u=>{if(u.c.f=='shu')u.sh=Math.round(u.mhp*.1)});
  S.sel=-1;S.cs=0;S.lg=0;S.lordUsed=false;S.tg=0;S.treeUsed={};S.me.rv=0;S.me.wv=0;S.me.sb=0;S.me.s27=0;if(treeHas('lb27')){S.lg=1;S.tg=1}if(treeHas('tk28'))S.lg=Math.max(S.lg,1);if(treeHas('sm18'))S.lg=2;if(treeHas('gcl12'))S.lg=Math.max(S.lg,1);S.aiq=1;S.phase='';tok++;
  $('#w-t').textContent='Thách đấu · '+b.n;$('#log').textContent='';$('#turn').textContent='';draw();$('#cov').style.display='flex';show('war')}
@@ -2082,7 +2082,7 @@ function end(w){ambStop();if(S.mode=='tower'){const f=S.towerFloor||1;let xp=0,g
 function fin(t,p){$('#e-t').textContent=t;$('#e-p').textContent=p;show('end')}
 $('#e-b').onclick=()=>show('menu');
 const SEG=['N','R','N','S','N','R','N','N','R','N','S','N','R','N','SR','N','S','R','N','R'],BSEG=['S','S','S','SR','S','S','S','SR','S','S','S','SR','S','S','S','SR','S','S','S','SR'];
-function reward(){show('rw');const n=S.nodes[S.stage].stars;$('#rw-t').textContent=`Thắng ải: ${'★'.repeat(n)}${'☆'.repeat(3-n)}`+(S.mode=='boss'?' · 👹 Vòng quay Boss: chỉ ra S/SR!':'');
+function reward(){show('rw');const n=(S.nodes[S.stage]||{stars:0}).stars;$('#rw-t').textContent=`Thắng ải: ${'★'.repeat(n)}${'☆'.repeat(3-n)}`+(S.mode=='boss'?' · 👹 Vòng quay Boss: chỉ ra S/SR!':'');
  const w=$('#wheel');w.style.transition='none';w.style.transform='rotate(0deg)';
  const SX0=S.mode=='boss'?BSEG:SEG;w.style.background='conic-gradient('+SX0.map((x,k)=>RC[x]+' '+k*18+'deg '+(k+1)*18+'deg').join(',')+')';
  $('#wres').textContent='';$('#rw-spin').style.display='';$('#rw-next').style.display='none';$('#rw-shop').style.display='none';
