@@ -1696,10 +1696,10 @@ function spec(u,s,o,foes,tg,forceSp){const sp=forceSp||u.c.sp,allies=s.field.fil
  case 'luubi': allies.forEach(a=>{a.sh=(a.sh||0)+Math.round(a.mhp*.3);healU(a,Math.round(a.mhp*.1))});foes.forEach(x=>hit(x,dm(x,.15)));break;
  case 'quanvu': hit(tg,dm(tg,2,.5));u.atk*=1.15;upd(u);break;
  case 'trphi': u.sh=(u.sh||0)+Math.round(u.mhp*.5);u.dbuf=3;u.buf=Math.max(u.buf,2);upd(u);foes.forEach(x=>hit(x,dm(x,.5)));break;
- case 'trieuvan': for(let n=0;n<4;n++){const x=sh(foes.length?foes:[o.hero])[0];hit(x,dm(x,.75))}break;
+ case 'trieuvan': const pk4=fxPick(u,foes.length?foes:[o.hero],4,1);for(let n=0;n<4;n++){const x=pk4[n];hit(x,dm(x,.75))}delete u._fxPick;break;
  case 'gcl': foes.forEach(x=>{x.n=Math.max(0,x.n-2);hit(x,dm(x,.2));upd(x)});break;
  case 'masieu': hit(o.hero,dm(o.hero,1.54));healU(u,Math.round(u.mhp*.12));break;
- case 'hoangtrung': for(let n=0;n<3;n++){const x=sh(foes.length?foes:[o.hero])[0];hit(x,dm(x,1.3));if(!x.H&&x.hp>0&&Math.random()<.5){x.stun=1;upd(x)}}break;
+ case 'hoangtrung': const pk3=fxPick(u,foes.length?foes:[o.hero],3,1);for(let n=0;n<3;n++){const x=pk3[n];hit(x,dm(x,1.3));if(!x.H&&x.hp>0&&Math.random()<.5){x.stun=1;upd(x)}}delete u._fxPick;break;
  case 'tonkien': hit(tg,dm(tg,1.3));if(tg.hp<=0)healU(u,Math.round(u.mhp*.12));break;
  case 'lutuc': allies.forEach(a=>healU(a,Math.round(a.mhp*.09)));foes.forEach(x=>{x.wk=3;upd(x)});break;
  case 'chuthai': hit(tg,dm(tg,1.7));hit(u,Math.round(u.mhp*.1));break;
@@ -1719,8 +1719,8 @@ function spec(u,s,o,foes,tg,forceSp){const sp=forceSp||u.c.sp,allies=s.field.fil
  case 'hacchieu': u.def*=1.25;hit(tg,dm(tg,1));upd(u);break;
  case 'khuongduy': hit(tg,dm(tg,1.3));u.n=u.cd;break;
  case 'bangthong': foes.filter(x=>x.burn>0).forEach(x=>hit(x,dm(x,1)));break;
- case 'nguyen': if(foes.length){const x=sh(foes)[0];hit(x,dm(x,1.5))}hit(o.hero,dm(o.hero,.7));break;
- case 'phapchinh': sh(foes.length?foes:[o.hero]).slice(0,2).forEach(x=>hit(x,dm(x,1.1)));u.sh=(u.sh||0)+Math.round(u.mhp*.2);upd(u);break;
+ case 'nguyen': if(foes.length){const x=fxPick(u,foes,1)[0];if(x)hit(x,dm(x,1.5))}delete u._fxPick;hit(o.hero,dm(o.hero,.7));break;
+ case 'phapchinh': fxPick(u,foes.length?foes:[o.hero],2).forEach(x=>hit(x,dm(x,1.1)));delete u._fxPick;u.sh=(u.sh||0)+Math.round(u.mhp*.2);upd(u);break;
  case 'trchieu': allies.forEach(a=>{a.dr=2;upd(a)});break;
  case 'taophi': u.buf=3;upd(u);break;
  case 'vanuong': {hit(tg,dm(tg,1.5));if(tg.hp<=0&&!tg.H){const k=o.field.indexOf(tg);const nb=[k-1,k+1].map(j=>o.field[j]).find(x=>x&&x.hp>0);if(nb)hit(nb,dm(nb,1))}break}
@@ -1731,7 +1731,7 @@ function spec(u,s,o,foes,tg,forceSp){const sp=forceSp||u.c.sp,allies=s.field.fil
  case 'xa': hit(tg,dm(tg,1));break;
  case 'none': break;
  case 'bVC': foes.forEach(x=>{hit(x,dm(x,1.6));if(x.hp>0&&Math.random()<.5){x.stun=1;upd(x)}});break;
- case 'bQB': {let g=0;sh(foes).slice(0,3).forEach(x=>{const d=dm(x,2.2);hit(x,d);g+=d});healU(u,Math.round(g*.3));break}
+ case 'bQB': {let g=0;fxPick(u,foes,3).forEach(x=>{const d=dm(x,2.2);hit(x,d);g+=d});delete u._fxPick;healU(u,Math.round(g*.3));break}
  case 'bTD': foes.forEach(x=>{hit(x,dm(x,1));if(x.hp>0){x.burn=3;x.bd=Math.round(ea(u)*.2);upd(x)}});break;
  case 'tTC': foes.forEach(x=>{hit(x,dm(x,.4));if(x.hp>0){x.stun=1;upd(x)}});break;
  case 'tLB': foes.forEach(x=>{x.wk=2;x.wkp=.8;upd(x)});healU(u,Math.round(u.mhp*.1));break;
@@ -1762,8 +1762,8 @@ function skill(u,s,o,foes,tg){const k=u.c.t;if(k=='X'){spec(u,s,o,foes,tg);retur
  else if(k=='A'){foes.forEach(t=>hit(t,dmg(u,t,1)));hit(o.hero,dmg(u,o.hero,.35))}
  else if(k=='P')hit(tg,dmg(u,tg,1.8,.6));
  else if(k=='T'){hit(tg,dmg(u,tg,1.2));if(!tg.H&&tg.hp>0)tg.stun=1}
- else if(k=='F')(foes.length?sh(foes).slice(0,2):[o.hero]).forEach(t=>{hit(t,dmg(u,t,.8));if(!t.H&&t.hp>0){t.burn=3;t.bd=Math.round(ea(u)*.5)}});
- else if(k=='K'){const pool=foes.length?foes:[o.hero];sh(pool).slice(0,2).forEach(t=>hit(t,dmg(u,t,1)))}
+ else if(k=='F'){const fp=foes.length?fxPick(u,foes,2):[o.hero];fp.forEach(t=>{hit(t,dmg(u,t,.8));if(!t.H&&t.hp>0){t.burn=3;t.bd=Math.round(ea(u)*.5)}});delete u._fxPick}
+ else if(k=='K'){const pool=foes.length?foes:[o.hero];fxPick(u,pool,2).forEach(t=>hit(t,dmg(u,t,1)));delete u._fxPick}
   else if(k=='R'){const a=s.field.filter(x=>x&&x.hp>0).sort((p,q)=>p.hp/p.mhp-q.hp/q.mhp)[0];if(a){a.sh=(a.sh||0)+Math.round(a.mhp*.3);fl(a,'🛡',1);upd(a)}}
   else if(k=='E'){foes.forEach(t=>{t.wk=3;upd(t)})}
   else{const al=s.field.filter(x=>x&&x.hp>0);
@@ -2094,7 +2094,6 @@ async function elemFx(u,list,em){
   const f=$('.field');if(!f)return;
   const fr=f.getBoundingClientRect();
   const tgts=(list||[]).filter(x=>x&&x.el);
-  if(!tgts.length&&u.el)tgts.push(u);
   if(!tgts.length)return;
   const overs=[];
   for(const t of tgts){
@@ -2140,8 +2139,56 @@ async function elemFx(u,list,em){
   }
   setTimeout(()=>{overs.forEach(o=>o.ex.remove())},2400);
 }
+function fxPick(u,pool,n,rep){let p=u._fxPick;if(!p||p.length!==n||!p.every(t=>t&&t.hp>0&&pool.includes(t))){if(!pool.length)return[];if(rep){p=[];for(let i=0;i<n;i++)p.push(pool[Math.random()*pool.length|0])}else p=sh(pool).slice(0,n);u._fxPick=p}return p}
+const SPC_TGT={quyen:'A',sach:'TU',chudu:'F',luctun:'AX',camninh:'FH',thaisu:'LH',lamong:'A',hadon:'TU',taotao:'FU',simay:'FU',trlieu:'F',tuhoang:'T',dienvi:'TL',hochu:'TU',dangai:'F',vuongsong:'TN',luubi:'AFo',quanvu:'TU',trphi:'FU',trieuvan:'F4R',gcl:'F',masieu:'LHU',hoangtrung:'F3R',tonkien:'T',lutuc:'AFo',chuthai:'TU',hoangcai:'TU',langthong:'FLw',lukhang:'AF',hauyen:'TU',trcap:'T',taonhan:'U',taohong:'UL',quachgia:'FL',giahu:'FMax',chunghoi:'T',simasu:'FU',bangduc:'TUL',simachieu:'AF',hacchieu:'TU',khuongduy:'TU',bangthong:'FB',nguyen:'LHF',phapchinh:'F2U',trchieu:'A',taophi:'U',vanuong:'T',tuthu:'AH',maluong:'FMaxN',manhhoach:'A',vuonta:'A3',xa:'T',none:'',nghiemnhan:'T',trinhpho:'A',handang:'F',dinhphung:'T',chutri:'T',phanchuong:'T',hate:'TAX',chuhoan:'TU',tomau:'ULFo',chauthuong:'T',quanbinh:'TU',quanhung:'AFo',truongbao:'TN',lieuhoa:'A',truongduc:'T',trandao:'TL',bVC:'F',bQB:'F3U',bTD:'F',tTC:'F',tLB:'FU',tTQ:'F',mP2A:'FLwR',mP2B:'FU',tP2A:'F',tP2B:'U'};
+function specList(c,u,s,o,foes,tg){const al=s.field.filter(x=>x&&x.hp>0),lh=s.hero,oh=o.hero,idx=o.field.indexOf(tg),low=a=>a.slice().sort((p,q)=>p.hp/p.mhp-q.hp/q.mhp);
+switch(c){
+case 'U':return[u];
+case 'A':return al;
+case 'AX':return al.filter(a=>a!==u);
+case 'AF':return al.filter(a=>a.c.f==u.c.f);
+case 'A3':return low(al).slice(0,3);
+case 'AH':{const a=al.slice().sort((p,q)=>q.atk-p.atk)[0];return a?[a]:[]}
+case 'T':return[tg];
+case 'TU':return[tg,u];
+case 'TL':return[tg,lh];
+case 'TUL':return[tg,u,lh];
+case 'TAX':return[tg,...al.filter(a=>a!==u)];
+case 'F':return foes;
+case 'FU':return[...foes,u];
+case 'FL':return[...foes,oh];
+case 'FH':return foes.filter(x=>x.hp/x.mhp<.5);
+case 'FB':return foes.filter(x=>x.burn>0);
+case 'FLw':{const a=foes.slice().sort((p,q)=>p.hp-q.hp)[0];return a?[a]:[]}
+case 'FLwR':{const a=low(foes)[0];return a?[a]:[]}
+case 'FMax':{const a=foes.slice().sort((p,q)=>q.mhp-p.mhp)[0];return a?[a]:[]}
+case 'FMaxN':{const a=foes.slice().sort((p,q)=>(q.n||0)-(p.n||0))[0];return a?[a]:[]}
+case 'F2U':return[...fxPick(u,foes.length?foes:[oh],2),u];
+case 'F3U':return[...fxPick(u,foes,3),u];
+case 'F3R':return fxPick(u,foes.length?foes:[oh],3,1);
+case 'F4R':return fxPick(u,foes.length?foes:[oh],4,1);
+case 'LHF':{const x=fxPick(u,foes,1)[0];return x?[x,oh]:[oh]}
+case 'TN':{const ts=[tg];if(idx>=0)[idx-1,idx+1].forEach(j=>{const x=o.field[j];if(x&&x.hp>0)ts.push(x)});return ts}
+case 'LH':return[oh];
+case 'LHU':return[oh,u];
+case 'AFo':return[...al,...foes];
+case 'ULFo':return[u,lh,...foes];
+case 'UL':return[u,lh];
+default:return[]}}
+function skillList(u,s,o,foes,tg){const al=s.field.filter(x=>x&&x.hp>0),k=skillKind(u);
+if(u.c.t!=='X'){
+if(k=='H')return[...al,s.hero];
+if(k=='B'||k=='D')return al;
+if(k=='A')return[...foes,o.hero];
+if(k=='F')return foes.length?fxPick(u,foes,2):[o.hero];
+if(k=='K'){const pool=foes.length?foes:[o.hero];return fxPick(u,pool,2)}
+if(k=='E')return foes;
+if(k=='R'){const a=al.slice().sort((p,q)=>p.hp/p.mhp-q.hp/q.mhp)[0];return a?[a]:[]}
+return[tg]}
+if(u.c.sp=='none')return[];
+const c=SPC_TGT[u.c.sp];return c===undefined?[tg]:specList(c,u,s,o,foes,tg)}
 async function skillFx(u,s,o,foes,tg){const k=skillKind(u),allies=s.field.filter(x=>x&&x.hp>0);
- const list=k=='H'?[...allies,s.hero]:(k=='B'||k=='D')?allies:k=='A'?[...foes,o.hero]:k=='F'?(foes.length?foes.slice(0,2):[o.hero]):k=='E'?foes:k=='R'?allies.slice(0,1):k=='K'?foes.slice(0,2):[tg];
+ const list=skillList(u,s,o,foes,tg);
  const big=u.c.r=='SR'||u.c.r=='S',em=elemOf(u);
  banner(u);u.el.classList.add('cast');sfx('charge');
  if(SET.fx!='low'&&u.el){const nm=document.createElement('span');nm.className='skname';nm.textContent='«'+u.c.s+'»';nm.style.setProperty('--c',em.c);nm.style.setProperty('--c2',em.c2||em.c);u.el.appendChild(nm);setTimeout(()=>nm.remove(),1900);
